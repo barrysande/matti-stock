@@ -1,0 +1,52 @@
+name: matti-stock
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: matti_stock_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: matti_stock_user
+      POSTGRES_PASSWORD: matti_stock_password
+      POSTGRES_DB: matti_stock
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - matti_stock_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matti_stock_user -d matti_stock"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: matti_stock_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mattistock.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "127.0.0.1:5051:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - matti_stock_pgadmin_data:/var/lib/pgadmin
+
+  redis:
+    image: redis:7-alpine
+    container_name: matti_stock_redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  matti_stock_postgres_data:
+  matti_stock_pgadmin_data:
