@@ -9,9 +9,11 @@ export type ScannedRoutes = {
     'sessions.login': { paramsTuple?: []; params?: {} }
     'password_resets.request': { paramsTuple?: []; params?: {} }
     'password_resets.reset': { paramsTuple?: []; params?: {} }
+    'password_setups.store': { paramsTuple?: []; params?: {} }
     'sessions.logout': { paramsTuple?: []; params?: {} }
     'sessions.me': { paramsTuple?: []; params?: {} }
     'sessions.change_password': { paramsTuple?: []; params?: {} }
+    'accounts.store': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -27,7 +29,9 @@ export type ScannedRoutes = {
     'sessions.login': { paramsTuple?: []; params?: {} }
     'password_resets.request': { paramsTuple?: []; params?: {} }
     'password_resets.reset': { paramsTuple?: []; params?: {} }
+    'password_setups.store': { paramsTuple?: []; params?: {} }
     'sessions.logout': { paramsTuple?: []; params?: {} }
+    'accounts.store': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }

@@ -1,5 +1,4 @@
 import app from '@adonisjs/core/services/app'
-import hash from '@adonisjs/core/services/hash'
 import db from '@adonisjs/lucid/services/db'
 import mail from '@adonisjs/mail/services/main'
 import { DateTime } from 'luxon'
@@ -14,7 +13,8 @@ import RoleVersion from '#models/role_version'
 import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
 import DuplicateException from '#exceptions/duplicate_exception'
-import MasterAdminCredentialsNotification from '#mails/master_admin_credentials_notification'
+import AccountPasswordSetupMail from '#mails/account_password_setup_mail'
+import PasswordResetChallenge from '#models/password_reset_challenge'
 import MasterAdminBootstrapService from '#services/master_admin_bootstrap_service'
 
 const data = {
@@ -87,7 +87,9 @@ async function cleanupBootstrapTables() {
 test.group('Master Admin bootstrap service', (group) => {
   group.each.setup(cleanupBootstrapTables)
 
-  test('creates the scoped account and audit event atomically', async ({ assert }) => {
+  test('creates the scoped account, setup challenge, and audit history atomically', async ({
+    assert,
+  }) => {
     await seedAccessRegistry()
     const service = await app.container.make(MasterAdminBootstrapService)
     const result = await service.run(data)
@@ -96,19 +98,28 @@ test.group('Master Admin bootstrap service', (group) => {
     const account = await UserAccount.findByOrFail('email', data.masterEmail)
     const person = await Person.findOrFail(account.personId)
     const assignment = await RoleAssignment.findByOrFail('accountId', account.id)
+    const challenge = await PasswordResetChallenge.findByOrFail('accountId', account.id)
     const event = await AccessEvent.findByOrFail('eventType', 'MASTER_ADMIN_BOOTSTRAPPED')
+    const setupRequested = await AccessEvent.findByOrFail('eventType', 'PASSWORD_SETUP_REQUESTED')
 
     assert.equal(person.displayName, data.masterName)
     assert.equal(person.primaryEmail, data.masterEmail)
+    assert.isNull(person.primaryEmailVerifiedAt)
     assert.equal(account.status, 'INVITED')
+    assert.isNotNull(account.password)
+    assert.equal(Number(account.passwordResetVersion), 1)
+    assert.equal(challenge.purpose, 'INITIAL_SETUP')
     assert.equal(assignment.scopeOrgUnitId, institute.id)
     assert.equal(assignment.scopeMode, 'INCLUDE_DESCENDANTS')
     assert.isNull(assignment.expiresAt)
     assert.equal(event.targetId, account.id)
+    assert.equal(setupRequested.targetId, account.id)
+    assert.notInclude(JSON.stringify(event.metadata), 'password')
+    assert.notInclude(JSON.stringify(setupRequested.metadata), 'password')
     assert.equal(result.account.id, account.id)
     assert.equal(result.person.id, person.id)
     assert.equal(result.assignment.id, assignment.id)
-    assert.isTrue(await hash.use('argon').verify(account.password, result.password))
+    assert.equal(result.challenge.id, challenge.id)
   })
 
   test('rejects an archived Master Admin role before creating bootstrap records', async ({
@@ -149,25 +160,21 @@ test.group('Master Admin bootstrap service', (group) => {
     assert.equal(await countRows('people'), 1)
     assert.equal(await countRows('user_accounts'), 1)
     assert.equal(await countRows('role_assignments'), 1)
-    assert.equal(await countRows('access_events'), 1)
+    assert.equal(await countRows('access_events'), 2)
   })
 
-  test('builds a credentials email without contacting SMTP', async () => {
+  test('builds a password setup email without contacting SMTP', async () => {
     using fake = mail.fake()
 
     await mail.send(
-      new MasterAdminCredentialsNotification(
+      new AccountPasswordSetupMail(
         { name: data.masterName, email: data.masterEmail },
-        'generated-password',
-        'http://localhost:5173/login'
+        'http://localhost:5173/set-password?token=encrypted'
       )
     )
 
-    fake.mails.assertSent(MasterAdminCredentialsNotification, ({ message }) => {
-      return (
-        message.hasTo(data.masterEmail) &&
-        message.hasSubject('Your Matti Stock Master Admin account')
-      )
+    fake.mails.assertSent(AccountPasswordSetupMail, ({ message }) => {
+      return message.hasTo(data.masterEmail) && message.hasSubject('Set your Matti Stock password')
     })
   })
 })

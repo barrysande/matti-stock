@@ -59,3 +59,12 @@ export const passwordResetLimiter = limiter.define('password_reset', (ctx) => {
     .blockFor('30 minutes')
     .usingKey(`password_reset_${fingerprint}`)
 })
+
+export const passwordSetupLimiter = limiter.define('password_setup', (ctx) => {
+  const fingerprint = tokenFingerprint(ctx.request.input('token'))
+  return limiter
+    .allowRequests(5)
+    .every('15 minutes')
+    .blockFor('30 minutes')
+    .usingKey(`password_setup_${fingerprint}`)
+})

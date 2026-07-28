@@ -1,7 +1,12 @@
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
 import { middleware } from '#start/kernel'
-import { loginLimiter, passwordResetLimiter, passwordResetRequestLimiter } from '#start/limiter'
+import {
+  loginLimiter,
+  passwordResetLimiter,
+  passwordResetRequestLimiter,
+  passwordSetupLimiter,
+} from '#start/limiter'
 
 router.get('/health/live', [controllers.HealthChecks, 'live'])
 router.get('/health/ready', [controllers.HealthChecks, 'ready']).use(middleware.monitoringAuth())
@@ -13,6 +18,7 @@ router
       .post('/password/forgot', [controllers.PasswordResets, 'request'])
       .use(passwordResetRequestLimiter)
     router.post('/password/reset', [controllers.PasswordResets, 'reset']).use(passwordResetLimiter)
+    router.post('/password/set', [controllers.PasswordSetups, 'store']).use(passwordSetupLimiter)
 
     router
       .group(() => {
@@ -23,3 +29,5 @@ router
       .use(middleware.auth({ guards: ['web'] }))
   })
   .prefix('/auth')
+
+router.post('/accounts', [controllers.Accounts, 'store']).use(middleware.auth({ guards: ['web'] }))

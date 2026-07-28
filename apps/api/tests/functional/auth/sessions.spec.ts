@@ -206,7 +206,7 @@ test.group('Authentication sessions', (group) => {
 
     await account.refresh()
     assert.equal(Number(account.credentialVersion), 1)
-    assert.isTrue(await hash.use('argon').verify(account.password, 'Current-password-123'))
+    assert.isTrue(await hash.use('argon').verify(account.password!, 'Current-password-123'))
     assert.isNotNull(await AccessEvent.findBy('eventType', 'PASSWORD_CHANGE_REJECTED'))
   })
 
@@ -230,7 +230,7 @@ test.group('Authentication sessions', (group) => {
     await account.refresh()
     assert.equal(Number(account.credentialVersion), 2)
     assert.equal(Number(account.passwordResetVersion), 1)
-    assert.isTrue(await hash.use('argon').verify(account.password, 'Replacement-password-123'))
+    assert.isTrue(await hash.use('argon').verify(account.password!, 'Replacement-password-123'))
     assert.isNotNull(await AccessEvent.findBy('eventType', 'PASSWORD_CHANGED'))
   })
 

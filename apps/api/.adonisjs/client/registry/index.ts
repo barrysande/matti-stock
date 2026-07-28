@@ -36,6 +36,12 @@ const routes = {
     tokens: [{"old":"/auth/password/reset","type":0,"val":"auth","end":""},{"old":"/auth/password/reset","type":0,"val":"password","end":""},{"old":"/auth/password/reset","type":0,"val":"reset","end":""}],
     types: placeholder as Registry['password_resets.reset']['types'],
   },
+  'password_setups.store': {
+    methods: ["POST"],
+    pattern: '/auth/password/set',
+    tokens: [{"old":"/auth/password/set","type":0,"val":"auth","end":""},{"old":"/auth/password/set","type":0,"val":"password","end":""},{"old":"/auth/password/set","type":0,"val":"set","end":""}],
+    types: placeholder as Registry['password_setups.store']['types'],
+  },
   'sessions.logout': {
     methods: ["POST"],
     pattern: '/auth/logout',
@@ -53,6 +59,12 @@ const routes = {
     pattern: '/auth/password',
     tokens: [{"old":"/auth/password","type":0,"val":"auth","end":""},{"old":"/auth/password","type":0,"val":"password","end":""}],
     types: placeholder as Registry['sessions.change_password']['types'],
+  },
+  'accounts.store': {
+    methods: ["POST"],
+    pattern: '/accounts',
+    tokens: [{"old":"/accounts","type":0,"val":"accounts","end":""}],
+    types: placeholder as Registry['accounts.store']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 

@@ -67,6 +67,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_resets_controller').default['reset']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'password_setups.store': {
+    methods: ["POST"]
+    pattern: '/auth/password/set'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/session').setPasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/session').setPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_setups_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_setups_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'sessions.logout': {
     methods: ["POST"]
     pattern: '/auth/logout'
@@ -101,6 +113,18 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/session').changePasswordValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['changePassword']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['changePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'accounts.store': {
+    methods: ["POST"]
+    pattern: '/accounts'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').createAccountValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').createAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
 }

@@ -16,4 +16,10 @@ export interface ApiDefinition {
     request: typeof routes['password_resets.request']
     reset: typeof routes['password_resets.reset']
   }
+  passwordSetups: {
+    store: typeof routes['password_setups.store']
+  }
+  accounts: {
+    store: typeof routes['accounts.store']
+  }
 }

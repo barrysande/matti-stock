@@ -1,8 +1,7 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import app from '@adonisjs/core/services/app'
-import mail from '@adonisjs/mail/services/main'
 import env from '#start/env'
-import MasterAdminCredentialsNotification from '#mails/master_admin_credentials_notification'
+import SendPasswordCredentialEmail from '#jobs/send_password_credential_email'
 import MasterAdminBootstrapService from '#services/master_admin_bootstrap_service'
 import { masterAdminBootstrapValidator } from '#validators/master_admin'
 
@@ -15,16 +14,11 @@ export default class MasterAdminSeeder extends BaseSeeder {
     })
     const bootstrap = await app.container.make(MasterAdminBootstrapService)
     const result = await bootstrap.run(data)
-    const loginUrl = new URL('/login', env.get('WEB_URL')).toString()
 
-    await mail.send(
-      new MasterAdminCredentialsNotification(
-        { name: data.masterName, email: data.masterEmail },
-        result.password,
-        loginUrl
-      )
+    await SendPasswordCredentialEmail.dispatch({ challengeId: result.challenge.id })
+
+    process.stdout.write(
+      `Master Admin created. A password-setting link was queued for ${data.masterEmail}.\n`
     )
-
-    process.stdout.write(`Master Admin created. Credentials were sent to ${data.masterEmail}.\n`)
   }
 }

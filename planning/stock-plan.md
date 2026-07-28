@@ -243,7 +243,7 @@ Deliver:
 
 - people, organizational actors, user accounts, and unique identity rules;
 - deployment-created Master Admin;
-- login, logout, generated-password reset, suspension/revocation, session
+- login, logout, password setup and reset, suspension/revocation, session
   invalidation, and login rate limiting;
 - institute, department, optional sub-department, and organizational-scope
   management;

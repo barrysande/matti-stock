@@ -12,6 +12,7 @@ export default class extends BaseSchema {
         .references('id')
         .inTable('user_accounts')
         .onDelete('RESTRICT')
+      table.string('purpose', 32).notNullable().checkIn(['INITIAL_SETUP', 'RESET'])
       table.bigInteger('reset_version').notNullable()
       table.timestamp('expires_at', { useTz: true }).notNullable()
       table.specificType('request_ip', 'inet').nullable()

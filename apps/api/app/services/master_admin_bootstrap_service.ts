@@ -11,6 +11,7 @@ import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
 import GeneratedPasswordService from '#services/generated_password_service'
+import PasswordCredentialService from '#services/password_credential_service'
 import type { masterAdminBootstrapValidator } from '#validators/master_admin'
 import type { Infer } from '@vinejs/vine/types'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -23,7 +24,8 @@ const DUPLICATE_MESSAGE = 'The Master Admin bootstrap identity already exists'
 export default class MasterAdminBootstrapService {
   constructor(
     private accessEvents: AccessEventService,
-    private passwords: GeneratedPasswordService
+    private passwords: GeneratedPasswordService,
+    private passwordCredentials: PasswordCredentialService
   ) {}
 
   private async findMasterRoleVersion(trx: TransactionClientContract) {
@@ -81,7 +83,7 @@ export default class MasterAdminBootstrapService {
     return db.transaction(async (trx) => {
       const roleVersion = await this.findMasterRoleVersion(trx)
       const institute = await this.findOrCreateInstitute(trx, data.instituteName)
-      const password = this.passwords.generate()
+      const temporaryPassword = this.passwords.generate()
       const now = DateTime.now()
 
       const person = await Person.create(
@@ -89,7 +91,7 @@ export default class MasterAdminBootstrapService {
           displayName: data.masterName,
           staffNumber: null,
           primaryEmail: data.masterEmail,
-          primaryEmailVerifiedAt: now,
+          primaryEmailVerifiedAt: null,
         },
         { client: trx }
       )
@@ -97,13 +99,15 @@ export default class MasterAdminBootstrapService {
         {
           personId: person.id,
           email: data.masterEmail,
-          password,
+          password: temporaryPassword,
           status: 'INVITED',
           credentialVersion: 1,
           passwordResetVersion: 0,
         },
         { client: trx }
       )
+
+      const challenge = await this.passwordCredentials.issueInitialSetup(account, {}, trx)
 
       const assignment = await RoleAssignment.create(
         {
@@ -130,12 +134,14 @@ export default class MasterAdminBootstrapService {
             personId: person.id,
             instituteId: institute.id,
             roleVersionId: roleVersion.id,
+            challengeId: challenge.id,
+            challengePurpose: challenge.purpose,
           },
         },
         trx
       )
 
-      return { account, assignment, password, person }
+      return { account, assignment, challenge, person }
     })
   }
 

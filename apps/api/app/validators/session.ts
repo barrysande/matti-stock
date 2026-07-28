@@ -16,6 +16,11 @@ export const resetPasswordValidator = vine.create({
   password: password(),
 })
 
+export const setPasswordValidator = vine.create({
+  token: vine.string().trim().minLength(1),
+  password: password(),
+})
+
 export const changePasswordValidator = vine.create({
   currentPassword: vine.string().minLength(1).maxLength(25),
   password: password(),

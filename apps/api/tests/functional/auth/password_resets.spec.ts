@@ -10,7 +10,7 @@ import PasswordResetChallenge from '#models/password_reset_challenge'
 import PasswordResetRedemption from '#models/password_reset_redemption'
 import Person from '#models/person'
 import UserAccount from '#models/user_account'
-import PasswordResetService from '#services/password_reset_service'
+import PasswordCredentialService from '#services/password_credential_service'
 
 const GENERIC_RESET_MESSAGE = 'If an account uses that email, a password reset link will be sent.'
 
@@ -55,7 +55,7 @@ async function cleanupAccountTables() {
 }
 
 async function issueChallenge(account: UserAccount) {
-  const service = await app.container.make(PasswordResetService)
+  const service = await app.container.make(PasswordCredentialService)
   const challenge = await service.request(
     { email: account.email },
     { ip: '127.0.0.1', requestId: 'password-reset-test' }
@@ -95,6 +95,7 @@ test.group('Password resets', (group) => {
     const challenge = await PasswordResetChallenge.findByOrFail('accountId', account.id)
     fake.assertPushedCount(1, { queue: 'emails' })
     assert.isNotNull(challenge.id)
+    assert.equal(challenge.purpose, 'RESET')
     assert.isNotNull(await AccessEvent.findBy('eventType', 'PASSWORD_RESET_REQUESTED'))
   })
 
@@ -169,7 +170,7 @@ test.group('Password resets', (group) => {
     assert.equal(redemption.accountId, account.id)
     assert.equal(Number(account.credentialVersion), 2)
     assert.equal(Number(account.passwordResetVersion), 2)
-    assert.isTrue(await hash.use('argon').verify(account.password, 'Replacement-password-123'))
+    assert.isTrue(await hash.use('argon').verify(account.password!, 'Replacement-password-123'))
     assert.isNotNull(await AccessEvent.findBy('eventType', 'PASSWORD_RESET_COMPLETED'))
   })
 

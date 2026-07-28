@@ -1,4 +1,5 @@
 export type AccountStatus = 'INVITED' | 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED'
+export type PasswordChallengePurpose = 'INITIAL_SETUP' | 'RESET'
 
 export interface RequestAuditContext {
   ip?: string
@@ -17,7 +18,8 @@ export interface RecordAccessEvent {
   metadata?: Record<string, unknown>
 }
 
-export interface PasswordResetToken {
+export interface PasswordCredentialToken {
   challengeId: string
+  purpose: PasswordChallengePurpose
   resetVersion: number
 }

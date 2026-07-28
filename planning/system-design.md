@@ -4452,18 +4452,27 @@ rate-limit repeated attempts and audit relevant suspicious failures.
 Account recovery shall use a short-lived, single-use challenge. Successful
 password reset shall invalidate relevant existing sessions.
 
-V1 shall generate a strong password of 8–25 characters whenever Master Admin
-creates an account or performs an administrative password reset. The generated
-password shall be communicated to the account holder through an approved
-official channel and shall not remain recoverable in readable form from the
-system.
+When Master Admin creates an interactive account, the system shall generate a
+strong temporary password that is not shown to the administrator or account
+holder and persist only its hash. The account holder shall replace it with
+their chosen 8–25 character password through a short-lived, single-use setup
+challenge sent to their official email address. The setup challenge shall be
+purpose-bound, supersedable, and recorded with the account-creation audit
+history. Setting the chosen password shall verify that official email address.
+Password hashes shall be the only durable password representation.
 
-V1 shall not force a password change at first login or impose scheduled
-password expiry. If credentials are forgotten or suspected to be compromised,
-the account holder shall report the issue or use the authorized recovery
-process. Master Admin may suspend or revoke the account, or issue a newly
-generated password through an audited reset. A successful reset shall
-invalidate the previous password and relevant existing sessions.
+Initial setup and later password recovery shall share the same challenge and
+redemption mechanism while retaining distinct purposes, endpoints, audit
+events, and email content. Durable queue payloads shall contain only the
+challenge identifier, never a readable password or recovery token. An account
+whose official email is still unverified may request a replacement
+initial-setup link through the neutral recovery endpoint.
+
+V1 shall not impose scheduled password expiry. If credentials are forgotten or
+suspected to be compromised, the account holder shall use the authorized
+recovery process. Master Admin may suspend or revoke the account. Administrative
+password reset remains a separate, deferred workflow. A successful recovery
+reset shall invalidate the previous password and relevant existing sessions.
 
 V1 shall not require or implement application multi-factor authentication.
 The institute may reconsider it later if the risk, available devices, and
@@ -5610,12 +5619,12 @@ unrecorded ongoing access. Support shall never use the ICT officer's account or
 private key. The institute shall own the VPS, domain, storage,
 deployment-platform, SMTP, and recovery credentials.
 
-Application access shall use the generated-password, recovery, rate-limiting,
+Application access shall use the password-setup, recovery, rate-limiting,
 account-revocation, and session-invalidation controls established in Area 10 /
-DEC-007. V1 shall not require MFA, a forced first-login password change, or
-scheduled password expiry. Business-risk controls shall remain in the
-established scoped permissions, independent approvals, recipient confirmations,
-append-only audit history, and physical stock verification.
+DEC-007. V1 shall not require MFA or scheduled password expiry. Business-risk
+controls shall remain in the established scoped permissions, independent
+approvals, recipient confirmations, append-only audit history, and physical
+stock verification.
 
 ##### Reason
 

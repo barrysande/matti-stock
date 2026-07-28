@@ -67,7 +67,7 @@ export class OrganizationalUnitSchema extends BaseModel {
 }
 
 export class PasswordResetChallengeSchema extends BaseModel {
-  static $columns = ['accountId', 'createdAt', 'expiresAt', 'id', 'requestId', 'requestIp', 'resetVersion'] as const
+  static $columns = ['accountId', 'createdAt', 'expiresAt', 'id', 'purpose', 'requestId', 'requestIp', 'resetVersion'] as const
   $columns = PasswordResetChallengeSchema.$columns
   @column()
   declare accountId: string
@@ -77,6 +77,8 @@ export class PasswordResetChallengeSchema extends BaseModel {
   declare expiresAt: DateTime
   @column({ isPrimary: true })
   declare id: string
+  @column()
+  declare purpose: string
   @column()
   declare requestId: string | null
   @column()

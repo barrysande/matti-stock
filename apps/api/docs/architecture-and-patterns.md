@@ -212,24 +212,29 @@ Keeping the web runtime separate preserves the accepted BFF boundary.
 permission memberships are created by the access-registry seeder. The Master
 Admin bootstrap service does not create or reconcile that registry. It requires
 the active `MASTER_ADMIN` role version 1 with `access.root`, then atomically
-creates the institute root when absent, the verified person and invited
-account, the institution-wide role assignment, and its access audit event.
+creates the institute root when absent, the unverified person and invited
+account with an undisclosed generated temporary credential, the
+institution-wide role assignment, its initial password-setup challenge, and
+its access audit event.
 
 The bootstrap is a one-shot deployment action. A duplicate identity is an
 explicit conflict rather than a signal to reconcile mutable names, role
 versions, assignments, or account state.
 
 The deployment seeder validates its environment input, resolves the bootstrap
-service through the AdonisJS container, and sends the generated password
-synchronously through SMTP after the database transaction commits. This
-bootstrap message is the narrow exception to the normal queued-email rule:
-placing a readable temporary password in a durable queue payload is forbidden.
+service through the AdonisJS container, and queues password-setup delivery only
+after the database transaction commits. The durable job payload contains only
+the challenge identifier. The worker resolves the current challenge, account,
+and person, creates the purpose-bound token immediately before delivery, and
+uses the shared mail shell.
 
 **Why.** Registry ownership remains independent from the identity that receives
 the registry's root role. One-shot creation avoids brittle pseudo-idempotency
 after legitimate organizational, identity, or role evolution. Synchronous
-delivery keeps the temporary secret out of PostgreSQL while using the same SMTP
-boundary as production email.
+delivery of the generated credential is unnecessary because the account holder
+replaces it through the setup challenge. Queueing the challenge identifier puts
+slow delivery work on the worker from the start without persisting a
+recoverable password or token.
 
 ## D15 — Bouncer policies own request authorization
 
@@ -270,3 +275,45 @@ as new workflows are added, while HTML and plain-text alternatives preserve
 usability across modern, restrictive, and accessibility-oriented mail clients.
 Keeping dynamic data escaped and message-specific content narrow protects the
 security boundary established for notification email.
+
+## D17 — Account writes return messages and holders set their own passwords
+
+**Decision.** Master Admin account creation is an authenticated
+`POST /accounts` write. The controller authorizes
+`AccessPolicy.createAccount` through the request's Bouncer instance, validates
+the request with Vine, and passes the inferred payload to the account
+administration service. PostgreSQL owns email and staff-number uniqueness, and
+constraint code `23505` is translated through `DuplicateException`.
+
+The service atomically creates the person, an `INVITED` account with an
+undisclosed system-generated temporary password, an `INITIAL_SETUP` challenge,
+and append-only creation/setup audit events. Lucid hashes the temporary password
+before persistence; the readable value is never returned, logged, audited,
+mailed, or queued. Only after commit does the controller enqueue credential
+delivery. Queue-dispatch failure does not roll back or hide the committed
+account; the message-only `201` response reports whether delivery was queued,
+and the neutral recovery route can issue a superseding setup challenge.
+
+Initial setup and password reset share one challenge/redemption service and
+tables, differentiated by a required purpose. Tokens are one-hour,
+purpose-bound, supersedable, and single-use. Initial setup hashes the
+holder-chosen password, verifies the person's primary email, increments the
+credential and challenge versions, records `ACCOUNT_PASSWORD_SET`, and creates
+no session. First successful login still performs `INVITED -> ACTIVE`.
+Setup-pending versus reset is determined by the person's official-email
+verification state, since every local account has a non-null AuthFinder
+credential hash.
+
+Read controllers use Transformers. Write controllers return only a concise
+message because the client redirects or invalidates page data after a
+successful mutation and reloads authoritative state. Write responses do not
+return newly written resources or readable credentials.
+
+**Why.** An undisclosed high-entropy placeholder keeps every local account
+compatible with AuthFinder without giving the administrator a usable
+credential. Holder-chosen credentials avoid administrator knowledge and
+durable readable secrets while preserving an official-channel onboarding
+boundary. Transactional challenge creation prevents partial identities, and
+post-commit queueing prevents email latency from extending the database
+transaction. Message-only writes avoid returning stale duplicate state that
+the next page load will immediately fetch again.

@@ -181,7 +181,11 @@ The system shall:
 
 - create the first Master Admin during deployment;
 - allow Master Admin to create one named account per person;
-- generate strong 8–25 character passwords and store only password hashes;
+- generate an undisclosed strong temporary password for each interactive
+  account and persist only its hash;
+- let each account holder replace that temporary credential with their chosen
+  8–25 character password through a short-lived, single-use link sent to their
+  official email address;
 - support login, logout, recovery/reset, suspension, revocation, and session
   invalidation;
 - optionally enforce an agreed institutional email domain;
