@@ -15,10 +15,10 @@
 		<p class="font-heading text-sm font-semibold tracking-[0.18em] text-primary uppercase">
 			Matti Stock
 		</p>
-		<h1 class="mt-3 font-heading text-3xl font-semibold tracking-tight">Foundation ready</h1>
+		<h1 class="mt-3 font-heading text-3xl font-semibold tracking-tight">Access established</h1>
 		<p class="mt-3 text-sm leading-6 text-muted-foreground">
-			The responsive application shell is running. This typed request confirms that SvelteKit can
-			reach the AdonisJS API through the server-only BFF boundary.
+			You are signed in through the session-authenticated SvelteKit boundary. Identity and access
+			administration will arrive in the next Week 2 slice.
 		</p>
 
 		<div class="mt-6 flex items-center gap-3 rounded-2xl bg-muted px-4 py-3">

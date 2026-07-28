@@ -22,6 +22,7 @@ export default await Env.create(new URL('../', import.meta.url), {
   APP_NAME: Env.schema.string(),
   APP_KEY: Env.schema.secret(),
   APP_URL: Env.schema.string({ format: 'url', tld: false }),
+  WEB_URL: Env.schema.string({ format: 'url', tld: false }),
   HEALTH_CHECK_SECRET: Env.schema.secret(),
 
   // Session
@@ -80,4 +81,16 @@ export default await Env.create(new URL('../', import.meta.url), {
   R2_SECRET: Env.schema.secret(),
   R2_BUCKET: Env.schema.string(),
   R2_ENDPOINT: Env.schema.string({ format: 'url', tld: false }),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the limiter package
+  |----------------------------------------------------------
+  */
+  LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
+
+  // Deployment-only Master Admin bootstrap values.
+  BOOTSTRAP_INSTITUTE_NAME: Env.schema.string.optional(),
+  BOOTSTRAP_MASTER_NAME: Env.schema.string.optional(),
+  BOOTSTRAP_MASTER_EMAIL: Env.schema.string.optional(),
 })

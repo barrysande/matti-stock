@@ -18,6 +18,42 @@ const routes = {
     tokens: [{"old":"/health/ready","type":0,"val":"health","end":""},{"old":"/health/ready","type":0,"val":"ready","end":""}],
     types: placeholder as Registry['health_checks.ready']['types'],
   },
+  'sessions.login': {
+    methods: ["POST"],
+    pattern: '/auth/login',
+    tokens: [{"old":"/auth/login","type":0,"val":"auth","end":""},{"old":"/auth/login","type":0,"val":"login","end":""}],
+    types: placeholder as Registry['sessions.login']['types'],
+  },
+  'password_resets.request': {
+    methods: ["POST"],
+    pattern: '/auth/password/forgot',
+    tokens: [{"old":"/auth/password/forgot","type":0,"val":"auth","end":""},{"old":"/auth/password/forgot","type":0,"val":"password","end":""},{"old":"/auth/password/forgot","type":0,"val":"forgot","end":""}],
+    types: placeholder as Registry['password_resets.request']['types'],
+  },
+  'password_resets.reset': {
+    methods: ["POST"],
+    pattern: '/auth/password/reset',
+    tokens: [{"old":"/auth/password/reset","type":0,"val":"auth","end":""},{"old":"/auth/password/reset","type":0,"val":"password","end":""},{"old":"/auth/password/reset","type":0,"val":"reset","end":""}],
+    types: placeholder as Registry['password_resets.reset']['types'],
+  },
+  'sessions.logout': {
+    methods: ["POST"],
+    pattern: '/auth/logout',
+    tokens: [{"old":"/auth/logout","type":0,"val":"auth","end":""},{"old":"/auth/logout","type":0,"val":"logout","end":""}],
+    types: placeholder as Registry['sessions.logout']['types'],
+  },
+  'sessions.me': {
+    methods: ["GET","HEAD"],
+    pattern: '/auth/me',
+    tokens: [{"old":"/auth/me","type":0,"val":"auth","end":""},{"old":"/auth/me","type":0,"val":"me","end":""}],
+    types: placeholder as Registry['sessions.me']['types'],
+  },
+  'sessions.change_password': {
+    methods: ["PUT"],
+    pattern: '/auth/password',
+    tokens: [{"old":"/auth/password","type":0,"val":"auth","end":""},{"old":"/auth/password","type":0,"val":"password","end":""}],
+    types: placeholder as Registry['sessions.change_password']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

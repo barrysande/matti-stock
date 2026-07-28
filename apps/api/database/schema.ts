@@ -7,6 +7,35 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class AccessEventSchema extends BaseModel {
+  static $columns = ['actorAccountId', 'actorType', 'createdAt', 'eventType', 'id', 'identifierFingerprint', 'metadata', 'reason', 'requestId', 'requestIp', 'targetId', 'targetType'] as const
+  $columns = AccessEventSchema.$columns
+  @column()
+  declare actorAccountId: string | null
+  @column()
+  declare actorType: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare eventType: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare identifierFingerprint: string | null
+  @column()
+  declare metadata: any
+  @column()
+  declare reason: string | null
+  @column()
+  declare requestId: string | null
+  @column()
+  declare requestIp: string | null
+  @column()
+  declare targetId: string | null
+  @column()
+  declare targetType: string
+}
+
 export class LockSchema extends BaseModel {
   static $columns = ['expiration', 'key', 'owner'] as const
   $columns = LockSchema.$columns
@@ -16,6 +45,91 @@ export class LockSchema extends BaseModel {
   declare key: string
   @column()
   declare owner: string
+}
+
+export class OrganizationalUnitSchema extends BaseModel {
+  static $columns = ['archivedAt', 'createdAt', 'id', 'name', 'parentId', 'unitType', 'updatedAt'] as const
+  $columns = OrganizationalUnitSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare parentId: string | null
+  @column()
+  declare unitType: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class PasswordResetChallengeSchema extends BaseModel {
+  static $columns = ['accountId', 'createdAt', 'expiresAt', 'id', 'requestId', 'requestIp', 'resetVersion'] as const
+  $columns = PasswordResetChallengeSchema.$columns
+  @column()
+  declare accountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare requestId: string | null
+  @column()
+  declare requestIp: string | null
+  @column()
+  declare resetVersion: bigint | number
+}
+
+export class PasswordResetRedemptionSchema extends BaseModel {
+  static $columns = ['accountId', 'challengeId', 'createdAt', 'requestId', 'requestIp'] as const
+  $columns = PasswordResetRedemptionSchema.$columns
+  @column()
+  declare accountId: string
+  @column({ isPrimary: true })
+  declare challengeId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare requestId: string | null
+  @column()
+  declare requestIp: string | null
+}
+
+export class PersonSchema extends BaseModel {
+  static $columns = ['archivedAt', 'createdAt', 'displayName', 'id', 'primaryEmail', 'primaryEmailVerifiedAt', 'staffNumber', 'updatedAt'] as const
+  $columns = PersonSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare displayName: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare primaryEmail: string | null
+  @column.dateTime()
+  declare primaryEmailVerifiedAt: DateTime | null
+  @column()
+  declare staffNumber: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class PermissionSchema extends BaseModel {
+  static $columns = ['createdAt', 'description', 'key'] as const
+  $columns = PermissionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string
+  @column({ isPrimary: true })
+  declare key: string
 }
 
 export class QueueJobSchema extends BaseModel {
@@ -80,4 +194,108 @@ export class QueueScheduleSchema extends BaseModel {
   declare timezone: string
   @column.dateTime()
   declare toDate: DateTime | null
+}
+
+export class RateLimitSchema extends BaseModel {
+  static $columns = ['expire', 'key', 'points'] as const
+  $columns = RateLimitSchema.$columns
+  @column()
+  declare expire: bigint | number | null
+  @column({ isPrimary: true })
+  declare key: string
+  @column()
+  declare points: number
+}
+
+export class RoleAssignmentSchema extends BaseModel {
+  static $columns = ['accountId', 'createdAt', 'expiresAt', 'grantedByAccountId', 'id', 'reason', 'roleVersionId', 'scopeMode', 'scopeOrgUnitId', 'startsAt'] as const
+  $columns = RoleAssignmentSchema.$columns
+  @column()
+  declare accountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime | null
+  @column()
+  declare grantedByAccountId: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare reason: string
+  @column()
+  declare roleVersionId: string
+  @column()
+  declare scopeMode: string
+  @column()
+  declare scopeOrgUnitId: string
+  @column.dateTime()
+  declare startsAt: DateTime
+}
+
+export class RoleVersionPermissionSchema extends BaseModel {
+  static $columns = ['permissionKey', 'roleVersionId'] as const
+  $columns = RoleVersionPermissionSchema.$columns
+  @column()
+  declare permissionKey: string
+  @column({ isPrimary: true })
+  declare roleVersionId: string
+}
+
+export class RoleVersionSchema extends BaseModel {
+  static $columns = ['createdAt', 'createdByAccountId', 'id', 'reason', 'roleId', 'version'] as const
+  $columns = RoleVersionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdByAccountId: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare reason: string
+  @column()
+  declare roleId: string
+  @column()
+  declare version: number
+}
+
+export class RoleSchema extends BaseModel {
+  static $columns = ['archivedAt', 'createdAt', 'id', 'key', 'name', 'systemManaged'] as const
+  $columns = RoleSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare key: string
+  @column()
+  declare name: string
+  @column()
+  declare systemManaged: boolean
+}
+
+export class UserAccountSchema extends BaseModel {
+  static $columns = ['createdAt', 'credentialVersion', 'email', 'id', 'lastLoginAt', 'password', 'passwordResetVersion', 'personId', 'status', 'updatedAt'] as const
+  $columns = UserAccountSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare credentialVersion: bigint | number
+  @column()
+  declare email: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column.dateTime()
+  declare lastLoginAt: DateTime | null
+  @column({ serializeAs: null })
+  declare password: string
+  @column()
+  declare passwordResetVersion: bigint | number
+  @column()
+  declare personId: string
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 }

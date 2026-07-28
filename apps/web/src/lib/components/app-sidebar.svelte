@@ -3,8 +3,17 @@
 	import { IconBuildingWarehouse, IconHome } from '@tabler/icons-svelte';
 	import type { ComponentProps } from 'svelte';
 	import { resolve } from '$app/paths';
+	import SessionMenu from '$lib/components/session-menu.svelte';
 
-	let { ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
+	let {
+		account,
+		...restProps
+	}: ComponentProps<typeof Sidebar.Root> & {
+		account: {
+			account: { email: string };
+			person: { displayName: string };
+		};
+	} = $props();
 </script>
 
 <Sidebar.Root collapsible="offcanvas" {...restProps}>
@@ -41,4 +50,7 @@
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
 	</Sidebar.Content>
+	<Sidebar.Footer>
+		<SessionMenu {account} />
+	</Sidebar.Footer>
 </Sidebar.Root>

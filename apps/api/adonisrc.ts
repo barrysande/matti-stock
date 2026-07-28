@@ -1,6 +1,7 @@
 import { indexEntities } from '@adonisjs/core'
 import { defineConfig } from '@adonisjs/core/app'
 import { generateRegistry } from '@tuyau/core/hooks'
+import { indexPolicies } from '@adonisjs/bouncer'
 
 export default defineConfig({
   /*
@@ -30,6 +31,7 @@ export default defineConfig({
     () => import('@adonisjs/session/commands'),
     () => import('@adonisjs/queue/commands'),
     () => import('@adonisjs/mail/commands'),
+    () => import('@adonisjs/bouncer/commands'),
   ],
 
   /*
@@ -53,12 +55,15 @@ export default defineConfig({
     () => import('@adonisjs/shield/shield_provider'),
     () => import('@adonisjs/lucid/database_provider'),
     () => import('@adonisjs/cors/cors_provider'),
+    () => import('@adonisjs/auth/auth_provider'),
     () => import('#providers/api_provider'),
     () => import('@adonisjs/queue/queue_provider'),
     () => import('@adonisjs/lock/lock_provider'),
     () => import('@adonisjs/transmit/transmit_provider'),
     () => import('@adonisjs/mail/mail_provider'),
     () => import('@adonisjs/drive/drive_provider'),
+    () => import('@adonisjs/limiter/limiter_provider'),
+    () => import('@adonisjs/bouncer/bouncer_provider'),
   ],
 
   /*
@@ -121,6 +126,7 @@ export default defineConfig({
         transformers: { enabled: true },
       }),
       generateRegistry(),
+      indexPolicies(),
     ],
   },
 })

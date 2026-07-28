@@ -12,7 +12,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * Expected client errors are returned to the caller without being reported
    * as unexpected application failures.
    */
-  protected ignoreStatuses = [400, 401, 403, 404, 422]
+  protected ignoreStatuses = [400, 401, 403, 404, 409, 422, 429]
 
   /**
    * The method is used for handling errors and returning

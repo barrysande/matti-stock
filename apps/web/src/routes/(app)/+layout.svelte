@@ -3,13 +3,13 @@
 	import SiteHeader from '$lib/components/site-header.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 
-	let { children } = $props();
+	let { children, data } = $props();
 </script>
 
 <Sidebar.Provider
 	style="--sidebar-width: calc(var(--spacing) * 64); --header-height: calc(var(--spacing) * 14);"
 >
-	<AppSidebar variant="inset" />
+	<AppSidebar account={data.account} variant="inset" />
 	<Sidebar.Inset>
 		<SiteHeader />
 		<div

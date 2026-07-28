@@ -31,4 +31,76 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/health_checks_controller').default['ready']>>>
     }
   }
+  'sessions.login': {
+    methods: ["POST"]
+    pattern: '/auth/login'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/session').loginValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/session').loginValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['login']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['login']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'password_resets.request': {
+    methods: ["POST"]
+    pattern: '/auth/password/forgot'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/session').forgotPasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/session').forgotPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_resets_controller').default['request']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_resets_controller').default['request']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'password_resets.reset': {
+    methods: ["POST"]
+    pattern: '/auth/password/reset'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/session').resetPasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/session').resetPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_resets_controller').default['reset']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_resets_controller').default['reset']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sessions.logout': {
+    methods: ["POST"]
+    pattern: '/auth/logout'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['logout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['logout']>>>
+    }
+  }
+  'sessions.me': {
+    methods: ["GET","HEAD"]
+    pattern: '/auth/me'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['me']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['me']>>>
+    }
+  }
+  'sessions.change_password': {
+    methods: ["PUT"]
+    pattern: '/auth/password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/session').changePasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/session').changePasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['changePassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['changePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

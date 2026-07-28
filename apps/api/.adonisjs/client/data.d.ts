@@ -5,6 +5,11 @@
 
 /// <reference path="./manifest.d.ts" />
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
+import type CurrentAccountTransformer from '#transformers/current_account_transformer'
 
 export namespace Data {
+  export type CurrentAccount = InferData<CurrentAccountTransformer>
+  export namespace CurrentAccount {
+    export type Variants = InferVariants<CurrentAccountTransformer>
+  }
 }

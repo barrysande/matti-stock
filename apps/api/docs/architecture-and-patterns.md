@@ -205,3 +205,68 @@ available.
 **Why.** Sharing the API image prevents HTTP and worker code from drifting
 while preserving independent health, restart, scaling, and log lifecycles.
 Keeping the web runtime separate preserves the accepted BFF boundary.
+
+## D14 — Deployment bootstrap is one-shot and registry data is separate
+
+**Decision.** Stable permissions, system roles, their initial versions, and
+permission memberships are created by the access-registry seeder. The Master
+Admin bootstrap service does not create or reconcile that registry. It requires
+the active `MASTER_ADMIN` role version 1 with `access.root`, then atomically
+creates the institute root when absent, the verified person and invited
+account, the institution-wide role assignment, and its access audit event.
+
+The bootstrap is a one-shot deployment action. A duplicate identity is an
+explicit conflict rather than a signal to reconcile mutable names, role
+versions, assignments, or account state.
+
+The deployment seeder validates its environment input, resolves the bootstrap
+service through the AdonisJS container, and sends the generated password
+synchronously through SMTP after the database transaction commits. This
+bootstrap message is the narrow exception to the normal queued-email rule:
+placing a readable temporary password in a durable queue payload is forbidden.
+
+**Why.** Registry ownership remains independent from the identity that receives
+the registry's root role. One-shot creation avoids brittle pseudo-idempotency
+after legitimate organizational, identity, or role evolution. Synchronous
+delivery keeps the temporary secret out of PostgreSQL while using the same SMTP
+boundary as production email.
+
+## D15 — Bouncer policies own request authorization
+
+**Decision.** HTTP authorization uses AdonisJS Bouncer policies. Controllers
+will call distinct policy actions instead of performing role or permission
+checks directly. Policies may use private query helpers for checks shared by
+their own actions; a generic authorization service will not be introduced
+before multiple policies demonstrate a real shared resolution requirement.
+
+The initial access policy grants account administration only to an `ACTIVE`
+account with a currently effective `access.root` assignment at the active
+institute using `INCLUDE_DESCENDANTS`. Expired, future, department-scoped,
+node-only, missing-permission, and archived-role grants are denied. No role name
+or universal administrator flag bypasses those checks.
+
+**Why.** Policies are Bouncer's structured, dependency-injection-aware
+authorization boundary and keep controllers declarative. Requiring the exact
+database-backed permission, validity interval, and institution scope preserves
+the accepted separation between access administration and business authority
+without building an abstraction before its consumers exist.
+
+## D16 — Application mail uses one responsive presentation shell
+
+**Decision.** Application mail classes render both responsive, table-based HTML
+and a plain-text alternative. A shared mail layout owns the Matti Stock
+masthead, hidden preheader, mobile behavior, card structure, typography,
+reusable content rows, link fallback, HTML escaping, and footer. Individual
+mail classes provide only their action-specific content.
+
+Dynamic values are escaped before HTML interpolation. Email content remains
+concise and exposes only the detail needed to identify and complete the
+applicable action. A typographic masthead is used until an approved Matti Stock
+brand asset exists; an unrelated framework or reference-project logo is not
+embedded.
+
+**Why.** Centralizing email-safe markup keeps transactional messages consistent
+as new workflows are added, while HTML and plain-text alternatives preserve
+usability across modern, restrictive, and accessibility-oriented mail clients.
+Keeping dynamic data escaped and message-specific content narrow protects the
+security boundary established for notification email.
