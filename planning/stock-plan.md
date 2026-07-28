@@ -217,7 +217,9 @@ Deliver:
   relations, migrations, and test/development data;
 - local/test environment templates without committed secrets;
 - Japa with its Japa/AdonisJS-native assertion, API-client, authentication, and
-  Lucid database plugins, plus database cleanup and initial test factories;
+  Lucid database plugins. Database cleanup helpers and factories begin with
+  Week 2's first real domain models rather than creating disposable Week 1
+  placeholder models;
 - per-app working rules, ADR/architecture log, implementation-progress notes,
   and deployment notes patterned after the MDP v2 documentation flow;
 - health endpoint, structured error format, logging convention, and first ADR;
@@ -229,7 +231,9 @@ Exit evidence:
 - clean install can migrate, boot API/frontend, execute a worker, and run the
   initial passing functional test;
 - SvelteKit can make an authenticated-style typed request to AdonisJS; and
-- Docker image runs with both server and command override locally.
+- Docker definitions support the API server, named-queue worker override, and
+  adapter-node web runtime. Image build and runtime smoke verification is
+  explicitly deferred to the deployment stage.
 
 ### Week 2 — 3 to 9 August
 

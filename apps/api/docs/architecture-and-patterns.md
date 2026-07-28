@@ -75,3 +75,133 @@ public-registration and token-authentication assumptions and prematurely merge
 people with login accounts. Starting the product feature from its accepted
 requirements keeps the migration history reproducible and avoids treating
 disposable scaffold behavior as a compatibility contract.
+
+## D7 — Liveness and readiness are separate operational boundaries
+
+**Decision.** `GET /health/live` is a public, dependency-free process probe.
+`GET /health/ready` runs the registered disk-space, heap-memory, and PostgreSQL
+checks and is protected by a named middleware requiring the
+`x-monitoring-secret` header to equal the validated
+`HEALTH_CHECK_SECRET`. Redis is deliberately not part of readiness because it
+transports best-effort SSE refetch signals rather than authoritative
+application state.
+
+**Why.** A liveness failure should tell an orchestrator to restart the process,
+so it must not fail because an external dependency is temporarily unavailable.
+A readiness failure should remove an otherwise live process from traffic, and
+therefore includes the database that serves application state and the queue
+adapter. The detailed readiness report exposes process and infrastructure
+metadata, while the empty liveness response does not. A named middleware keeps
+that protection reusable and out of controller business logic. Keeping
+Transmit out of readiness lets durable PostgreSQL-backed requests remain
+available during a temporary loss of live notification nudges.
+
+## D8 — Errors and logs preserve framework-native typing and request context
+
+**Decision.** VineJS validation failures retain Tuyau's native
+`{ errors: SimpleError[] }` contract. Other application-controlled failures use
+the compact `{ code, message }` shape with stable Adonis-style `E_*` codes.
+HTTP status remains the primary protocol classification; the code identifies
+the application condition without requiring consumers to parse messages.
+
+AdonisJS request ID generation remains enabled. Request-handling code uses
+`ctx.logger`, which includes that ID automatically. Structured context is the
+first logger argument, caught errors use the `err` key, and log messages must
+not contain credentials, cookies, evidence contents, or complete request
+payloads. Services outside HTTP request handling receive a logger through
+dependency injection rather than using `console`.
+
+Expected client failures with statuses `400`, `401`, `403`, `404`, and `422`
+are returned normally but are not reported as unexpected application failures.
+Unhandled server failures continue through the base exception reporter.
+
+**Why.** Preserving VineJS's response avoids replacing Tuyau's official
+validation-error narrowing with a custom type layer. Stable codes make
+non-validation failures machine-readable while messages remain suitable for
+humans. Request IDs make concurrent API log lines attributable to one request
+without using identity or session data as a correlation mechanism. Separating
+expected client failures from server failures keeps operational error logs
+actionable.
+
+## D9 — Atomic locks coordinate through PostgreSQL
+
+**Decision.** AdonisJS Lock exposes only its database store, backed by the
+`locks` table. Development, tests, the HTTP process, and queue workers all use
+that store. A named atomic lock may coordinate a cross-process critical
+section, but it never replaces a Lucid transaction, row-level lock, final state
+revalidation, or idempotency check.
+
+Every use must define a resource-specific key, bounded lifetime, acquisition
+behavior, and failure outcome. The foundation test acquires one named lock,
+rejects a competing immediate acquisition, releases it, and proves a successor
+can acquire it.
+
+**Why.** An in-memory test store would exercise different coordination
+semantics from production and cannot coordinate separate processes.
+PostgreSQL is already the authoritative concurrency system, while Redis is
+reserved for best-effort Transmit delivery.
+
+## D10 — Redis transports Transmit signals but does not own application truth
+
+**Decision.** Transmit uses its Redis-specific transport import with a
+`matti-stock:transmit` key prefix and a 30-second ping interval in development
+and production. Tests use Transmit's process-local transport so unrelated Japa
+tests do not require Redis.
+
+Transmit routes are not registered before session authentication exists.
+Week 2 must apply authentication to every Transmit route and explicitly
+authorize every private channel before the browser client is connected.
+Notification rows and other durable state remain in PostgreSQL; Transmit only
+signals clients to refetch.
+
+**Why.** The HTTP server owns SSE connections while a separate queue-worker
+process may create a notification. Redis bridges those processes without
+becoming another queue or persistence system. Deferring route registration
+prevents the package default—public subscriptions for channels without an
+authorization callback—from becoming an accidental API.
+
+## D11 — Application email is SMTP delivery from the emails queue
+
+**Decision.** AdonisJS Mail has one SMTP mailer with environment-controlled
+sender identity, port-derived secure transport, and optional paired username
+and password credentials. A partial credential pair fails application boot.
+Email features enqueue application jobs on the existing `emails` PostgreSQL
+queue; they do not introduce Mail's separate messenger queue.
+
+**Why.** SMTP remains portable across the institute's eventual provider, while
+the existing worker supplies one visible retry and failure boundary for all
+email work.
+
+## D12 — Evidence storage is private on every disk
+
+**Decision.** Drive exposes a private `fs` disk for development and tests and a
+private S3-compatible `r2` disk for production. The local disk does not
+register a file-serving route. R2 uses Cloudflare's required `auto` region and
+an environment-provided endpoint, bucket, and credentials.
+
+An evidence feature must still authorize access, validate extension, MIME type,
+signature and size, assign an opaque key, persist immutable metadata, and
+mediate retrieval. Selecting a Drive disk alone does not make an object
+publicly accessible.
+
+**Why.** Local storage keeps development independent of cloud credentials,
+while matching production's private-access semantics. The Drive boundary
+allows the storage implementation to change by environment without weakening
+the domain or authorization boundary.
+
+## D13 — One API image runs two explicit process roles
+
+**Decision.** The API Dockerfile compiles one standalone AdonisJS image. Its
+default command runs `node bin/server.js`; the queue service overrides that
+command with
+`node bin/console.js queue:work --queue=emails,reports`. The processes run in
+separate containers with the same image version.
+
+The SvelteKit application has a separate adapter-node image because it is an
+independent runtime and deployment unit. Both Dockerfiles build from the
+monorepo root so pnpm's lockfile and the web app's linked Tuyau registry remain
+available.
+
+**Why.** Sharing the API image prevents HTTP and worker code from drifting
+while preserving independent health, restart, scaling, and log lifecycles.
+Keeping the web runtime separate preserves the accepted BFF boundary.

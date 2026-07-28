@@ -9,6 +9,12 @@ export default class HttpExceptionHandler extends ExceptionHandler {
   protected debug = !app.inProduction
 
   /**
+   * Expected client errors are returned to the caller without being reported
+   * as unexpected application failures.
+   */
+  protected ignoreStatuses = [400, 401, 403, 404, 422]
+
+  /**
    * The method is used for handling errors and returning
    * response to the client
    */

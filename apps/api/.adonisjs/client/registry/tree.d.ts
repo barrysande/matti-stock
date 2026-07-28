@@ -2,7 +2,8 @@
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
-  root: {
-    show: typeof routes['root.show']
+  healthChecks: {
+    live: typeof routes['health_checks.live']
+    ready: typeof routes['health_checks.ready']
   }
 }

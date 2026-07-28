@@ -30,7 +30,8 @@ pnpm dev:queue
 pnpm dev:web
 ```
 
-The baseline migration set currently creates queue infrastructure only.
+The baseline migration set currently creates queue and database-lock
+infrastructure only.
 Authentication and account migrations will be introduced under their own
 approved feature plan. The queue worker requires the baseline migration to have
 run successfully.

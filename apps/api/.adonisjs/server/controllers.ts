@@ -4,5 +4,5 @@
  */
 
 export const controllers = {
-  Root: () => import('#controllers/root_controller'),
+  HealthChecks: () => import('#controllers/health_checks_controller'),
 }

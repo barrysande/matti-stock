@@ -37,3 +37,7 @@ router.use([
   () => import('@adonisjs/session/session_middleware'),
   () => import('@adonisjs/shield/shield_middleware'),
 ])
+
+export const middleware = router.named({
+  monitoringAuth: () => import('#middleware/monitoring_auth_middleware'),
+})

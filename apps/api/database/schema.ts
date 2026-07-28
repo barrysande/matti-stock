@@ -7,6 +7,17 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class LockSchema extends BaseModel {
+  static $columns = ['expiration', 'key', 'owner'] as const
+  $columns = LockSchema.$columns
+  @column()
+  declare expiration: bigint | number | null
+  @column({ isPrimary: true })
+  declare key: string
+  @column()
+  declare owner: string
+}
+
 export class QueueJobSchema extends BaseModel {
   static $columns = ['acquiredAt', 'data', 'dedupAt', 'dedupId', 'dedupTtl', 'error', 'executeAt', 'finishedAt', 'id', 'queue', 'score', 'status', 'workerId'] as const
   $columns = QueueJobSchema.$columns
