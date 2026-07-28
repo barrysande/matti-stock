@@ -8,14 +8,43 @@ import PasswordResetRedemption from '#models/password_reset_redemption'
 import AccessEventService from '#services/access_event_service'
 import type { PasswordResetToken, RequestAuditContext } from '#types/access'
 import type { forgotPasswordValidator, resetPasswordValidator } from '#validators/session'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
 
 type ForgotPasswordData = Infer<typeof forgotPasswordValidator>
 type ResetPasswordData = Infer<typeof resetPasswordValidator>
+type PasswordResetRejectionReason =
+  'INVALID_TOKEN' | 'CHALLENGE_NOT_FOUND' | 'EXPIRED' | 'SUPERSEDED' | 'ALREADY_REDEEMED'
+
+interface PasswordResetRejection {
+  reason: PasswordResetRejectionReason
+  accountId?: string
+  challengeId?: string
+  client?: TransactionClientContract
+}
 
 @inject()
 export default class PasswordResetService {
   constructor(private accessEvents: AccessEventService) {}
+
+  private recordRejectedReset(rejection: PasswordResetRejection, request: RequestAuditContext) {
+    const metadata: Record<string, unknown> = { reason: rejection.reason }
+    if (rejection.challengeId) {
+      metadata.challengeId = rejection.challengeId
+    }
+
+    return this.accessEvents.record(
+      {
+        eventType: 'PASSWORD_RESET_REJECTED',
+        actorType: 'SYSTEM',
+        targetType: 'USER_ACCOUNT',
+        targetId: rejection.accountId,
+        request,
+        metadata,
+      },
+      rejection.client
+    )
+  }
 
   async request(data: ForgotPasswordData, request: RequestAuditContext) {
     return db.transaction(async (trx) => {
@@ -103,6 +132,7 @@ export default class PasswordResetService {
       typeof payload.challengeId !== 'string' ||
       !Number.isInteger(payload.resetVersion)
     ) {
+      await this.recordRejectedReset({ reason: 'INVALID_TOKEN' }, request)
       return false
     }
 
@@ -111,7 +141,28 @@ export default class PasswordResetService {
         .where('id', payload.challengeId)
         .forUpdate()
         .first()
-      if (!challenge || challenge.expiresAt <= DateTime.now()) {
+      if (!challenge) {
+        await this.recordRejectedReset(
+          {
+            reason: 'CHALLENGE_NOT_FOUND',
+            challengeId: payload.challengeId,
+            client: trx,
+          },
+          request
+        )
+        return false
+      }
+
+      if (challenge.expiresAt <= DateTime.now()) {
+        await this.recordRejectedReset(
+          {
+            reason: 'EXPIRED',
+            accountId: challenge.accountId,
+            challengeId: challenge.id,
+            client: trx,
+          },
+          request
+        )
         return false
       }
 
@@ -119,17 +170,36 @@ export default class PasswordResetService {
         .where('id', challenge.accountId)
         .forUpdate()
         .firstOrFail()
-      if (
-        Number(challenge.resetVersion) !== payload.resetVersion ||
-        Number(account.passwordResetVersion) !== payload.resetVersion
-      ) {
-        return false
-      }
 
       const redemption = await PasswordResetRedemption.query({ client: trx })
         .where('challenge_id', challenge.id)
         .first()
       if (redemption) {
+        await this.recordRejectedReset(
+          {
+            reason: 'ALREADY_REDEEMED',
+            accountId: account.id,
+            challengeId: challenge.id,
+            client: trx,
+          },
+          request
+        )
+        return false
+      }
+
+      if (
+        Number(challenge.resetVersion) !== payload.resetVersion ||
+        Number(account.passwordResetVersion) !== payload.resetVersion
+      ) {
+        await this.recordRejectedReset(
+          {
+            reason: 'SUPERSEDED',
+            accountId: account.id,
+            challengeId: challenge.id,
+            client: trx,
+          },
+          request
+        )
         return false
       }
 

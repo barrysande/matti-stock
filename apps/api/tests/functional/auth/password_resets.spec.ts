@@ -184,9 +184,35 @@ test.group('Password resets', (group) => {
       code: 'E_INVALID_PASSWORD_RESET',
       message: 'This password reset link is invalid or has expired.',
     })
+
+    const event = await AccessEvent.findByOrFail('eventType', 'PASSWORD_RESET_REJECTED')
+    assert.isNull(event.targetId)
+    assert.equal(event.metadata.reason, 'INVALID_TOKEN')
+    assert.isNotNull(event.requestIp)
+    assert.isNotNull(event.requestId)
+    assert.notInclude(JSON.stringify(event.metadata), 'not-an-encrypted-token')
+    assert.notInclude(JSON.stringify(event.metadata), 'Replacement-password-123')
   })
 
-  test('rejects an expired reset challenge', async ({ client }) => {
+  test('rejects a missing reset challenge', async ({ client, assert }) => {
+    const { account } = await createAccount()
+    const { challenge, token } = await issueChallenge(account)
+    await challenge.delete()
+
+    const response = await client.post('/auth/password/reset').json({
+      token,
+      password: 'Replacement-password-123',
+    })
+
+    response.assertStatus(422)
+
+    const event = await AccessEvent.findByOrFail('eventType', 'PASSWORD_RESET_REJECTED')
+    assert.isNull(event.targetId)
+    assert.equal(event.metadata.reason, 'CHALLENGE_NOT_FOUND')
+    assert.equal(event.metadata.challengeId, challenge.id)
+  })
+
+  test('rejects an expired reset challenge', async ({ client, assert }) => {
     const { account } = await createAccount()
     const { challenge, token } = await issueChallenge(account)
     challenge.createdAt = DateTime.now().minus({ hours: 2 })
@@ -199,9 +225,14 @@ test.group('Password resets', (group) => {
     })
 
     response.assertStatus(422)
+
+    const event = await AccessEvent.findByOrFail('eventType', 'PASSWORD_RESET_REJECTED')
+    assert.equal(event.targetId, account.id)
+    assert.equal(event.metadata.reason, 'EXPIRED')
+    assert.equal(event.metadata.challengeId, challenge.id)
   })
 
-  test('rejects a challenge superseded by a later request', async ({ client }) => {
+  test('rejects a challenge superseded by a later request', async ({ client, assert }) => {
     const { account } = await createAccount()
     const first = await issueChallenge(account)
     await issueChallenge(account)
@@ -212,11 +243,16 @@ test.group('Password resets', (group) => {
     })
 
     response.assertStatus(422)
+
+    const event = await AccessEvent.findByOrFail('eventType', 'PASSWORD_RESET_REJECTED')
+    assert.equal(event.targetId, account.id)
+    assert.equal(event.metadata.reason, 'SUPERSEDED')
+    assert.equal(event.metadata.challengeId, first.challenge.id)
   })
 
-  test('rejects a challenge after it has been redeemed', async ({ client }) => {
+  test('rejects a challenge after it has been redeemed', async ({ client, assert }) => {
     const { account } = await createAccount()
-    const { token } = await issueChallenge(account)
+    const { challenge, token } = await issueChallenge(account)
     const payload = {
       token,
       password: 'Replacement-password-123',
@@ -227,6 +263,11 @@ test.group('Password resets', (group) => {
 
     first.assertStatus(200)
     second.assertStatus(422)
+
+    const event = await AccessEvent.findByOrFail('eventType', 'PASSWORD_RESET_REJECTED')
+    assert.equal(event.targetId, account.id)
+    assert.equal(event.metadata.reason, 'ALREADY_REDEEMED')
+    assert.equal(event.metadata.challengeId, challenge.id)
   })
 
   test('invalidates sessions created before a successful reset', async ({ client }) => {
