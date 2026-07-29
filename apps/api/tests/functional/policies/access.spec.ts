@@ -111,6 +111,8 @@ test.group('Access policy', (group) => {
 
     assert.isTrue(await policy.createAccount(account))
     assert.isTrue(await policy.resetAccountPassword(account))
+    assert.isTrue(await policy.list(account))
+    assert.isTrue(await policy.view(account))
     assert.isTrue(await policy.suspend(account))
     assert.isTrue(await policy.restore(account))
     assert.isTrue(await policy.deactivate(account))

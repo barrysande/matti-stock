@@ -34,6 +34,8 @@ router
 
 router
   .group(() => {
+    router.get('/', [controllers.Accounts, 'index'])
+    router.get('/:id', [controllers.Accounts, 'show'])
     router.post('/', [controllers.Accounts, 'store'])
     router.post('/:id/suspend', [controllers.Accounts, 'suspend'])
     router.post('/:id/restore', [controllers.Accounts, 'restore'])

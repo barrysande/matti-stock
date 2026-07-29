@@ -357,3 +357,35 @@ write-skew race that a simple “another root exists” count would allow, while
 the focused resolver keeps policy and transaction semantics from drifting.
 Post-commit delivery keeps email availability outside the database
 transaction and preserves a committed reactivation when queue dispatch fails.
+
+## D19 — Account reads use a safe directory and current-access overview
+
+**Decision.** Authenticated account reads are exposed through `GET /accounts`
+and `GET /accounts/:id`. The controller authorizes `AccessPolicy.list` or
+`AccessPolicy.view` before validating filters or querying account data. Both
+actions currently require effective institution-wide `access.root` authority.
+
+`AccountDirectoryService` owns the read queries separately from account
+administration writes. The directory uses fixed 20-row pagination, stable
+display-name ordering, and optional search, lifecycle-status, and setup-status
+filters. Setup status is derived from official-email verification, matching the
+password-setup convention established for account writes.
+
+Account Transformers expose only the person and account fields required by the
+directory. The overview adds role assignments whose time range is current and
+whose role and organizational scope are not archived. Each assignment includes
+its versioned role identity, scope, dates, and reason. Account credentials,
+credential versions, password-challenge data, and request audit context are not
+serialized.
+
+Delegations are omitted until the delegation model and effective-access rules
+exist; the API does not publish a misleading always-empty collection. The
+append-only access-event timeline remains a separate read feature because it
+has distinct event-selection and disclosure decisions.
+
+**Why.** A dedicated read service keeps filtering and eager-loading out of the
+controller without mixing projections into transactional lifecycle code.
+Transformer allowlists make the administrative response safe by construction,
+and returning only presently relevant assignments matches the accepted manual
+access-overview requirement while preserving historical records for the later
+audit timeline.

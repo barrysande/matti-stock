@@ -3,18 +3,44 @@ import type { HttpContext } from '@adonisjs/core/http'
 import SendPasswordCredentialEmail from '#jobs/send_password_credential_email'
 import AccessPolicy from '#policies/access_policy'
 import AccountAdministrationService from '#services/account_administration_service'
-import { administerAccountValidator, createAccountValidator } from '#validators/account'
+import AccountDirectoryService from '#services/account_directory_service'
+import AccountTransformer from '#transformers/account_transformer'
+import {
+  administerAccountValidator,
+  createAccountValidator,
+  indexAccountsValidator,
+} from '#validators/account'
 
 @inject()
 export default class AccountsController {
-  constructor(private accounts: AccountAdministrationService) {}
+  constructor(
+    private accountAdministration: AccountAdministrationService,
+    private accountDirectory: AccountDirectoryService
+  ) {}
+
+  async index({ request, serialize, bouncer }: HttpContext) {
+    await bouncer.with(AccessPolicy).authorize('list')
+
+    const filters = await request.validateUsing(indexAccountsValidator)
+    const accounts = await this.accountDirectory.list(filters)
+
+    return serialize(AccountTransformer.paginate(accounts.all(), accounts.getMeta()))
+  }
+
+  async show({ params, serialize, bouncer }: HttpContext) {
+    await bouncer.with(AccessPolicy).authorize('view')
+
+    const account = await this.accountDirectory.overview(params.id)
+
+    return serialize(AccountTransformer.transform(account).useVariant('forOverview'))
+  }
 
   async store({ request, response, auth, bouncer, logger }: HttpContext) {
     await bouncer.with(AccessPolicy).authorize('createAccount')
 
     const payload = await request.validateUsing(createAccountValidator)
     const actor = auth.getUserOrFail()
-    const created = await this.accounts.create(payload, actor.id, {
+    const created = await this.accountAdministration.create(payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -41,7 +67,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    await this.accounts.suspend(params.id, payload, actor.id, {
+    await this.accountAdministration.suspend(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -54,7 +80,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    await this.accounts.deactivate(params.id, payload, actor.id, {
+    await this.accountAdministration.deactivate(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -67,7 +93,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    const reactivated = await this.accounts.reactivate(params.id, payload, actor.id, {
+    const reactivated = await this.accountAdministration.reactivate(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -102,7 +128,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    await this.accounts.restoreSuspended(params.id, payload, actor.id, {
+    await this.accountAdministration.restoreSuspended(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })

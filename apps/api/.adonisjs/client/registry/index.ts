@@ -60,6 +60,18 @@ const routes = {
     tokens: [{"old":"/auth/password","type":0,"val":"auth","end":""},{"old":"/auth/password","type":0,"val":"password","end":""}],
     types: placeholder as Registry['sessions.change_password']['types'],
   },
+  'accounts.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/accounts',
+    tokens: [{"old":"/accounts","type":0,"val":"accounts","end":""}],
+    types: placeholder as Registry['accounts.index']['types'],
+  },
+  'accounts.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/accounts/:id',
+    tokens: [{"old":"/accounts/:id","type":0,"val":"accounts","end":""},{"old":"/accounts/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['accounts.show']['types'],
+  },
   'accounts.store': {
     methods: ["POST"],
     pattern: '/accounts',

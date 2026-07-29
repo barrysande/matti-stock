@@ -115,6 +115,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sessions_controller').default['changePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'accounts.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/accounts'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/account').indexAccountsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'accounts.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/accounts/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['show']>>>
+    }
+  }
   'accounts.store': {
     methods: ["POST"]
     pattern: '/accounts'
