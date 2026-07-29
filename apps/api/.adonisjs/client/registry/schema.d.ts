@@ -127,4 +127,52 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'accounts.suspend': {
+    methods: ["POST"]
+    pattern: '/accounts/:id/suspend'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['suspend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['suspend']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'accounts.restore': {
+    methods: ["POST"]
+    pattern: '/accounts/:id/restore'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'accounts.deactivate': {
+    methods: ["POST"]
+    pattern: '/accounts/:id/deactivate'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['deactivate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['deactivate']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'accounts.reactivate': {
+    methods: ["POST"]
+    pattern: '/accounts/:id/reactivate'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['reactivate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['reactivate']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

@@ -66,6 +66,30 @@ const routes = {
     tokens: [{"old":"/accounts","type":0,"val":"accounts","end":""}],
     types: placeholder as Registry['accounts.store']['types'],
   },
+  'accounts.suspend': {
+    methods: ["POST"],
+    pattern: '/accounts/:id/suspend',
+    tokens: [{"old":"/accounts/:id/suspend","type":0,"val":"accounts","end":""},{"old":"/accounts/:id/suspend","type":1,"val":"id","end":""},{"old":"/accounts/:id/suspend","type":0,"val":"suspend","end":""}],
+    types: placeholder as Registry['accounts.suspend']['types'],
+  },
+  'accounts.restore': {
+    methods: ["POST"],
+    pattern: '/accounts/:id/restore',
+    tokens: [{"old":"/accounts/:id/restore","type":0,"val":"accounts","end":""},{"old":"/accounts/:id/restore","type":1,"val":"id","end":""},{"old":"/accounts/:id/restore","type":0,"val":"restore","end":""}],
+    types: placeholder as Registry['accounts.restore']['types'],
+  },
+  'accounts.deactivate': {
+    methods: ["POST"],
+    pattern: '/accounts/:id/deactivate',
+    tokens: [{"old":"/accounts/:id/deactivate","type":0,"val":"accounts","end":""},{"old":"/accounts/:id/deactivate","type":1,"val":"id","end":""},{"old":"/accounts/:id/deactivate","type":0,"val":"deactivate","end":""}],
+    types: placeholder as Registry['accounts.deactivate']['types'],
+  },
+  'accounts.reactivate': {
+    methods: ["POST"],
+    pattern: '/accounts/:id/reactivate',
+    tokens: [{"old":"/accounts/:id/reactivate","type":0,"val":"accounts","end":""},{"old":"/accounts/:id/reactivate","type":1,"val":"id","end":""},{"old":"/accounts/:id/reactivate","type":0,"val":"reactivate","end":""}],
+    types: placeholder as Registry['accounts.reactivate']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

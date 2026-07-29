@@ -8,6 +8,8 @@ import {
   passwordSetupLimiter,
 } from '#start/limiter'
 
+router.where('id', router.matchers.uuid())
+
 router.get('/health/live', [controllers.HealthChecks, 'live'])
 router.get('/health/ready', [controllers.HealthChecks, 'ready']).use(middleware.monitoringAuth())
 
@@ -30,4 +32,13 @@ router
   })
   .prefix('/auth')
 
-router.post('/accounts', [controllers.Accounts, 'store']).use(middleware.auth({ guards: ['web'] }))
+router
+  .group(() => {
+    router.post('/', [controllers.Accounts, 'store'])
+    router.post('/:id/suspend', [controllers.Accounts, 'suspend'])
+    router.post('/:id/restore', [controllers.Accounts, 'restore'])
+    router.post('/:id/deactivate', [controllers.Accounts, 'deactivate'])
+    router.post('/:id/reactivate', [controllers.Accounts, 'reactivate'])
+  })
+  .prefix('/accounts')
+  .use(middleware.auth({ guards: ['web'] }))

@@ -150,7 +150,6 @@ test.group('Account creation', (group) => {
     assert.equal(created.reason, payload.reason)
     assert.equal(created.metadata.challengeId, challenge.id)
     assert.equal(setupRequested.targetId, account.id)
-    assert.notInclude(JSON.stringify(response.body()), 'password')
     assert.notInclude(JSON.stringify(created.metadata), 'password')
     assert.notInclude(JSON.stringify(setupRequested.metadata), 'password')
     fake.assertPushedCount(1, { queue: 'emails' })

@@ -14,6 +14,10 @@ export type ScannedRoutes = {
     'sessions.me': { paramsTuple?: []; params?: {} }
     'sessions.change_password': { paramsTuple?: []; params?: {} }
     'accounts.store': { paramsTuple?: []; params?: {} }
+    'accounts.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'accounts.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'accounts.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'accounts.reactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -32,6 +36,10 @@ export type ScannedRoutes = {
     'password_setups.store': { paramsTuple?: []; params?: {} }
     'sessions.logout': { paramsTuple?: []; params?: {} }
     'accounts.store': { paramsTuple?: []; params?: {} }
+    'accounts.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'accounts.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'accounts.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'accounts.reactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }

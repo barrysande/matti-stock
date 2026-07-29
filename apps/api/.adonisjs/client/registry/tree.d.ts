@@ -21,5 +21,9 @@ export interface ApiDefinition {
   }
   accounts: {
     store: typeof routes['accounts.store']
+    suspend: typeof routes['accounts.suspend']
+    restore: typeof routes['accounts.restore']
+    deactivate: typeof routes['accounts.deactivate']
+    reactivate: typeof routes['accounts.reactivate']
   }
 }

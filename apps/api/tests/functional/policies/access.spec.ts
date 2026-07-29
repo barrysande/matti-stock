@@ -111,10 +111,10 @@ test.group('Access policy', (group) => {
 
     assert.isTrue(await policy.createAccount(account))
     assert.isTrue(await policy.resetAccountPassword(account))
-    assert.isTrue(await policy.suspendAccount(account))
-    assert.isTrue(await policy.restoreAccount(account))
-    assert.isTrue(await policy.deactivateAccount(account))
-    assert.isTrue(await policy.reactivateAccount(account))
+    assert.isTrue(await policy.suspend(account))
+    assert.isTrue(await policy.restore(account))
+    assert.isTrue(await policy.deactivate(account))
+    assert.isTrue(await policy.reactivate(account))
   })
 
   test('denies inactive, future, and expired authority', async ({ assert }) => {

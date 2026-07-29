@@ -317,3 +317,43 @@ boundary. Transactional challenge creation prevents partial identities, and
 post-commit queueing prevents email latency from extending the database
 transaction. Message-only writes avoid returning stale duplicate state that
 the next page load will immediately fetch again.
+
+## D18 — Account lifecycle changes serialize root authority and invalidate credentials
+
+**Decision.** Master Admin account lifecycle writes use authenticated command
+routes under `/accounts/:id` for suspension, restoration, deactivation, and
+reactivation. Each controller authorizes its matching `AccessPolicy` action,
+validates a required reason, and returns only a concise message.
+
+Lifecycle services acquire a PostgreSQL `FOR UPDATE` lock on the stable
+`access.root` permission row before locking and revalidating the actor and
+target accounts. This shared serialization point prevents concurrent root
+holders from suspending or deactivating one another and leaving the
+application without effective root access. The narrow
+`AccessRootAuthorityService` owns the exact current-root query used by both the
+policy and this transactional invariant. Future role, assignment, delegation,
+and hierarchy writes that can change effective `access.root` must use the same
+serialization convention.
+
+Every accepted transition increments the account's credential and password
+challenge versions once, invalidating existing sessions and credential
+challenges without deleting role assignments or history. Verified deactivated
+accounts return to `ACTIVE` without an administrative password reset.
+Unverified deactivated accounts return to `INVITED` and receive a fresh
+purpose-bound `INITIAL_SETUP` challenge. The challenge is created atomically
+with the reactivation event, but its durable `{ challengeId }` email job is
+queued only after commit.
+
+Lifecycle audit events retain the actor, target, validated reason, previous and
+resulting status, and previous and resulting credential/challenge versions.
+Self-suspension, self-deactivation, invalid transitions, changed actor
+authority, and last-root lockout attempts are stable application conflicts
+rather than generic server errors.
+
+**Why.** Status checks alone block new logins but do not invalidate sessions or
+supersede outstanding credential links. Version changes close those paths
+without rewriting authority history. A shared database row lock prevents the
+write-skew race that a simple “another root exists” count would allow, while
+the focused resolver keeps policy and transaction semantics from drifting.
+Post-commit delivery keeps email availability outside the database
+transaction and preserves a committed reactivation when queue dispatch fails.
