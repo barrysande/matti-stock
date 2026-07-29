@@ -37,6 +37,7 @@ router
     router.get('/', [controllers.Accounts, 'index'])
     router.get('/:id', [controllers.Accounts, 'show'])
     router.post('/', [controllers.Accounts, 'store'])
+    router.post('/:id/password-reset', [controllers.Accounts, 'resetPassword'])
     router.post('/:id/suspend', [controllers.Accounts, 'suspend'])
     router.post('/:id/restore', [controllers.Accounts, 'restore'])
     router.post('/:id/deactivate', [controllers.Accounts, 'deactivate'])

@@ -2,8 +2,10 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import SendPasswordCredentialEmail from '#jobs/send_password_credential_email'
 import AccessPolicy from '#policies/access_policy'
-import AccountAdministrationService from '#services/account_administration_service'
+import AccountCredentialAdministrationService from '#services/account_credential_administration_service'
 import AccountDirectoryService from '#services/account_directory_service'
+import AccountLifecycleService from '#services/account_lifecycle_service'
+import AccountProvisioningService from '#services/account_provisioning_service'
 import AccountTransformer from '#transformers/account_transformer'
 import {
   administerAccountValidator,
@@ -14,7 +16,9 @@ import {
 @inject()
 export default class AccountsController {
   constructor(
-    private accountAdministration: AccountAdministrationService,
+    private accountCredentials: AccountCredentialAdministrationService,
+    private accountLifecycle: AccountLifecycleService,
+    private accountProvisioning: AccountProvisioningService,
     private accountDirectory: AccountDirectoryService
   ) {}
 
@@ -40,7 +44,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(createAccountValidator)
     const actor = auth.getUserOrFail()
-    const created = await this.accountAdministration.create(payload, actor.id, {
+    const created = await this.accountProvisioning.create(payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -62,12 +66,48 @@ export default class AccountsController {
     })
   }
 
+  async resetPassword({ params, request, response, auth, bouncer, logger }: HttpContext) {
+    await bouncer.with(AccessPolicy).authorize('resetPassword')
+
+    const payload = await request.validateUsing(administerAccountValidator)
+    const actor = auth.getUserOrFail()
+    const recovery = await this.accountCredentials.requestPasswordReset(
+      params.id,
+      payload,
+      actor.id,
+      {
+        ip: request.ip(),
+        requestId: request.id(),
+      }
+    )
+
+    try {
+      await SendPasswordCredentialEmail.dispatch({ challengeId: recovery.challenge.id })
+    } catch (error) {
+      logger.error(
+        {
+          err: error,
+          challengeId: recovery.challenge.id,
+          accountId: recovery.account.id,
+        },
+        'Failed to enqueue an administrative account credential recovery email'
+      )
+      return response.ok({
+        message: 'Account credential recovery requested, but the email could not be queued.',
+      })
+    }
+
+    return response.ok({
+      message: 'Account credential recovery email has been queued.',
+    })
+  }
+
   async suspend({ params, request, response, auth, bouncer }: HttpContext) {
     await bouncer.with(AccessPolicy).authorize('suspend')
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    await this.accountAdministration.suspend(params.id, payload, actor.id, {
+    await this.accountLifecycle.suspend(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -80,7 +120,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    await this.accountAdministration.deactivate(params.id, payload, actor.id, {
+    await this.accountLifecycle.deactivate(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -93,7 +133,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    const reactivated = await this.accountAdministration.reactivate(params.id, payload, actor.id, {
+    const reactivated = await this.accountLifecycle.reactivate(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -128,7 +168,7 @@ export default class AccountsController {
 
     const payload = await request.validateUsing(administerAccountValidator)
     const actor = auth.getUserOrFail()
-    await this.accountAdministration.restoreSuspended(params.id, payload, actor.id, {
+    await this.accountLifecycle.restoreSuspended(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })

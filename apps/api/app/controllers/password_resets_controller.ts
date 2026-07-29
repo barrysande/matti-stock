@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import SendPasswordCredentialEmail from '#jobs/send_password_credential_email'
+import PasswordChallengeService from '#services/password_challenge_service'
 import PasswordCredentialService from '#services/password_credential_service'
 import { forgotPasswordValidator, resetPasswordValidator } from '#validators/session'
 
@@ -8,11 +9,14 @@ const GENERIC_RESET_MESSAGE = 'If an account uses that email, a password reset l
 
 @inject()
 export default class PasswordResetsController {
-  constructor(private passwordCredentials: PasswordCredentialService) {}
+  constructor(
+    private passwordChallenges: PasswordChallengeService,
+    private passwordCredentials: PasswordCredentialService
+  ) {}
 
   async request({ request, response, logger }: HttpContext) {
     const payload = await request.validateUsing(forgotPasswordValidator)
-    const challenge = await this.passwordCredentials.request(payload, {
+    const challenge = await this.passwordChallenges.request(payload, {
       ip: request.ip(),
       requestId: request.id(),
     })

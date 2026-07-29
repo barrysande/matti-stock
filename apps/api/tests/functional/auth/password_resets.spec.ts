@@ -10,7 +10,7 @@ import PasswordResetChallenge from '#models/password_reset_challenge'
 import PasswordResetRedemption from '#models/password_reset_redemption'
 import Person from '#models/person'
 import UserAccount from '#models/user_account'
-import PasswordCredentialService from '#services/password_credential_service'
+import PasswordChallengeService from '#services/password_challenge_service'
 
 const GENERIC_RESET_MESSAGE = 'If an account uses that email, a password reset link will be sent.'
 
@@ -55,7 +55,7 @@ async function cleanupAccountTables() {
 }
 
 async function issueChallenge(account: UserAccount) {
-  const service = await app.container.make(PasswordCredentialService)
+  const service = await app.container.make(PasswordChallengeService)
   const challenge = await service.request(
     { email: account.email },
     { ip: '127.0.0.1', requestId: 'password-reset-test' }
@@ -65,7 +65,7 @@ async function issueChallenge(account: UserAccount) {
     throw new Error('Expected password reset challenge to be created')
   }
 
-  return { challenge, service, token: service.createToken(challenge) }
+  return { challenge, token: service.createToken(challenge) }
 }
 
 test.group('Password resets', (group) => {

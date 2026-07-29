@@ -11,7 +11,7 @@ import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
 import GeneratedPasswordService from '#services/generated_password_service'
-import PasswordCredentialService from '#services/password_credential_service'
+import PasswordChallengeService from '#services/password_challenge_service'
 import type { masterAdminBootstrapValidator } from '#validators/master_admin'
 import type { Infer } from '@vinejs/vine/types'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -25,7 +25,7 @@ export default class MasterAdminBootstrapService {
   constructor(
     private accessEvents: AccessEventService,
     private passwords: GeneratedPasswordService,
-    private passwordCredentials: PasswordCredentialService
+    private passwordChallenges: PasswordChallengeService
   ) {}
 
   private async findMasterRoleVersion(trx: TransactionClientContract) {
@@ -107,7 +107,7 @@ export default class MasterAdminBootstrapService {
         { client: trx }
       )
 
-      const challenge = await this.passwordCredentials.issueInitialSetup(account, {}, trx)
+      const challenge = await this.passwordChallenges.issueInitialSetup(account, {}, trx)
 
       const assignment = await RoleAssignment.create(
         {

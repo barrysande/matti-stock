@@ -16,6 +16,7 @@ export type ScannedRoutes = {
     'accounts.index': { paramsTuple?: []; params?: {} }
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.store': { paramsTuple?: []; params?: {} }
+    'accounts.reset_password': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -42,6 +43,7 @@ export type ScannedRoutes = {
     'password_setups.store': { paramsTuple?: []; params?: {} }
     'sessions.logout': { paramsTuple?: []; params?: {} }
     'accounts.store': { paramsTuple?: []; params?: {} }
+    'accounts.reset_password': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

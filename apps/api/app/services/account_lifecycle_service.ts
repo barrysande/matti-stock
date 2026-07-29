@@ -1,39 +1,28 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
-import AccessAuthorityChangedException from '#exceptions/access_authority_changed_exception'
 import AccountSelfAdministrationException from '#exceptions/account_self_administration_exception'
-import DuplicateException from '#exceptions/duplicate_exception'
 import InvalidAccountTransitionException from '#exceptions/invalid_account_transition_exception'
 import LastRootAccessException from '#exceptions/last_root_access_exception'
 import Person from '#models/person'
 import UserAccount from '#models/user_account'
-import AccessRootAuthorityService from '#services/access_root_authority_service'
 import AccessEventService from '#services/access_event_service'
-import GeneratedPasswordService from '#services/generated_password_service'
-import PasswordCredentialService from '#services/password_credential_service'
+import AccessRootAuthorityService from '#services/access_root_authority_service'
+import PasswordChallengeService from '#services/password_challenge_service'
 import type { AccountStatus, RequestAuditContext } from '#types/access'
-import type { administerAccountValidator, createAccountValidator } from '#validators/account'
-import type { Infer } from '@vinejs/vine/types'
+import type { administerAccountValidator } from '#validators/account'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
+import type { Infer } from '@vinejs/vine/types'
 
-const DUPLICATE_MESSAGE = 'An account with this email or staff number already exists'
-
-type CreateData = Infer<typeof createAccountValidator>
 type AdministerData = Infer<typeof administerAccountValidator>
 
 @inject()
-export default class AccountAdministrationService {
+export default class AccountLifecycleService {
   constructor(
     private accessEvents: AccessEventService,
     private rootAuthority: AccessRootAuthorityService,
-    private passwords: GeneratedPasswordService,
-    private passwordCredentials: PasswordCredentialService
+    private passwordChallenges: PasswordChallengeService
   ) {}
-
-  private lockAccount(trx: TransactionClientContract, accountId: string) {
-    return UserAccount.query({ client: trx }).where('id', accountId).forUpdate().firstOrFail()
-  }
 
   private rejectSelfAdministration(accountId: string, actorAccountId: string) {
     if (accountId === actorAccountId) {
@@ -47,13 +36,14 @@ export default class AccountAdministrationService {
     actorAccountId: string,
     allowedFrom: AccountStatus[],
     protectRoot: boolean,
-    now: DateTime
+    now: DateTime<true>
   ) {
-    await this.rootAuthority.lockMutations(trx)
-
-    const actor = await this.lockAccount(trx, actorAccountId)
-    const account = await this.lockAccount(trx, accountId)
-    const previousStatus = account.status as AccountStatus
+    const { actor, target } = await this.rootAuthority.lockAdministrationAccounts(
+      trx,
+      actorAccountId,
+      accountId
+    )
+    const previousStatus = target.status as AccountStatus
 
     if (!allowedFrom.includes(previousStatus)) {
       throw new InvalidAccountTransitionException(
@@ -63,17 +53,15 @@ export default class AccountAdministrationService {
 
     if (
       protectRoot &&
-      (await this.rootAuthority.isEffective(account.id, trx, now)) &&
-      !(await this.rootAuthority.hasOtherEffective(account.id, trx, now))
+      (await this.rootAuthority.isEffective(target.id, trx, now)) &&
+      !(await this.rootAuthority.hasOtherEffective(target.id, trx, now))
     ) {
       throw new LastRootAccessException()
     }
 
-    if (actor.status !== 'ACTIVE' || !(await this.rootAuthority.isEffective(actor.id, trx, now))) {
-      throw new AccessAuthorityChangedException()
-    }
+    await this.rootAuthority.assertEffectiveActor(actor, trx, now)
 
-    return { account, previousStatus }
+    return { account: target, previousStatus }
   }
 
   private async recordTransition(
@@ -123,14 +111,13 @@ export default class AccountAdministrationService {
     request?: RequestAuditContext
   ) {
     return db.transaction(async (trx) => {
-      const now = DateTime.now()
       const { account, previousStatus } = await this.lockAndValidate(
         trx,
         accountId,
         actorAccountId,
         allowedFrom,
         protectRoot,
-        now
+        DateTime.now()
       )
       const previousCredentialVersion = Number(account.credentialVersion)
       const previousPasswordResetVersion = Number(account.passwordResetVersion)
@@ -155,63 +142,6 @@ export default class AccountAdministrationService {
 
       return account
     })
-  }
-
-  async create(data: CreateData, actorAccountId: string, request?: RequestAuditContext) {
-    try {
-      return await db.transaction(async (trx) => {
-        const temporaryPassword = this.passwords.generate()
-        const person = await Person.create(
-          {
-            displayName: data.displayName,
-            staffNumber: data.staffNumber ?? null,
-            primaryEmail: data.email,
-            primaryEmailVerifiedAt: null,
-          },
-          { client: trx }
-        )
-
-        const account = await UserAccount.create(
-          {
-            personId: person.id,
-            email: data.email,
-            password: temporaryPassword,
-            status: 'INVITED',
-            credentialVersion: 1,
-            passwordResetVersion: 0,
-          },
-          { client: trx }
-        )
-
-        const challenge = await this.passwordCredentials.issueInitialSetup(
-          account,
-          request ?? {},
-          trx
-        )
-
-        await this.accessEvents.record(
-          {
-            eventType: 'ACCOUNT_CREATED',
-            actorType: 'ACCOUNT',
-            actorAccountId,
-            targetType: 'USER_ACCOUNT',
-            targetId: account.id,
-            reason: data.reason,
-            request,
-            metadata: {
-              personId: person.id,
-              challengeId: challenge.id,
-              challengePurpose: challenge.purpose,
-            },
-          },
-          trx
-        )
-
-        return { account, challenge, person }
-      })
-    } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_MESSAGE)
-    }
   }
 
   suspend(
@@ -279,14 +209,13 @@ export default class AccountAdministrationService {
     request?: RequestAuditContext
   ) {
     return db.transaction(async (trx) => {
-      const now = DateTime.now()
       const { account, previousStatus } = await this.lockAndValidate(
         trx,
         accountId,
         actorAccountId,
         ['DEACTIVATED'],
         false,
-        now
+        DateTime.now()
       )
       const person = await Person.query({ client: trx })
         .where('id', account.personId)
@@ -298,16 +227,14 @@ export default class AccountAdministrationService {
 
       account.status = targetStatus
       account.credentialVersion = previousCredentialVersion + 1
-
       if (targetStatus === 'ACTIVE') {
         account.passwordResetVersion = previousPasswordResetVersion + 1
       }
-
       await account.save()
 
       const challenge =
         targetStatus === 'INVITED'
-          ? await this.passwordCredentials.issueInitialSetup(account, request ?? {}, trx)
+          ? await this.passwordChallenges.issueInitialSetup(account, request ?? {}, trx)
           : null
 
       await this.recordTransition(

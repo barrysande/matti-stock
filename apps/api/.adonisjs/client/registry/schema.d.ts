@@ -151,6 +151,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'accounts.reset_password': {
+    methods: ["POST"]
+    pattern: '/accounts/:id/password-reset'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').administerAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['resetPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['resetPassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'accounts.suspend': {
     methods: ["POST"]
     pattern: '/accounts/:id/suspend'

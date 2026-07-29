@@ -17,7 +17,7 @@ export default class AccessPolicy extends BasePolicy {
     return this.canManageAccess(account)
   }
 
-  resetAccountPassword(account: UserAccount) {
+  resetPassword(account: UserAccount) {
     return this.canManageAccess(account)
   }
 

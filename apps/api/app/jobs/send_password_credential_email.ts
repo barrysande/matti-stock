@@ -11,7 +11,7 @@ import PasswordResetChallenge from '#models/password_reset_challenge'
 import PasswordResetRedemption from '#models/password_reset_redemption'
 import Person from '#models/person'
 import UserAccount from '#models/user_account'
-import PasswordCredentialService from '#services/password_credential_service'
+import PasswordChallengeService from '#services/password_challenge_service'
 
 interface Payload {
   challengeId: string
@@ -24,7 +24,7 @@ export default class SendPasswordCredentialEmail extends Job<Payload> {
   }
 
   constructor(
-    private passwordCredentials: PasswordCredentialService,
+    private passwordChallenges: PasswordChallengeService,
     private logger: Logger
   ) {
     super()
@@ -47,7 +47,7 @@ export default class SendPasswordCredentialEmail extends Job<Payload> {
     }
 
     const person = await Person.findOrFail(account.personId)
-    const token = this.passwordCredentials.createToken(challenge)
+    const token = this.passwordChallenges.createToken(challenge)
 
     if (challenge.purpose === 'INITIAL_SETUP') {
       if (person.primaryEmailVerifiedAt) {

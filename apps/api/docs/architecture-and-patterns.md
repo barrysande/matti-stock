@@ -282,7 +282,7 @@ security boundary established for notification email.
 `POST /accounts` write. The controller authorizes
 `AccessPolicy.createAccount` through the request's Bouncer instance, validates
 the request with Vine, and passes the inferred payload to the account
-administration service. PostgreSQL owns email and staff-number uniqueness, and
+provisioning service. PostgreSQL owns email and staff-number uniqueness, and
 constraint code `23505` is translated through `DuplicateException`.
 
 The service atomically creates the person, an `INVITED` account with an
@@ -294,8 +294,9 @@ delivery. Queue-dispatch failure does not roll back or hide the committed
 account; the message-only `201` response reports whether delivery was queued,
 and the neutral recovery route can issue a superseding setup challenge.
 
-Initial setup and password reset share one challenge/redemption service and
-tables, differentiated by a required purpose. Tokens are one-hour,
+Initial setup and password reset share challenge and redemption tables,
+differentiated by a required purpose. Challenge issuance and token creation are
+separate from credential redemption. Tokens are one-hour,
 purpose-bound, supersedable, and single-use. Initial setup hashes the
 holder-chosen password, verifies the person's primary email, increments the
 credential and challenge versions, records `ACCOUNT_PASSWORD_SET`, and creates
@@ -329,11 +330,12 @@ Lifecycle services acquire a PostgreSQL `FOR UPDATE` lock on the stable
 `access.root` permission row before locking and revalidating the actor and
 target accounts. This shared serialization point prevents concurrent root
 holders from suspending or deactivating one another and leaving the
-application without effective root access. The narrow
-`AccessRootAuthorityService` owns the exact current-root query used by both the
-policy and this transactional invariant. Future role, assignment, delegation,
-and hierarchy writes that can change effective `access.root` must use the same
-serialization convention.
+application without effective root access. `AccessRootAuthorityService` owns
+the exact current-root query used by both the policy and this transactional
+invariant, along with the shared account-locking and actor-revalidation guard
+for root-authorized writes. Future role, assignment, delegation, and hierarchy
+writes that can change effective `access.root` must use the same serialization
+convention.
 
 Every accepted transition increments the account's credential and password
 challenge versions once, invalidating existing sessions and credential
@@ -389,3 +391,79 @@ Transformer allowlists make the administrative response safe by construction,
 and returning only presently relevant assignments matches the accepted manual
 access-overview requirement while preserving historical records for the later
 audit timeline.
+
+## D20 — Administrators initiate recovery but never control account passwords
+
+**Decision.** An effective Master Admin may request credential recovery for a
+selected account through authenticated
+`POST /accounts/:id/password-reset`. `AccountsController.resetPassword`
+authorizes `AccessPolicy.resetPassword` before validating the required reason.
+The account holder still chooses the credential through the existing
+purpose-bound setup or reset endpoint; the administrator never supplies,
+receives, or learns a password or recovery token.
+
+Administrative issuance locks the shared `access.root` mutation row, then the
+actor and target accounts, and revalidates the actor's current root authority
+inside the transaction. A verified account receives a `RESET` challenge. An
+unverified account receives a replacement `INITIAL_SETUP` challenge.
+Deactivated accounts reject recovery until restored through their explicit
+lifecycle workflow. Suspended accounts may receive a reset link without being
+restored, and an administrator may send their own holder-controlled recovery
+link.
+
+Challenge issuance increments `passwordResetVersion`, superseding prior links
+without invalidating current sessions. Session invalidation remains a
+consequence of successful password replacement; immediate access removal uses
+account suspension. The request event records the Master Admin as its account
+actor with the target, validated reason, challenge purpose, identifier, and
+version.
+
+The existing email job remains the only delivery path and receives only
+`{ challengeId }` after the transaction commits. A queue-dispatch failure is
+logged and reflected in the message-only response without rolling back or
+hiding the committed recovery request.
+
+**Why.** Reusing holder-controlled credential replacement prevents
+administrator password knowledge while adding accountable directory-based
+recovery. Transactional authority revalidation closes the policy-to-write race,
+and post-commit queueing keeps email availability outside the credential and
+audit transaction.
+
+## D21 — Single responsibility governs functional-module boundaries
+
+**Decision.** A validator, policy, ability, transformer, controller, or service
+edited for functionality remains at or below 300 lines. Line count is a
+guardrail rather than the design objective: one of these modules is split as
+soon as it owns multiple independent reasons to change, even when it is
+shorter than 300 lines. Services are divided by business capability, and
+unrelated behavior is not hidden in generic helpers or compressed formatting
+to satisfy the count.
+
+Routes, tests, models, jobs, exceptions, migrations, generated files, schema
+snapshots, planning documents, and chronological architecture and deployment
+records are exempt from the numeric limit. Their framework, historical, or
+verification structure does not use the same functional-module boundary.
+
+**Why.** Small files are useful only when their boundaries communicate why the
+code changes. Treating single responsibility as the primary metric keeps
+services composable and reviews intelligible, while the numeric ceiling catches
+files whose responsibilities are beginning to accumulate.
+
+## D22 — Account and password services align to command responsibilities
+
+**Decision.** Account administration is separated into provisioning, lifecycle,
+and credential-recovery services. Password challenge issuance, purpose
+selection, anonymous recovery requests, and token creation belong to
+`PasswordChallengeService`; password replacement and challenge redemption
+belong to `PasswordCredentialService`.
+
+Controllers inject only the command services required by each action.
+Lifecycle and administrative credential recovery share the serialized
+root-authority guard through `AccessRootAuthorityService`, while provisioning
+and lifecycle both use the challenge issuer without taking ownership of
+credential-delivery or redemption behavior.
+
+**Why.** Provisioning, lifecycle transitions, recovery authorization, challenge
+issuance, and credential replacement change for different business reasons.
+Explicit collaborators preserve the existing transaction and queue boundaries
+while keeping each service reusable and independently reviewable.

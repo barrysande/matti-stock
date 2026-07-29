@@ -23,6 +23,7 @@ export interface ApiDefinition {
     index: typeof routes['accounts.index']
     show: typeof routes['accounts.show']
     store: typeof routes['accounts.store']
+    resetPassword: typeof routes['accounts.reset_password']
     suspend: typeof routes['accounts.suspend']
     restore: typeof routes['accounts.restore']
     deactivate: typeof routes['accounts.deactivate']

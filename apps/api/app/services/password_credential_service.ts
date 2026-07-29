@@ -1,6 +1,6 @@
 import { inject } from '@adonisjs/core'
-import db from '@adonisjs/lucid/services/db'
 import encryption from '@adonisjs/core/services/encryption'
+import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import PasswordResetChallenge from '#models/password_reset_challenge'
 import PasswordResetRedemption from '#models/password_reset_redemption'
@@ -12,15 +12,10 @@ import type {
   PasswordCredentialToken,
   RequestAuditContext,
 } from '#types/access'
-import type {
-  forgotPasswordValidator,
-  resetPasswordValidator,
-  setPasswordValidator,
-} from '#validators/session'
+import type { resetPasswordValidator, setPasswordValidator } from '#validators/session'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
 
-type ForgotPasswordData = Infer<typeof forgotPasswordValidator>
 type ResetPasswordData = Infer<typeof resetPasswordValidator>
 type SetPasswordData = Infer<typeof setPasswordValidator>
 type PasswordCredentialData = ResetPasswordData | SetPasswordData
@@ -51,10 +46,6 @@ export default class PasswordCredentialService {
     return purpose === 'INITIAL_SETUP' ? 'PASSWORD_SETUP_REJECTED' : 'PASSWORD_RESET_REJECTED'
   }
 
-  private requestedEventType(purpose: PasswordChallengePurpose) {
-    return purpose === 'INITIAL_SETUP' ? 'PASSWORD_SETUP_REQUESTED' : 'PASSWORD_RESET_REQUESTED'
-  }
-
   private completedEventType(purpose: PasswordChallengePurpose) {
     return purpose === 'INITIAL_SETUP' ? 'ACCOUNT_PASSWORD_SET' : 'PASSWORD_RESET_COMPLETED'
   }
@@ -83,55 +74,6 @@ export default class PasswordCredentialService {
       },
       rejection.client
     )
-  }
-
-  private async issueChallenge(
-    account: UserAccount,
-    purpose: PasswordChallengePurpose,
-    request: RequestAuditContext,
-    trx: TransactionClientContract
-  ) {
-    account.passwordResetVersion = Number(account.passwordResetVersion) + 1
-    await account.save()
-
-    const challenge = await PasswordResetChallenge.create(
-      {
-        accountId: account.id,
-        purpose,
-        resetVersion: account.passwordResetVersion,
-        expiresAt: DateTime.now().plus({ hours: 1 }),
-        requestIp: request.ip ?? null,
-        requestId: request.requestId ?? null,
-      },
-      { client: trx }
-    )
-
-    await this.accessEvents.record(
-      {
-        eventType: this.requestedEventType(purpose),
-        actorType: 'SYSTEM',
-        targetType: 'USER_ACCOUNT',
-        targetId: account.id,
-        request,
-        metadata: {
-          challengeId: challenge.id,
-          purpose,
-          resetVersion: account.passwordResetVersion,
-        },
-      },
-      trx
-    )
-
-    return challenge
-  }
-
-  private async challengePurpose(account: UserAccount, trx: TransactionClientContract) {
-    const person = await Person.query({ client: trx })
-      .where('id', account.personId)
-      .forUpdate()
-      .firstOrFail()
-
-    return person.primaryEmailVerifiedAt ? 'RESET' : 'INITIAL_SETUP'
   }
 
   private async redeem(
@@ -281,66 +223,6 @@ export default class PasswordCredentialService {
 
       return true
     })
-  }
-
-  issueInitialSetup(
-    account: UserAccount,
-    request: RequestAuditContext,
-    trx: TransactionClientContract
-  ) {
-    return this.issueChallenge(account, 'INITIAL_SETUP', request, trx)
-  }
-
-  async request(data: ForgotPasswordData, request: RequestAuditContext) {
-    return db.transaction(async (trx) => {
-      const account = await UserAccount.query({ client: trx })
-        .where('email', data.email)
-        .forUpdate()
-        .first()
-
-      if (!account) {
-        await this.accessEvents.record(
-          {
-            eventType: 'PASSWORD_RESET_REQUESTED_UNKNOWN_ACCOUNT',
-            actorType: 'SYSTEM',
-            targetType: 'USER_ACCOUNT',
-            identifierFingerprint: this.accessEvents.fingerprintIdentifier(data.email),
-            request,
-          },
-          trx
-        )
-        return null
-      }
-
-      if (account.status === 'DEACTIVATED') {
-        await this.accessEvents.record(
-          {
-            eventType: 'PASSWORD_RESET_REJECTED_ACCOUNT_STATUS',
-            actorType: 'SYSTEM',
-            targetType: 'USER_ACCOUNT',
-            targetId: account.id,
-            request,
-            metadata: { status: account.status },
-          },
-          trx
-        )
-        return null
-      }
-
-      const purpose: PasswordChallengePurpose = await this.challengePurpose(account, trx)
-      return this.issueChallenge(account, purpose, request, trx)
-    })
-  }
-
-  createToken(challenge: PasswordResetChallenge) {
-    return encryption.encrypt(
-      {
-        challengeId: challenge.id,
-        purpose: challenge.purpose,
-        resetVersion: Number(challenge.resetVersion),
-      },
-      { expiresIn: '1h', purpose: 'password-credential' }
-    )
   }
 
   reset(data: ResetPasswordData, request: RequestAuditContext) {

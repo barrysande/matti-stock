@@ -78,6 +78,12 @@ const routes = {
     tokens: [{"old":"/accounts","type":0,"val":"accounts","end":""}],
     types: placeholder as Registry['accounts.store']['types'],
   },
+  'accounts.reset_password': {
+    methods: ["POST"],
+    pattern: '/accounts/:id/password-reset',
+    tokens: [{"old":"/accounts/:id/password-reset","type":0,"val":"accounts","end":""},{"old":"/accounts/:id/password-reset","type":1,"val":"id","end":""},{"old":"/accounts/:id/password-reset","type":0,"val":"password-reset","end":""}],
+    types: placeholder as Registry['accounts.reset_password']['types'],
+  },
   'accounts.suspend': {
     methods: ["POST"],
     pattern: '/accounts/:id/suspend',

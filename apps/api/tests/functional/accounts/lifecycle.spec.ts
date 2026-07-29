@@ -16,8 +16,8 @@ import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
 import LastRootAccessException from '#exceptions/last_root_access_exception'
 import SendPasswordCredentialEmail from '#jobs/send_password_credential_email'
-import AccountAdministrationService from '#services/account_administration_service'
-import PasswordCredentialService from '#services/password_credential_service'
+import AccountLifecycleService from '#services/account_lifecycle_service'
+import PasswordChallengeService from '#services/password_challenge_service'
 
 const reason = { reason: 'Approved account lifecycle administration' }
 
@@ -414,7 +414,7 @@ test.group('Account lifecycle administration', (group) => {
     const registry = await createAccessRegistry()
     const { account: first } = await createRootActor('first-root@example.com', registry)
     const { account: second } = await createRootActor('second-root@example.com', registry)
-    const service = await app.container.make(AccountAdministrationService)
+    const service = await app.container.make(AccountLifecycleService)
 
     const results = await Promise.allSettled([
       service.suspend(second.id, reason, first.id),
@@ -446,8 +446,8 @@ test.group('Account lifecycle administration', (group) => {
   }) => {
     const { account: actor } = await createRootActor()
     const { account } = await createAccount({ email: 'session-holder@example.com' })
-    const passwordCredentials = await app.container.make(PasswordCredentialService)
-    const challenge = await passwordCredentials.request(
+    const passwordChallenges = await app.container.make(PasswordChallengeService)
+    const challenge = await passwordChallenges.request(
       { email: account.email },
       { ip: '127.0.0.1', requestId: 'lifecycle-supersession' }
     )
@@ -456,7 +456,7 @@ test.group('Account lifecycle administration', (group) => {
       throw new Error('Expected a password reset challenge')
     }
 
-    const token = passwordCredentials.createToken(challenge)
+    const token = passwordChallenges.createToken(challenge)
     const response = await client
       .post(`/accounts/${account.id}/suspend`)
       .loginAs(actor)
@@ -523,7 +523,7 @@ test.group('Account lifecycle administration', (group) => {
   test('rolls back the account mutation when its audit write fails', async ({ assert }) => {
     const { account: actor } = await createRootActor()
     const { account } = await createAccount({ email: 'atomicity@example.com' })
-    const service = await app.container.make(AccountAdministrationService)
+    const service = await app.container.make(AccountLifecycleService)
 
     await assert.rejects(() =>
       service.suspend(account.id, reason, actor.id, {

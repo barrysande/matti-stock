@@ -10,7 +10,7 @@ import PasswordResetChallenge from '#models/password_reset_challenge'
 import PasswordResetRedemption from '#models/password_reset_redemption'
 import Person from '#models/person'
 import UserAccount from '#models/user_account'
-import PasswordCredentialService from '#services/password_credential_service'
+import PasswordChallengeService from '#services/password_challenge_service'
 
 const TEMPORARY_PASSWORD = 'Undisclosed-temporary-1'
 
@@ -34,7 +34,7 @@ async function createInvitedAccount() {
 }
 
 async function issueSetup(account: UserAccount) {
-  const service = await app.container.make(PasswordCredentialService)
+  const service = await app.container.make(PasswordChallengeService)
   const challenge = await service.request(
     { email: account.email },
     { ip: '127.0.0.1', requestId: 'password-setup-test' }
@@ -44,7 +44,7 @@ async function issueSetup(account: UserAccount) {
     throw new Error('Expected password setup challenge to be created')
   }
 
-  return { challenge, service, token: service.createToken(challenge) }
+  return { challenge, token: service.createToken(challenge) }
 }
 
 async function cleanupAccountTables() {
