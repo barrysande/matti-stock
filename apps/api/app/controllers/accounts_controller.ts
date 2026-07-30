@@ -22,23 +22,6 @@ export default class AccountsController {
     private accountDirectory: AccountDirectoryService
   ) {}
 
-  async index({ request, serialize, bouncer }: HttpContext) {
-    await bouncer.with(AccessPolicy).authorize('list')
-
-    const filters = await request.validateUsing(indexAccountsValidator)
-    const accounts = await this.accountDirectory.list(filters)
-
-    return serialize(AccountTransformer.paginate(accounts.all(), accounts.getMeta()))
-  }
-
-  async show({ params, serialize, bouncer }: HttpContext) {
-    await bouncer.with(AccessPolicy).authorize('view')
-
-    const account = await this.accountDirectory.overview(params.id)
-
-    return serialize(AccountTransformer.transform(account).useVariant('forOverview'))
-  }
-
   async store({ request, response, auth, bouncer, logger }: HttpContext) {
     await bouncer.with(AccessPolicy).authorize('createAccount')
 
@@ -102,6 +85,23 @@ export default class AccountsController {
     })
   }
 
+  async index({ request, serialize, bouncer }: HttpContext) {
+    await bouncer.with(AccessPolicy).authorize('list')
+
+    const filters = await request.validateUsing(indexAccountsValidator)
+    const accounts = await this.accountDirectory.list(filters)
+
+    return serialize(AccountTransformer.paginate(accounts.all(), accounts.getMeta()))
+  }
+
+  async show({ params, serialize, bouncer }: HttpContext) {
+    await bouncer.with(AccessPolicy).authorize('view')
+
+    const account = await this.accountDirectory.overview(params.id)
+
+    return serialize(AccountTransformer.transform(account).useVariant('forOverview'))
+  }
+
   async suspend({ params, request, response, auth, bouncer }: HttpContext) {
     await bouncer.with(AccessPolicy).authorize('suspend')
 
@@ -113,6 +113,19 @@ export default class AccountsController {
     })
 
     return response.ok({ message: 'Account suspended.' })
+  }
+
+  async restore({ params, request, response, auth, bouncer }: HttpContext) {
+    await bouncer.with(AccessPolicy).authorize('restore')
+
+    const payload = await request.validateUsing(administerAccountValidator)
+    const actor = auth.getUserOrFail()
+    await this.accountLifecycle.restoreSuspended(params.id, payload, actor.id, {
+      ip: request.ip(),
+      requestId: request.id(),
+    })
+
+    return response.ok({ message: 'Account restored.' })
   }
 
   async deactivate({ params, request, response, auth, bouncer }: HttpContext) {
@@ -161,18 +174,5 @@ export default class AccountsController {
     return response.ok({
       message: 'Account reactivated. A password-setting link has been queued.',
     })
-  }
-
-  async restore({ params, request, response, auth, bouncer }: HttpContext) {
-    await bouncer.with(AccessPolicy).authorize('restore')
-
-    const payload = await request.validateUsing(administerAccountValidator)
-    const actor = auth.getUserOrFail()
-    await this.accountLifecycle.restoreSuspended(params.id, payload, actor.id, {
-      ip: request.ip(),
-      requestId: request.id(),
-    })
-
-    return response.ok({ message: 'Account restored.' })
   }
 }

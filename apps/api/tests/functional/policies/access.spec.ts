@@ -7,6 +7,7 @@ import Permission from '#models/permission'
 import Person from '#models/person'
 import Role from '#models/role'
 import RoleAssignment from '#models/role_assignment'
+import RoleAssignmentTermination from '#models/role_assignment_termination'
 import RoleVersion from '#models/role_version'
 import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
@@ -86,6 +87,7 @@ async function cleanupAccessTables() {
     'password_reset_redemptions',
     'password_reset_challenges',
     'access_events',
+    'role_assignment_terminations',
     'role_assignments',
     'role_version_permissions',
     'role_versions',
@@ -167,6 +169,23 @@ test.group('Access policy', (group) => {
   test('denies a Master Admin role without access.root', async ({ assert }) => {
     const { account } = await createAccessGrant({ grantAccessRoot: false })
     const policy = await app.container.make(AccessPolicy)
+
+    assert.isFalse(await policy.createAccount(account))
+  })
+
+  test('denies a root assignment after its append-only termination becomes effective', async ({
+    assert,
+  }) => {
+    const { account, assignment } = await createAccessGrant()
+    const policy = await app.container.make(AccessPolicy)
+    await RoleAssignmentTermination.create({
+      assignmentId: assignment.id,
+      kind: 'ENDED',
+      effectiveAt: DateTime.now(),
+      replacementAssignmentId: null,
+      terminatedByAccountId: account.id,
+      reason: 'End root authority for the policy regression',
+    })
 
     assert.isFalse(await policy.createAccount(account))
   })

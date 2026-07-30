@@ -601,3 +601,62 @@ without freezing the institute's staffing model. Immutable versions prevent a
 role edit from silently changing existing authority. Reserving the root
 permission and requiring explicit assignment cleanup protect access
 administration from misleading aliases and hidden mass revocation.
+
+## D26 — Effective access is resolved once from immutable grants and append-only terminations
+
+**Decision.** A role assignment is an immutable grant to one account, one
+immutable role version, and one organizational scope. Immediate grants persist
+the transaction time as their exact start; scheduled grants require a future
+exact start. Every grant requires a reason and may have an exact expiry.
+Invited and active accounts may receive assignments, but only an active account
+can exercise one.
+
+Ending, cancelling, and replacing assignments do not delete or rewrite the
+original grant. A unique `role_assignment_terminations` record identifies the
+terminal action, its effective time, actor, mandatory reason, and replacement
+assignment when applicable. `ENDED` applies immediately to a current grant,
+`CANCELLED` prevents an upcoming grant from starting, and `REPLACED` atomically
+links the old grant to a new latest-role-version assignment. A scheduled
+replacement keeps the old assignment effective until the replacement starts.
+
+`EffectiveAccessService` owns the synchronous definition of effective
+authority. It requires an active account, active role and organizational
+scope, a started and unexpired grant, and no effective termination. It resolves
+`THIS_NODE_ONLY` or `INCLUDE_DESCENDANTS` against the current strict
+organizational hierarchy and returns the assignment, permission, declared
+scope, and resolved scope that authorized an action. Separate active
+assignments form a union. Root-policy checks, current-account access, account
+overviews, hierarchy-impact previews, and role archival all consume this
+shared definition rather than maintaining independent time and lifecycle
+queries.
+
+New grants accept a role identity rather than a role-version identity; the
+service locks the role and selects its latest immutable version inside the
+transaction. Overlapping grants for the same account, reusable role,
+organizational unit, and scope mode are rejected. Assignments to suspended or
+deactivated accounts and archived roles or scopes are rejected.
+
+`access.root` remains valid only through the protected `MASTER_ADMIN` role at
+the institute using `INCLUDE_DESCENDANTS`. Every assignment write uses the
+shared root mutation lock and transactional actor revalidation. Root-affecting
+termination and replacement must preserve continuous coverage from the present
+through an open-ended root interval; this prevents both immediate and already
+scheduled last-root gaps.
+
+Assignment reads are exposed through a paginated directory and detail
+resource. They show the immutable grant, role-version currency, permissions,
+full current scope path, derived lifecycle status, current ineffectiveness
+reasons, and termination/replacement context. Account overview includes active
+and upcoming grants, including grants currently blocked by account, role, or
+scope state. Terminal history remains in the assignment directory, while the
+chronological access-event timeline remains a later read slice.
+
+**Why.** `starts_at` and `expires_at` cannot represent cancellation before a
+future start without producing an invalid interval or destroying the approved
+dates. A separate termination preserves both the original decision and the
+later administrative decision. Central effective-access resolution prevents
+policies, session projections, directories, hierarchy previews, and archival
+guards from disagreeing as expiry, termination, account status, role state, or
+organizational reach changes. Returning the effective assignment context also
+establishes the attribution needed by later business-domain audit events
+without coupling this slice to delegation or workflow reassignment.

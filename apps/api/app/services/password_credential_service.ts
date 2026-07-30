@@ -225,11 +225,11 @@ export default class PasswordCredentialService {
     })
   }
 
-  reset(data: ResetPasswordData, request: RequestAuditContext) {
-    return this.redeem(data, 'RESET', request)
-  }
-
   setup(data: SetPasswordData, request: RequestAuditContext) {
     return this.redeem(data, 'INITIAL_SETUP', request)
+  }
+
+  reset(data: ResetPasswordData, request: RequestAuditContext) {
+    return this.redeem(data, 'RESET', request)
   }
 }

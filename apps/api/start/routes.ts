@@ -92,3 +92,15 @@ router
   })
   .prefix('/roles')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.RoleAssignments, 'index'])
+    router.get('/:id', [controllers.RoleAssignments, 'show'])
+    router.post('/', [controllers.RoleAssignments, 'store'])
+    router.post('/:id/end', [controllers.RoleAssignments, 'end'])
+    router.post('/:id/cancel', [controllers.RoleAssignments, 'cancel'])
+    router.post('/:id/replace', [controllers.RoleAssignments, 'replace'])
+  })
+  .prefix('/role-assignments')
+  .use(middleware.auth({ guards: ['web'] }))

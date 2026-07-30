@@ -93,6 +93,7 @@ async function cleanupAccessTables() {
     'password_reset_redemptions',
     'password_reset_challenges',
     'access_events',
+    'role_assignment_terminations',
     'role_assignments',
     'role_version_permissions',
     'role_versions',

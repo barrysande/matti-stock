@@ -5,7 +5,6 @@
 
 /// <reference path="./manifest.d.ts" />
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
-import type AccountRoleAssignmentTransformer from '#transformers/account_role_assignment_transformer'
 import type AccountTransformer from '#transformers/account_transformer'
 import type CurrentAccountTransformer from '#transformers/current_account_transformer'
 import type OrganizationalUnitTransformer from '#transformers/organizational_unit_transformer'
@@ -13,14 +12,11 @@ import type OrganizationalUnitVersionTransformer from '#transformers/organizatio
 import type PermissionTransformer from '#transformers/permission_transformer'
 import type PhysicalLocationTransformer from '#transformers/physical_location_transformer'
 import type PhysicalLocationVersionTransformer from '#transformers/physical_location_version_transformer'
+import type RoleAssignmentTransformer from '#transformers/role_assignment_transformer'
 import type RoleTransformer from '#transformers/role_transformer'
 import type RoleVersionTransformer from '#transformers/role_version_transformer'
 
 export namespace Data {
-  export type AccountRoleAssignment = InferData<AccountRoleAssignmentTransformer>
-  export namespace AccountRoleAssignment {
-    export type Variants = InferVariants<AccountRoleAssignmentTransformer>
-  }
   export type Account = InferData<AccountTransformer>
   export namespace Account {
     export type Variants = InferVariants<AccountTransformer>
@@ -48,6 +44,10 @@ export namespace Data {
   export type PhysicalLocationVersion = InferData<PhysicalLocationVersionTransformer>
   export namespace PhysicalLocationVersion {
     export type Variants = InferVariants<PhysicalLocationVersionTransformer>
+  }
+  export type RoleAssignment = InferData<RoleAssignmentTransformer>
+  export namespace RoleAssignment {
+    export type Variants = InferVariants<RoleAssignmentTransformer>
   }
   export type Role = InferData<RoleTransformer>
   export namespace Role {

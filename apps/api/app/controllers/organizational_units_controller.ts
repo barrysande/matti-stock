@@ -24,22 +24,6 @@ export default class OrganizationalUnitsController {
     private provisioning: OrganizationalUnitProvisioningService
   ) {}
 
-  async index({ request, serialize, bouncer }: HttpContext) {
-    await bouncer.with(OrganizationalUnitPolicy).authorize('list')
-
-    const filters = await request.validateUsing(indexOrganizationalUnitsValidator)
-    const units = await this.directory.list(filters)
-
-    return serialize(OrganizationalUnitTransformer.transform(units))
-  }
-
-  async show({ params, serialize, bouncer }: HttpContext) {
-    await bouncer.with(OrganizationalUnitPolicy).authorize('view')
-
-    const unit = await this.directory.overview(params.id)
-    return serialize(OrganizationalUnitTransformer.transform(unit).useVariant('forOverview'))
-  }
-
   async store({ request, response, auth, bouncer }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('create')
 
@@ -51,18 +35,6 @@ export default class OrganizationalUnitsController {
     })
 
     return response.created({ message: 'Organizational unit created.' })
-  }
-
-  async accessImpact({ params, request, bouncer }: HttpContext) {
-    await bouncer.with(OrganizationalUnitPolicy).authorize('previewAccessImpact')
-
-    const payload = await request.validateUsing(previewOrganizationalAccessImpactValidator)
-    return this.accessImpactService.preview({
-      operation: payload.operation,
-      targetUnitId: params.id,
-      parentId: payload.parentId,
-      childUnitType: payload.childUnitType,
-    })
   }
 
   async rename({ params, request, response, auth, bouncer }: HttpContext) {
@@ -89,6 +61,34 @@ export default class OrganizationalUnitsController {
     })
 
     return response.ok({ message: 'Organizational unit moved.' })
+  }
+
+  async index({ request, serialize, bouncer }: HttpContext) {
+    await bouncer.with(OrganizationalUnitPolicy).authorize('list')
+
+    const filters = await request.validateUsing(indexOrganizationalUnitsValidator)
+    const units = await this.directory.list(filters)
+
+    return serialize(OrganizationalUnitTransformer.transform(units))
+  }
+
+  async show({ params, serialize, bouncer }: HttpContext) {
+    await bouncer.with(OrganizationalUnitPolicy).authorize('view')
+
+    const unit = await this.directory.overview(params.id)
+    return serialize(OrganizationalUnitTransformer.transform(unit).useVariant('forOverview'))
+  }
+
+  async accessImpact({ params, request, bouncer }: HttpContext) {
+    await bouncer.with(OrganizationalUnitPolicy).authorize('previewAccessImpact')
+
+    const payload = await request.validateUsing(previewOrganizationalAccessImpactValidator)
+    return this.accessImpactService.preview({
+      operation: payload.operation,
+      targetUnitId: params.id,
+      parentId: payload.parentId,
+      childUnitType: payload.childUnitType,
+    })
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

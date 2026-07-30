@@ -5,6 +5,7 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
+import EffectiveAccessService from '#services/effective_access_service'
 import type { RequestAuditContext } from '#types/access'
 import type { changePasswordValidator, loginValidator } from '#validators/session'
 import type { Infer } from '@vinejs/vine/types'
@@ -14,8 +15,12 @@ type ChangePasswordData = Infer<typeof changePasswordValidator>
 
 @inject()
 export default class AuthenticationService {
-  constructor(private accessEvents: AccessEventService) {}
+  constructor(
+    private accessEvents: AccessEventService,
+    private effectiveAccess: EffectiveAccessService
+  ) {}
 
+  /** Verifies credentials and activates an invited account on its first successful login. */
   async verifyCredentials(data: LoginData, request: RequestAuditContext) {
     let verifiedAccount: UserAccount
 
@@ -105,6 +110,7 @@ export default class AuthenticationService {
     })
   }
 
+  /** Replaces an authenticated account's password and invalidates its existing credentials. */
   async changePassword(accountId: string, data: ChangePasswordData, request: RequestAuditContext) {
     return db.transaction(async (trx) => {
       const account = await UserAccount.query({ client: trx })
@@ -156,29 +162,10 @@ export default class AuthenticationService {
     })
   }
 
+  /** Loads the authenticated identity and its synchronously effective assignment grants. */
   async currentAccount(account: UserAccount) {
     await account.load('person')
-    const now = DateTime.now().toJSDate()
-    const roles = await db
-      .from('role_assignments')
-      .join('role_versions', 'role_versions.id', 'role_assignments.role_version_id')
-      .join('roles', 'roles.id', 'role_versions.role_id')
-      .where('role_assignments.account_id', account.id)
-      .where('role_assignments.starts_at', '<=', now)
-      .whereNull('roles.archived_at')
-      .where((query) => {
-        query
-          .whereNull('role_assignments.expires_at')
-          .orWhere('role_assignments.expires_at', '>', now)
-      })
-      .select(
-        'roles.key',
-        'roles.name',
-        'role_versions.version',
-        'role_assignments.scope_mode',
-        'role_assignments.scope_org_unit_id'
-      )
-
-    return { account, person: account.person, roles }
+    const grants = await this.effectiveAccess.grantsAcrossScopesForAccount(account.id)
+    return { account, person: account.person, grants }
   }
 }

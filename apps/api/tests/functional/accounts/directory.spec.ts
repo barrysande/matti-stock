@@ -98,6 +98,7 @@ async function cleanupAccessTables() {
     'password_reset_redemptions',
     'password_reset_challenges',
     'access_events',
+    'role_assignment_terminations',
     'role_assignments',
     'role_version_permissions',
     'role_versions',
@@ -321,23 +322,45 @@ test.group('Accounts directory and access overview', (group) => {
     const overview = response.body().data
     assert.equal(overview.id, target.id)
     assert.equal(overview.setupStatus, 'COMPLETE')
-    assert.lengthOf(overview.roleAssignments, 1)
-    assert.deepInclude(overview.roleAssignments[0], {
+    assert.lengthOf(overview.roleAssignments, 4)
+    const current = overview.roleAssignments.find(
+      ({ id }: { id: string }) => id === currentAssignment.id
+    )
+    assert.deepInclude(current, {
       id: currentAssignment.id,
       role: {
         id: currentRole.role.id,
         key: 'FINANCE_REVIEWER',
         name: 'Finance Reviewer',
+        versionId: currentRole.roleVersion.id,
         version: 1,
+        isLatestVersion: true,
+        permissionKeys: [],
       },
       scope: {
         organizationalUnitId: department.id,
         name: 'Finance',
+        path: 'Matti Institute / Finance',
         unitType: 'DEPARTMENT',
         mode: 'THIS_NODE_ONLY',
       },
       reason: 'Approved finance review access',
+      status: 'ACTIVE',
+      effectiveNow: true,
     })
+    const future = overview.roleAssignments.find(
+      ({ reason }: { reason: string }) => reason === 'Future assignment'
+    )
+    assert.equal(future.status, 'UPCOMING')
+    assert.include(future.ineffectiveReasons, 'NOT_STARTED')
+    const archivedRoleGrant = overview.roleAssignments.find(
+      ({ reason }: { reason: string }) => reason === 'Archived role assignment'
+    )
+    assert.include(archivedRoleGrant.ineffectiveReasons, 'ROLE_ARCHIVED')
+    const archivedScopeGrant = overview.roleAssignments.find(
+      ({ reason }: { reason: string }) => reason === 'Archived scope assignment'
+    )
+    assert.include(archivedScopeGrant.ineffectiveReasons, 'SCOPE_ARCHIVED')
     assert.notProperty(overview, 'password')
     assert.notProperty(overview, 'credentialVersion')
     assert.notProperty(overview, 'passwordResetVersion')

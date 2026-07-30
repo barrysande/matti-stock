@@ -11,6 +11,7 @@ export const controllers = {
   PasswordSetups: () => import('#controllers/password_setups_controller'),
   Permissions: () => import('#controllers/permissions_controller'),
   PhysicalLocations: () => import('#controllers/physical_locations_controller'),
+  RoleAssignments: () => import('#controllers/role_assignments_controller'),
   Roles: () => import('#controllers/roles_controller'),
   Sessions: () => import('#controllers/sessions_controller'),
 }

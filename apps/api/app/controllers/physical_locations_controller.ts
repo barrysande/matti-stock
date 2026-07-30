@@ -21,22 +21,6 @@ export default class PhysicalLocationsController {
     private provisioning: PhysicalLocationProvisioningService
   ) {}
 
-  async index({ request, serialize, bouncer }: HttpContext) {
-    await bouncer.with(PhysicalLocationPolicy).authorize('list')
-
-    const filters = await request.validateUsing(indexPhysicalLocationsValidator)
-    const locations = await this.directory.list(filters)
-
-    return serialize(PhysicalLocationTransformer.transform(locations))
-  }
-
-  async show({ params, serialize, bouncer }: HttpContext) {
-    await bouncer.with(PhysicalLocationPolicy).authorize('view')
-
-    const location = await this.directory.overview(params.id)
-    return serialize(PhysicalLocationTransformer.transform(location).useVariant('forOverview'))
-  }
-
   async store({ request, response, auth, bouncer }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('create')
 
@@ -74,6 +58,22 @@ export default class PhysicalLocationsController {
     })
 
     return response.ok({ message: 'Physical location moved.' })
+  }
+
+  async index({ request, serialize, bouncer }: HttpContext) {
+    await bouncer.with(PhysicalLocationPolicy).authorize('list')
+
+    const filters = await request.validateUsing(indexPhysicalLocationsValidator)
+    const locations = await this.directory.list(filters)
+
+    return serialize(PhysicalLocationTransformer.transform(locations))
+  }
+
+  async show({ params, serialize, bouncer }: HttpContext) {
+    await bouncer.with(PhysicalLocationPolicy).authorize('view')
+
+    const location = await this.directory.overview(params.id)
+    return serialize(PhysicalLocationTransformer.transform(location).useVariant('forOverview'))
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

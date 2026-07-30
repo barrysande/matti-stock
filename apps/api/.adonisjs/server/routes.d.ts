@@ -44,6 +44,12 @@ export type ScannedRoutes = {
     'roles.replace_permissions': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.index': { paramsTuple?: []; params?: {} }
+    'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.store': { paramsTuple?: []; params?: {} }
+    'role_assignments.end': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.replace': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -58,6 +64,8 @@ export type ScannedRoutes = {
     'permissions.index': { paramsTuple?: []; params?: {} }
     'roles.index': { paramsTuple?: []; params?: {} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.index': { paramsTuple?: []; params?: {} }
+    'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -72,6 +80,8 @@ export type ScannedRoutes = {
     'permissions.index': { paramsTuple?: []; params?: {} }
     'roles.index': { paramsTuple?: []; params?: {} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.index': { paramsTuple?: []; params?: {} }
+    'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'sessions.login': { paramsTuple?: []; params?: {} }
@@ -101,6 +111,10 @@ export type ScannedRoutes = {
     'roles.replace_permissions': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.store': { paramsTuple?: []; params?: {} }
+    'role_assignments.end': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'role_assignments.replace': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }

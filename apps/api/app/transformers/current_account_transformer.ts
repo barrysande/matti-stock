@@ -1,21 +1,24 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type UserAccount from '#models/user_account'
 import type Person from '#models/person'
+import type { EffectiveAccessGrant } from '#types/role_assignment'
 
 interface CurrentAccountResource {
   account: UserAccount
   person: Person
-  roles: Array<{
-    key: string
-    name: string
-    version: number
-    scope_mode: string
-    scope_organizational_unit_id: string
-  }>
+  grants: EffectiveAccessGrant[]
 }
 
 export default class CurrentAccountTransformer extends BaseTransformer<CurrentAccountResource> {
   toObject() {
+    const permissionKeys = [
+      ...new Set(this.resource.grants.map(({ permissionKey }) => permissionKey)),
+    ].sort()
+    const assignments = new Map<string, EffectiveAccessGrant[]>()
+    for (const grant of this.resource.grants) {
+      assignments.set(grant.assignmentId, [...(assignments.get(grant.assignmentId) ?? []), grant])
+    }
+
     return {
       account: {
         id: this.resource.account.id,
@@ -26,13 +29,25 @@ export default class CurrentAccountTransformer extends BaseTransformer<CurrentAc
         id: this.resource.person.id,
         displayName: this.resource.person.displayName,
       },
-      roles: this.resource.roles.map((role) => ({
-        key: role.key,
-        name: role.name,
-        version: role.version,
-        scopeMode: role.scope_mode,
-        scopeOrganizationalUnitId: role.scope_organizational_unit_id,
-      })),
+      effectivePermissionKeys: permissionKeys,
+      roleAssignments: [...assignments.values()].map((grants) => {
+        const first = grants[0]!
+        return {
+          id: first.assignmentId,
+          role: {
+            id: first.roleId,
+            key: first.roleKey,
+            name: first.roleName,
+            versionId: first.roleVersionId,
+            version: first.roleVersion,
+          },
+          permissionKeys: grants.map(({ permissionKey }) => permissionKey).sort(),
+          scope: {
+            organizationalUnitId: first.declaredScopeOrganizationalUnitId,
+            mode: first.scopeMode,
+          },
+        }
+      }),
     }
   }
 }

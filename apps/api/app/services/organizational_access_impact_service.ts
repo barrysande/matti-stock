@@ -1,8 +1,10 @@
 import { createHash } from 'node:crypto'
+import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import InvalidOrganizationalUnitChangeException from '#exceptions/invalid_organizational_unit_change_exception'
 import OrganizationalUnit from '#models/organizational_unit'
 import RoleAssignment from '#models/role_assignment'
+import EffectiveAccessService from '#services/effective_access_service'
 import type {
   OrganizationalAccessImpact,
   OrganizationalImpactRequest,
@@ -10,7 +12,10 @@ import type {
 } from '#types/organization'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
+@inject()
 export default class OrganizationalAccessImpactService {
+  constructor(private effectiveAccess: EffectiveAccessService) {}
+
   private invalid(message: string): never {
     throw new InvalidOrganizationalUnitChangeException(message)
   }
@@ -135,12 +140,8 @@ export default class OrganizationalAccessImpactService {
   }
 
   private assignmentQuery(client: TransactionClientContract | undefined, now: DateTime) {
-    const query = client ? RoleAssignment.query({ client }) : RoleAssignment.query()
-
-    return query
-      .where((builder) => {
-        builder.whereNull('expires_at').orWhere('expires_at', '>', now.toJSDate())
-      })
+    return this.effectiveAccess
+      .openAssignments(client, now)
       .whereHas('roleVersion', (versionQuery) => {
         versionQuery.whereHas('role', (roleQuery) => {
           roleQuery.whereNull('archived_at')
@@ -153,6 +154,7 @@ export default class OrganizationalAccessImpactService {
         versionQuery.preload('role')
       })
       .preload('scopeOrgUnit')
+      .preload('termination')
       .orderBy('id', 'asc')
   }
 
@@ -185,6 +187,13 @@ export default class OrganizationalAccessImpactService {
           scopeMode: assignment.scopeMode,
           startsAt: assignment.startsAt.toISO(),
           expiresAt: assignment.expiresAt?.toISO() ?? null,
+          termination: assignment.termination
+            ? {
+                kind: assignment.termination.kind,
+                effectiveAt: assignment.termination.effectiveAt.toISO(),
+                replacementAssignmentId: assignment.termination.replacementAssignmentId,
+              }
+            : null,
         })),
     }
 

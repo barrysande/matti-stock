@@ -60,4 +60,12 @@ export interface ApiDefinition {
     archive: typeof routes['roles.archive']
     restore: typeof routes['roles.restore']
   }
+  roleAssignments: {
+    index: typeof routes['role_assignments.index']
+    show: typeof routes['role_assignments.show']
+    store: typeof routes['role_assignments.store']
+    end: typeof routes['role_assignments.end']
+    cancel: typeof routes['role_assignments.cancel']
+    replace: typeof routes['role_assignments.replace']
+  }
 }

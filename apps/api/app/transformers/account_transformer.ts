@@ -1,6 +1,6 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type UserAccount from '#models/user_account'
-import AccountRoleAssignmentTransformer from '#transformers/account_role_assignment_transformer'
+import RoleAssignmentTransformer from '#transformers/role_assignment_transformer'
 
 export default class AccountTransformer extends BaseTransformer<UserAccount> {
   toObject() {
@@ -22,7 +22,7 @@ export default class AccountTransformer extends BaseTransformer<UserAccount> {
   forOverview() {
     return {
       ...this.toObject(),
-      roleAssignments: AccountRoleAssignmentTransformer.transform(
+      roleAssignments: RoleAssignmentTransformer.transform(
         this.whenLoaded(this.resource.roleAssignments)
       ),
     }

@@ -487,4 +487,76 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'role_assignments.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/role-assignments'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/role_assignment').indexRoleAssignmentsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'role_assignments.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/role-assignments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['show']>>>
+    }
+  }
+  'role_assignments.store': {
+    methods: ["POST"]
+    pattern: '/role-assignments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role_assignment').createRoleAssignmentValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/role_assignment').createRoleAssignmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'role_assignments.end': {
+    methods: ["POST"]
+    pattern: '/role-assignments/:id/end'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role_assignment').administerRoleAssignmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/role_assignment').administerRoleAssignmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['end']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['end']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'role_assignments.cancel': {
+    methods: ["POST"]
+    pattern: '/role-assignments/:id/cancel'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role_assignment').administerRoleAssignmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/role_assignment').administerRoleAssignmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['cancel']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'role_assignments.replace': {
+    methods: ["POST"]
+    pattern: '/role-assignments/:id/replace'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role_assignment').replaceRoleAssignmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/role_assignment').replaceRoleAssignmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['replace']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['replace']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

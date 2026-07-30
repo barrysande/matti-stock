@@ -38,6 +38,7 @@ async function cleanupAccountTables() {
     'password_reset_redemptions',
     'password_reset_challenges',
     'access_events',
+    'role_assignment_terminations',
     'role_assignments',
     'user_accounts',
     'people',
@@ -162,7 +163,8 @@ test.group('Authentication sessions', (group) => {
           id: person.id,
           displayName: person.displayName,
         },
-        roles: [],
+        effectivePermissionKeys: [],
+        roleAssignments: [],
       },
     })
   })

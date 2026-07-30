@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto'
-import { beforeCreate, belongsTo } from '@adonisjs/lucid/orm'
+import { beforeCreate, belongsTo, hasOne } from '@adonisjs/lucid/orm'
 import { RoleAssignmentSchema } from '#database/schema'
 import OrganizationalUnit from '#models/organizational_unit'
+import RoleAssignmentTermination from '#models/role_assignment_termination'
 import RoleVersion from '#models/role_version'
 import UserAccount from '#models/user_account'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasOne } from '@adonisjs/lucid/types/relations'
 
 export default class RoleAssignment extends RoleAssignmentSchema {
   @beforeCreate()
@@ -23,4 +24,7 @@ export default class RoleAssignment extends RoleAssignmentSchema {
 
   @belongsTo(() => UserAccount, { foreignKey: 'grantedByAccountId' })
   declare grantedByAccount: BelongsTo<typeof UserAccount>
+
+  @hasOne(() => RoleAssignmentTermination, { foreignKey: 'assignmentId' })
+  declare termination: HasOne<typeof RoleAssignmentTermination>
 }

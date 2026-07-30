@@ -246,6 +246,42 @@ const routes = {
     tokens: [{"old":"/roles/:id/restore","type":0,"val":"roles","end":""},{"old":"/roles/:id/restore","type":1,"val":"id","end":""},{"old":"/roles/:id/restore","type":0,"val":"restore","end":""}],
     types: placeholder as Registry['roles.restore']['types'],
   },
+  'role_assignments.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/role-assignments',
+    tokens: [{"old":"/role-assignments","type":0,"val":"role-assignments","end":""}],
+    types: placeholder as Registry['role_assignments.index']['types'],
+  },
+  'role_assignments.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/role-assignments/:id',
+    tokens: [{"old":"/role-assignments/:id","type":0,"val":"role-assignments","end":""},{"old":"/role-assignments/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['role_assignments.show']['types'],
+  },
+  'role_assignments.store': {
+    methods: ["POST"],
+    pattern: '/role-assignments',
+    tokens: [{"old":"/role-assignments","type":0,"val":"role-assignments","end":""}],
+    types: placeholder as Registry['role_assignments.store']['types'],
+  },
+  'role_assignments.end': {
+    methods: ["POST"],
+    pattern: '/role-assignments/:id/end',
+    tokens: [{"old":"/role-assignments/:id/end","type":0,"val":"role-assignments","end":""},{"old":"/role-assignments/:id/end","type":1,"val":"id","end":""},{"old":"/role-assignments/:id/end","type":0,"val":"end","end":""}],
+    types: placeholder as Registry['role_assignments.end']['types'],
+  },
+  'role_assignments.cancel': {
+    methods: ["POST"],
+    pattern: '/role-assignments/:id/cancel',
+    tokens: [{"old":"/role-assignments/:id/cancel","type":0,"val":"role-assignments","end":""},{"old":"/role-assignments/:id/cancel","type":1,"val":"id","end":""},{"old":"/role-assignments/:id/cancel","type":0,"val":"cancel","end":""}],
+    types: placeholder as Registry['role_assignments.cancel']['types'],
+  },
+  'role_assignments.replace': {
+    methods: ["POST"],
+    pattern: '/role-assignments/:id/replace',
+    tokens: [{"old":"/role-assignments/:id/replace","type":0,"val":"role-assignments","end":""},{"old":"/role-assignments/:id/replace","type":1,"val":"id","end":""},{"old":"/role-assignments/:id/replace","type":0,"val":"replace","end":""}],
+    types: placeholder as Registry['role_assignments.replace']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

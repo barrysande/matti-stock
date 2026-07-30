@@ -21,21 +21,6 @@ export default class RolesController {
     private provisioning: RoleProvisioningService
   ) {}
 
-  async index({ request, serialize, bouncer }: HttpContext) {
-    await bouncer.with(RolePolicy).authorize('list')
-
-    const filters = await request.validateUsing(indexRolesValidator)
-    const roles = await this.directory.list(filters)
-    return serialize(RoleTransformer.transform(roles))
-  }
-
-  async show({ params, serialize, bouncer }: HttpContext) {
-    await bouncer.with(RolePolicy).authorize('view')
-
-    const role = await this.directory.overview(params.id)
-    return serialize(RoleTransformer.transform(role).useVariant('forOverview'))
-  }
-
   async store({ request, response, auth, bouncer }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('create')
 
@@ -73,6 +58,21 @@ export default class RolesController {
     })
 
     return response.ok({ message: 'A new role permission version was created.' })
+  }
+
+  async index({ request, serialize, bouncer }: HttpContext) {
+    await bouncer.with(RolePolicy).authorize('list')
+
+    const filters = await request.validateUsing(indexRolesValidator)
+    const roles = await this.directory.list(filters)
+    return serialize(RoleTransformer.transform(roles))
+  }
+
+  async show({ params, serialize, bouncer }: HttpContext) {
+    await bouncer.with(RolePolicy).authorize('view')
+
+    const role = await this.directory.overview(params.id)
+    return serialize(RoleTransformer.transform(role).useVariant('forOverview'))
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

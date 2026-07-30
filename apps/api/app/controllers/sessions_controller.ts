@@ -32,26 +32,6 @@ export default class SessionsController {
     return response.ok({ message: 'Login successful.' })
   }
 
-  async logout({ request, response, auth }: HttpContext) {
-    const account = auth.getUserOrFail()
-    await auth.use('web').logout()
-    await this.accessEvents.record({
-      eventType: 'LOGOUT_COMPLETED',
-      actorType: 'ACCOUNT',
-      actorAccountId: account.id,
-      targetType: 'USER_ACCOUNT',
-      targetId: account.id,
-      request: { ip: request.ip(), requestId: request.id() },
-    })
-
-    return response.ok({ message: 'Logged out successfully.' })
-  }
-
-  async me({ auth, serialize }: HttpContext) {
-    const resource = await this.authentication.currentAccount(auth.getUserOrFail())
-    return serialize(CurrentAccountTransformer.transform(resource))
-  }
-
   async changePassword({ request, response, auth }: HttpContext) {
     const payload = await request.validateUsing(changePasswordValidator)
     const account = auth.getUserOrFail()
@@ -71,5 +51,25 @@ export default class SessionsController {
     return response.ok({
       message: 'Password changed. Sign in again with the new password.',
     })
+  }
+
+  async me({ auth, serialize }: HttpContext) {
+    const resource = await this.authentication.currentAccount(auth.getUserOrFail())
+    return serialize(CurrentAccountTransformer.transform(resource))
+  }
+
+  async logout({ request, response, auth }: HttpContext) {
+    const account = auth.getUserOrFail()
+    await auth.use('web').logout()
+    await this.accessEvents.record({
+      eventType: 'LOGOUT_COMPLETED',
+      actorType: 'ACCOUNT',
+      actorAccountId: account.id,
+      targetType: 'USER_ACCOUNT',
+      targetId: account.id,
+      request: { ip: request.ip(), requestId: request.id() },
+    })
+
+    return response.ok({ message: 'Logged out successfully.' })
   }
 }

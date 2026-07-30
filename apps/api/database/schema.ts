@@ -284,6 +284,27 @@ export class RateLimitSchema extends BaseModel {
   declare points: number
 }
 
+export class RoleAssignmentTerminationSchema extends BaseModel {
+  static $columns = ['assignmentId', 'createdAt', 'effectiveAt', 'id', 'kind', 'reason', 'replacementAssignmentId', 'terminatedByAccountId'] as const
+  $columns = RoleAssignmentTerminationSchema.$columns
+  @column()
+  declare assignmentId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare effectiveAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare kind: string
+  @column()
+  declare reason: string
+  @column()
+  declare replacementAssignmentId: string | null
+  @column()
+  declare terminatedByAccountId: string
+}
+
 export class RoleAssignmentSchema extends BaseModel {
   static $columns = ['accountId', 'createdAt', 'expiresAt', 'grantedByAccountId', 'id', 'reason', 'roleVersionId', 'scopeMode', 'scopeOrgUnitId', 'startsAt'] as const
   $columns = RoleAssignmentSchema.$columns

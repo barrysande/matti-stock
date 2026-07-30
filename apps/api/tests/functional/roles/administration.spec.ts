@@ -12,6 +12,7 @@ import Permission from '#models/permission'
 import Person from '#models/person'
 import Role from '#models/role'
 import RoleAssignment from '#models/role_assignment'
+import RoleAssignmentTermination from '#models/role_assignment_termination'
 import RoleVersion from '#models/role_version'
 import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
@@ -113,6 +114,7 @@ async function createConfigurableRole(
 async function cleanupTables() {
   for (const table of [
     'access_events',
+    'role_assignment_terminations',
     'role_assignments',
     'role_version_permissions',
     'role_versions',
@@ -277,8 +279,14 @@ test.group('Roles administration', (group) => {
     )
     blocked.assertStatus(409)
 
-    assignment.expiresAt = DateTime.now().minus({ seconds: 1 })
-    await assignment.save()
+    await RoleAssignmentTermination.create({
+      assignmentId: assignment.id,
+      kind: 'ENDED',
+      effectiveAt: DateTime.now(),
+      replacementAssignmentId: null,
+      terminatedByAccountId: account.id,
+      reason: 'End the role before archival',
+    })
     const archived = await authenticatedRequest(
       client.post(`/roles/${role.id}/archive`).json({ reason: 'Archive unused role' }),
       account

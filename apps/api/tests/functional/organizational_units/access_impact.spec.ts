@@ -128,6 +128,7 @@ async function createScopedAssignment(
 async function cleanupAccessTables() {
   for (const table of [
     'access_events',
+    'role_assignment_terminations',
     'role_assignments',
     'role_version_permissions',
     'role_versions',

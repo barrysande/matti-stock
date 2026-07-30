@@ -4,9 +4,9 @@ import { DateTime } from 'luxon'
 import DuplicateException from '#exceptions/duplicate_exception'
 import InvalidRoleChangeException from '#exceptions/invalid_role_change_exception'
 import Role from '#models/role'
-import RoleAssignment from '#models/role_assignment'
 import AccessEventService from '#services/access_event_service'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
+import EffectiveAccessService from '#services/effective_access_service'
 import RoleVersionService from '#services/role_version_service'
 import type { RequestAuditContext } from '#types/access'
 import type {
@@ -26,6 +26,7 @@ type AdministerData = Infer<typeof administerRoleValidator>
 export default class RoleAdministrationService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
+    private effectiveAccess: EffectiveAccessService,
     private versions: RoleVersionService,
     private accessEvents: AccessEventService
   ) {}
@@ -64,10 +65,8 @@ export default class RoleAdministrationService {
     now: DateTime<true>,
     trx: TransactionClientContract
   ) {
-    return RoleAssignment.query({ client: trx })
-      .where((builder) => {
-        builder.whereNull('expires_at').orWhere('expires_at', '>', now.toJSDate())
-      })
+    return this.effectiveAccess
+      .openAssignments(trx, now)
       .whereHas('roleVersion', (builder) => {
         builder.where('role_id', roleId)
       })
