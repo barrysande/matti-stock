@@ -45,3 +45,17 @@ router
   })
   .prefix('/accounts')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.OrganizationalUnits, 'index'])
+    router.get('/:id', [controllers.OrganizationalUnits, 'show'])
+    router.post('/', [controllers.OrganizationalUnits, 'store'])
+    router.post('/:id/access-impact', [controllers.OrganizationalUnits, 'accessImpact'])
+    router.post('/:id/rename', [controllers.OrganizationalUnits, 'rename'])
+    router.post('/:id/reparent', [controllers.OrganizationalUnits, 'reparent'])
+    router.post('/:id/archive', [controllers.OrganizationalUnits, 'archive'])
+    router.post('/:id/restore', [controllers.OrganizationalUnits, 'restore'])
+  })
+  .prefix('/organizational-units')
+  .use(middleware.auth({ guards: ['web'] }))

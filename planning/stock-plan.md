@@ -128,35 +128,43 @@ The following should be introduced before many domain workflows depend on them:
 - audit metadata and entity timelines; and
 - responsive layout, forms, validation, and retained input conventions.
 
-### 1.3 Use a backend-first cadence inside each vertical slice
+### 1.3 Complete each week's API before its dedicated web phase
 
-Each milestone remains end to end, but implementation shall minimize context
-switching by completing one coherent API block before its UI block.
+Each weekly target remains end to end, but implementation shall minimize
+context switching by completing the week's full API boundary before entering
+its dedicated web phase. Finishing the API does not complete the week; the
+week closes only after its web journeys and end-to-end verification are also
+complete.
 
 Use this sequence:
 
-1. **Define the slice:** state the user journey, screens/actions, database
-   changes, state transitions, authorization, API contract, and acceptance
-   cases. A short field list or wireframe is enough to expose UI needs before
-   the API shape is fixed.
-2. **Build the API:** implement migrations, models, domain services,
-   transactions, validators, policies, controllers, routes, transformers, and
-   critical Japa tests.
-3. **Stabilize the typed boundary:** regenerate Tuyau, verify the read/write
-   response contract, and prepare useful local fixtures.
-4. **Build the UI:** implement SvelteKit server loads and form actions,
-   responsive screens, retained form state, permission-aware actions, errors,
-   and current-state feedback.
-5. **Exercise the complete journey:** run the accepted success/rejection paths
-   through the UI, make the small API adjustments exposed by integration, and
-   update tests and durable notes.
+1. **Define the weekly boundary:** state the user journeys, screens/actions,
+   database changes, state transitions, authorization, API contract, and
+   acceptance cases for the complete week. A short field list or wireframe is
+   enough to expose UI needs before the API shape is fixed.
+2. **Complete the week's API:** implement the week's coherent migrations,
+   models, domain services, transactions, validators, policies, controllers,
+   routes, transformers, and critical Japa tests before beginning its web
+   implementation.
+3. **Stabilize the typed boundary:** regenerate Tuyau, verify the complete
+   week's read/write response contract, prepare useful local fixtures, and
+   complete the applicable API migration, typecheck, lint, test, and production
+   build verification.
+4. **Freeze the weekly API contract:** treat the verified contract as settled
+   during the web phase, except where end-to-end integration establishes a
+   concrete defect or missing accepted requirement.
+5. **Complete the dedicated web phase:** implement SvelteKit server loads and
+   form actions, responsive screens, retained form state, permission-aware
+   actions, errors, and current-state feedback for the week's settled API.
+6. **Exercise the complete journeys:** run the accepted success and rejection
+   paths through the browser, make only the API corrections demonstrated by
+   integration evidence, and update tests and durable notes.
 
-The entire project's API shall not be completed before UI work begins. No
-milestone may leave an API-only backlog. Avoid more than roughly three
-consecutive implementation days on one workflow without exercising its
-intended UI. When a milestone is too large for that limit, split it into
-coherent sub-slices such as movement request/release, receipt/discrepancy, and
-return/loan.
+No weekly target may be declared complete with an API-only backlog. The next
+week's API work shall not begin until the current week's web phase and
+end-to-end verification are complete. The project's entire API shall not be
+completed before web work begins; the API-first boundary applies within each
+week rather than across the whole project.
 
 ### 1.4 Test with development
 

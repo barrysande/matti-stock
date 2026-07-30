@@ -467,3 +467,59 @@ credential-delivery or redemption behavior.
 issuance, and credential replacement change for different business reasons.
 Explicit collaborators preserve the existing transaction and queue boundaries
 while keeping each service reusable and independently reviewable.
+
+## D23 — Organizational structure is strict, versioned, and access-impact aware
+
+**Decision.** V1 organizational custody and permission scope use one strict
+three-level structure:
+
+```text
+Institute
+└── Department
+    └── optional Sub-department
+```
+
+The deployment-created institute is the single active root. A department must
+belong directly to that institute, and a sub-department must belong directly
+to a department. Unit types are immutable. Independent parentless departments
+or sub-departments are not supported because they would sit outside the
+institution-wide access and accountability path.
+
+`organizational_units` is the current projection used by foreign keys and
+current queries. Every creation, rename, reparent, archive, or restoration
+also writes an immutable, consecutively numbered
+`organizational_unit_versions` record containing the effective name, type,
+parent, archive state, actor, reason, and validity interval. The previous
+current version closes in the same transaction. Changes become effective when
+the command commits; V1 does not backdate or schedule future hierarchy
+changes.
+
+Active sibling names are unique case-insensitively. Departments cannot be
+reparented away from the institute; only sub-departments may move between
+active departments. The institute cannot be archived, active children must be
+moved or archived before their parent, and restoration proceeds from parent to
+child. Reads return unambiguous full paths and Transformer-controlled current
+and historical fields.
+
+Creating, reparenting, archiving, or restoring a unit requires an access-impact
+preview. `POST /organizational-units/:id/access-impact` uses `:id` as the
+parent for `CREATE_CHILD` and as the affected unit for the other operations.
+It returns active or upcoming role assignments whose direct or
+`INCLUDE_DESCENDANTS` reach would change, plus a deterministic fingerprint.
+The write recalculates that fingerprint after acquiring the shared
+`access.root` mutation lock and revalidating the actor. A changed hierarchy or
+assignment set rejects the stale preview before any mutation.
+
+Provisioning, lifecycle administration, impact calculation, directory reads,
+and version/audit persistence use separate services. All writes return only a
+message and append an access event with the validated reason and structural
+change.
+
+**Why.** A strict rooted hierarchy guarantees that every custody and
+organizational permission scope belongs to the institute. Effective-dated
+versions preserve the structure that applied to historical work without
+forcing every existing foreign key through a temporal join. Preview
+fingerprints make descendant-access consequences visible and prevent a
+reviewed impact from being silently replaced by a different concurrent state.
+Reusing the root mutation lock keeps hierarchy and access administration in
+one serialization domain.

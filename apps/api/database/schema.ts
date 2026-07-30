@@ -47,6 +47,35 @@ export class LockSchema extends BaseModel {
   declare owner: string
 }
 
+export class OrganizationalUnitVersionSchema extends BaseModel {
+  static $columns = ['archivedAt', 'changedByAccountId', 'createdAt', 'effectiveFrom', 'effectiveTo', 'id', 'name', 'organizationalUnitId', 'parentId', 'reason', 'unitType', 'version'] as const
+  $columns = OrganizationalUnitVersionSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column()
+  declare changedByAccountId: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare effectiveFrom: DateTime
+  @column.dateTime()
+  declare effectiveTo: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare organizationalUnitId: string
+  @column()
+  declare parentId: string | null
+  @column()
+  declare reason: string
+  @column()
+  declare unitType: string
+  @column()
+  declare version: number
+}
+
 export class OrganizationalUnitSchema extends BaseModel {
   static $columns = ['archivedAt', 'createdAt', 'id', 'name', 'parentId', 'unitType', 'updatedAt'] as const
   $columns = OrganizationalUnitSchema.$columns

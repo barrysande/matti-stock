@@ -29,4 +29,14 @@ export interface ApiDefinition {
     deactivate: typeof routes['accounts.deactivate']
     reactivate: typeof routes['accounts.reactivate']
   }
+  organizationalUnits: {
+    index: typeof routes['organizational_units.index']
+    show: typeof routes['organizational_units.show']
+    store: typeof routes['organizational_units.store']
+    accessImpact: typeof routes['organizational_units.access_impact']
+    rename: typeof routes['organizational_units.rename']
+    reparent: typeof routes['organizational_units.reparent']
+    archive: typeof routes['organizational_units.archive']
+    restore: typeof routes['organizational_units.restore']
+  }
 }

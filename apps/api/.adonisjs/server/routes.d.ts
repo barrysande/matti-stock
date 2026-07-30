@@ -21,6 +21,14 @@ export type ScannedRoutes = {
     'accounts.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.reactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.index': { paramsTuple?: []; params?: {} }
+    'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.store': { paramsTuple?: []; params?: {} }
+    'organizational_units.access_impact': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.rename': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.reparent': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -28,6 +36,8 @@ export type ScannedRoutes = {
     'sessions.me': { paramsTuple?: []; params?: {} }
     'accounts.index': { paramsTuple?: []; params?: {} }
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.index': { paramsTuple?: []; params?: {} }
+    'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -35,6 +45,8 @@ export type ScannedRoutes = {
     'sessions.me': { paramsTuple?: []; params?: {} }
     'accounts.index': { paramsTuple?: []; params?: {} }
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.index': { paramsTuple?: []; params?: {} }
+    'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'sessions.login': { paramsTuple?: []; params?: {} }
@@ -48,6 +60,12 @@ export type ScannedRoutes = {
     'accounts.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.reactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.store': { paramsTuple?: []; params?: {} }
+    'organizational_units.access_impact': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.rename': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.reparent': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'organizational_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }

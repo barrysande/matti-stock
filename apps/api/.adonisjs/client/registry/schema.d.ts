@@ -211,4 +211,100 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['reactivate']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'organizational_units.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/organizational-units'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/organizational_unit').indexOrganizationalUnitsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organizational_units.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/organizational-units/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['show']>>>
+    }
+  }
+  'organizational_units.store': {
+    methods: ["POST"]
+    pattern: '/organizational-units'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/organizational_unit').createOrganizationalUnitValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/organizational_unit').createOrganizationalUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organizational_units.access_impact': {
+    methods: ["POST"]
+    pattern: '/organizational-units/:id/access-impact'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/organizational_unit').previewOrganizationalAccessImpactValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/organizational_unit').previewOrganizationalAccessImpactValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['accessImpact']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['accessImpact']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organizational_units.rename': {
+    methods: ["POST"]
+    pattern: '/organizational-units/:id/rename'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/organizational_unit').renameOrganizationalUnitValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/organizational_unit').renameOrganizationalUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['rename']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['rename']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organizational_units.reparent': {
+    methods: ["POST"]
+    pattern: '/organizational-units/:id/reparent'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/organizational_unit').reparentOrganizationalUnitValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/organizational_unit').reparentOrganizationalUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['reparent']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['reparent']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organizational_units.archive': {
+    methods: ["POST"]
+    pattern: '/organizational-units/:id/archive'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/organizational_unit').administerOrganizationalUnitValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/organizational_unit').administerOrganizationalUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organizational_units.restore': {
+    methods: ["POST"]
+    pattern: '/organizational-units/:id/restore'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/organizational_unit').administerOrganizationalUnitValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/organizational_unit').administerOrganizationalUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

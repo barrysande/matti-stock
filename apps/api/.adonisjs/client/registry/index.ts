@@ -108,6 +108,54 @@ const routes = {
     tokens: [{"old":"/accounts/:id/reactivate","type":0,"val":"accounts","end":""},{"old":"/accounts/:id/reactivate","type":1,"val":"id","end":""},{"old":"/accounts/:id/reactivate","type":0,"val":"reactivate","end":""}],
     types: placeholder as Registry['accounts.reactivate']['types'],
   },
+  'organizational_units.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/organizational-units',
+    tokens: [{"old":"/organizational-units","type":0,"val":"organizational-units","end":""}],
+    types: placeholder as Registry['organizational_units.index']['types'],
+  },
+  'organizational_units.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/organizational-units/:id',
+    tokens: [{"old":"/organizational-units/:id","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['organizational_units.show']['types'],
+  },
+  'organizational_units.store': {
+    methods: ["POST"],
+    pattern: '/organizational-units',
+    tokens: [{"old":"/organizational-units","type":0,"val":"organizational-units","end":""}],
+    types: placeholder as Registry['organizational_units.store']['types'],
+  },
+  'organizational_units.access_impact': {
+    methods: ["POST"],
+    pattern: '/organizational-units/:id/access-impact',
+    tokens: [{"old":"/organizational-units/:id/access-impact","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id/access-impact","type":1,"val":"id","end":""},{"old":"/organizational-units/:id/access-impact","type":0,"val":"access-impact","end":""}],
+    types: placeholder as Registry['organizational_units.access_impact']['types'],
+  },
+  'organizational_units.rename': {
+    methods: ["POST"],
+    pattern: '/organizational-units/:id/rename',
+    tokens: [{"old":"/organizational-units/:id/rename","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id/rename","type":1,"val":"id","end":""},{"old":"/organizational-units/:id/rename","type":0,"val":"rename","end":""}],
+    types: placeholder as Registry['organizational_units.rename']['types'],
+  },
+  'organizational_units.reparent': {
+    methods: ["POST"],
+    pattern: '/organizational-units/:id/reparent',
+    tokens: [{"old":"/organizational-units/:id/reparent","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id/reparent","type":1,"val":"id","end":""},{"old":"/organizational-units/:id/reparent","type":0,"val":"reparent","end":""}],
+    types: placeholder as Registry['organizational_units.reparent']['types'],
+  },
+  'organizational_units.archive': {
+    methods: ["POST"],
+    pattern: '/organizational-units/:id/archive',
+    tokens: [{"old":"/organizational-units/:id/archive","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id/archive","type":1,"val":"id","end":""},{"old":"/organizational-units/:id/archive","type":0,"val":"archive","end":""}],
+    types: placeholder as Registry['organizational_units.archive']['types'],
+  },
+  'organizational_units.restore': {
+    methods: ["POST"],
+    pattern: '/organizational-units/:id/restore',
+    tokens: [{"old":"/organizational-units/:id/restore","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id/restore","type":1,"val":"id","end":""},{"old":"/organizational-units/:id/restore","type":0,"val":"restore","end":""}],
+    types: placeholder as Registry['organizational_units.restore']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

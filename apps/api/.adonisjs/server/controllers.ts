@@ -6,6 +6,7 @@
 export const controllers = {
   Accounts: () => import('#controllers/accounts_controller'),
   HealthChecks: () => import('#controllers/health_checks_controller'),
+  OrganizationalUnits: () => import('#controllers/organizational_units_controller'),
   PasswordResets: () => import('#controllers/password_resets_controller'),
   PasswordSetups: () => import('#controllers/password_setups_controller'),
   Sessions: () => import('#controllers/sessions_controller'),

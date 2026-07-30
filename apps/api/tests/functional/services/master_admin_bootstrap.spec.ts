@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
 import AccessEvent from '#models/access_event'
 import OrganizationalUnit from '#models/organizational_unit'
+import OrganizationalUnitVersion from '#models/organizational_unit_version'
 import Permission from '#models/permission'
 import Person from '#models/person'
 import Role from '#models/role'
@@ -73,6 +74,7 @@ async function cleanupBootstrapTables() {
     'role_version_permissions',
     'role_versions',
     'roles',
+    'organizational_unit_versions',
     'user_accounts',
     'people',
     'organizational_units',
@@ -95,6 +97,10 @@ test.group('Master Admin bootstrap service', (group) => {
     const result = await service.run(data)
 
     const institute = await OrganizationalUnit.findByOrFail('name', data.instituteName)
+    const instituteVersion = await OrganizationalUnitVersion.findByOrFail(
+      'organizationalUnitId',
+      institute.id
+    )
     const account = await UserAccount.findByOrFail('email', data.masterEmail)
     const person = await Person.findOrFail(account.personId)
     const assignment = await RoleAssignment.findByOrFail('accountId', account.id)
@@ -110,6 +116,9 @@ test.group('Master Admin bootstrap service', (group) => {
     assert.equal(Number(account.passwordResetVersion), 1)
     assert.equal(challenge.purpose, 'INITIAL_SETUP')
     assert.equal(assignment.scopeOrgUnitId, institute.id)
+    assert.equal(Number(instituteVersion.version), 1)
+    assert.equal(instituteVersion.reason, 'Deployment-created institute root')
+    assert.isNull(instituteVersion.changedByAccountId)
     assert.equal(assignment.scopeMode, 'INCLUDE_DESCENDANTS')
     assert.isNull(assignment.expiresAt)
     assert.equal(event.targetId, account.id)
@@ -160,6 +169,7 @@ test.group('Master Admin bootstrap service', (group) => {
     assert.equal(await countRows('people'), 1)
     assert.equal(await countRows('user_accounts'), 1)
     assert.equal(await countRows('role_assignments'), 1)
+    assert.equal(await countRows('organizational_unit_versions'), 1)
     assert.equal(await countRows('access_events'), 2)
   })
 

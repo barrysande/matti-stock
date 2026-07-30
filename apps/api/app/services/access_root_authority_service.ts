@@ -54,6 +54,12 @@ export default class AccessRootAuthorityService {
     return { actor, target }
   }
 
+  /** Serializes a root-authorized write and locks its acting account for transactional revalidation. */
+  async lockAdministrationActor(trx: TransactionClientContract, actorAccountId: string) {
+    await this.lockMutations(trx)
+    return this.lockAccount(trx, actorAccountId)
+  }
+
   async assertEffectiveActor(
     actor: UserAccount,
     trx: TransactionClientContract,

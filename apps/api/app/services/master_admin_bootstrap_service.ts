@@ -11,6 +11,7 @@ import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
 import GeneratedPasswordService from '#services/generated_password_service'
+import OrganizationalUnitHistoryService from '#services/organizational_unit_history_service'
 import PasswordChallengeService from '#services/password_challenge_service'
 import type { masterAdminBootstrapValidator } from '#validators/master_admin'
 import type { Infer } from '@vinejs/vine/types'
@@ -25,7 +26,8 @@ export default class MasterAdminBootstrapService {
   constructor(
     private accessEvents: AccessEventService,
     private passwords: GeneratedPasswordService,
-    private passwordChallenges: PasswordChallengeService
+    private passwordChallenges: PasswordChallengeService,
+    private organizationalHistory: OrganizationalUnitHistoryService
   ) {}
 
   private async findMasterRoleVersion(trx: TransactionClientContract) {
@@ -66,10 +68,10 @@ export default class MasterAdminBootstrapService {
       if (institute.name !== name) {
         throw new Error('The active institute root does not match the bootstrap institute name')
       }
-      return institute
+      return { institute, created: false }
     }
 
-    return OrganizationalUnit.create(
+    const created = await OrganizationalUnit.create(
       {
         name,
         unitType: 'INSTITUTE',
@@ -77,14 +79,27 @@ export default class MasterAdminBootstrapService {
       },
       { client: trx }
     )
+
+    return { institute: created, created: true }
   }
 
   private createBootstrap(data: BootstrapData) {
     return db.transaction(async (trx) => {
       const roleVersion = await this.findMasterRoleVersion(trx)
-      const institute = await this.findOrCreateInstitute(trx, data.instituteName)
+      const instituteResult = await this.findOrCreateInstitute(trx, data.instituteName)
+      const institute = instituteResult.institute
       const temporaryPassword = this.passwords.generate()
       const now = DateTime.now()
+
+      if (instituteResult.created) {
+        await this.organizationalHistory.createInitialVersion(
+          institute,
+          'Deployment-created institute root',
+          null,
+          trx,
+          now
+        )
+      }
 
       const person = await Person.create(
         {
@@ -145,6 +160,7 @@ export default class MasterAdminBootstrapService {
     })
   }
 
+  /** Establishes the initial institute root, Master Admin identity, assignment, and setup challenge. */
   async run(data: BootstrapData) {
     try {
       return await this.createBootstrap(data)
