@@ -364,7 +364,7 @@ test.group('Accounts directory and access overview', (group) => {
     assert.notProperty(overview, 'password')
     assert.notProperty(overview, 'credentialVersion')
     assert.notProperty(overview, 'passwordResetVersion')
-    assert.notProperty(overview, 'delegations')
+    assert.deepEqual(overview.delegations, { incoming: [], outgoing: [] })
   })
 
   test('returns not found for an unknown account overview', async ({ client }) => {

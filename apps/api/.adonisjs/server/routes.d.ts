@@ -50,6 +50,14 @@ export type ScannedRoutes = {
     'role_assignments.end': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.replace': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.index': { paramsTuple?: []; params?: {} }
+    'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.store': { paramsTuple?: []; params?: {} }
+    'delegations.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.reject': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.revoke': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.relinquish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -66,6 +74,8 @@ export type ScannedRoutes = {
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.index': { paramsTuple?: []; params?: {} }
     'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.index': { paramsTuple?: []; params?: {} }
+    'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -82,6 +92,8 @@ export type ScannedRoutes = {
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.index': { paramsTuple?: []; params?: {} }
     'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.index': { paramsTuple?: []; params?: {} }
+    'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'sessions.login': { paramsTuple?: []; params?: {} }
@@ -115,6 +127,12 @@ export type ScannedRoutes = {
     'role_assignments.end': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.replace': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.store': { paramsTuple?: []; params?: {} }
+    'delegations.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.reject': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.revoke': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.relinquish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'delegations.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }

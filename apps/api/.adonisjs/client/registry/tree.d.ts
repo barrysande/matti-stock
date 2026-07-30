@@ -68,4 +68,14 @@ export interface ApiDefinition {
     cancel: typeof routes['role_assignments.cancel']
     replace: typeof routes['role_assignments.replace']
   }
+  delegations: {
+    index: typeof routes['delegations.index']
+    show: typeof routes['delegations.show']
+    store: typeof routes['delegations.store']
+    accept: typeof routes['delegations.accept']
+    reject: typeof routes['delegations.reject']
+    revoke: typeof routes['delegations.revoke']
+    relinquish: typeof routes['delegations.relinquish']
+    terminate: typeof routes['delegations.terminate']
+  }
 }

@@ -56,7 +56,7 @@ export default class RoleAssignmentsController {
     await bouncer.with(RoleAssignmentPolicy).authorize('view')
 
     const assignment = await this.directory.overview(params.id)
-    return serialize(RoleAssignmentTransformer.transform(assignment))
+    return serialize(RoleAssignmentTransformer.transform(assignment).useVariant('forOverview'))
   }
 
   async cancel({ params, request, response, auth, bouncer }: HttpContext) {

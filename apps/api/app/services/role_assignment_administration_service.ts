@@ -6,8 +6,8 @@ import RoleAssignment from '#models/role_assignment'
 import RoleAssignmentTermination from '#models/role_assignment_termination'
 import AccessEventService from '#services/access_event_service'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
-import EffectiveAccessService from '#services/effective_access_service'
 import RoleAssignmentProvisioningService from '#services/role_assignment_provisioning_service'
+import RoleAssignmentLifecycleService from '#services/role_assignment_lifecycle_service'
 import type { RequestAuditContext } from '#types/access'
 import type { RoleAssignmentTerminationKind } from '#types/role_assignment'
 import type {
@@ -24,7 +24,7 @@ type ReplaceData = Infer<typeof replaceRoleAssignmentValidator>
 export default class RoleAssignmentAdministrationService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
-    private effectiveAccess: EffectiveAccessService,
+    private assignmentLifecycle: RoleAssignmentLifecycleService,
     private provisioning: RoleAssignmentProvisioningService,
     private accessEvents: AccessEventService
   ) {}
@@ -127,7 +127,7 @@ export default class RoleAssignmentAdministrationService {
       const assignment = await this.lockAssignment(trx, assignmentId)
       this.assertOpen(assignment)
 
-      const state = this.effectiveAccess.state(assignment, now)
+      const state = this.assignmentLifecycle.state(assignment, now)
       if (state.status !== expectedStatus) {
         this.invalid(
           expectedStatus === 'ACTIVE'
@@ -173,7 +173,7 @@ export default class RoleAssignmentAdministrationService {
       const assignment = await this.lockAssignment(trx, assignmentId)
       this.assertOpen(assignment)
 
-      const state = this.effectiveAccess.state(assignment, now)
+      const state = this.assignmentLifecycle.state(assignment, now)
       if (!['ACTIVE', 'UPCOMING'].includes(state.status)) {
         this.invalid('Only an active or upcoming assignment may be replaced.')
       }

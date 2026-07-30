@@ -5,6 +5,21 @@ import type { Infer } from '@vinejs/vine/types'
 type ListData = Infer<typeof indexPhysicalLocationsValidator>
 
 export default class PhysicalLocationDirectoryService {
+  private summaryQuery() {
+    return PhysicalLocation.query()
+  }
+
+  private detailQuery() {
+    return PhysicalLocation.query().preload('versions', (versionQuery) => {
+      versionQuery
+        .preload('parent')
+        .preload('changedByAccount', (accountQuery) => {
+          accountQuery.preload('person')
+        })
+        .orderBy('version', 'desc')
+    })
+  }
+
   private pathFor(
     location: PhysicalLocation,
     locations: Map<string, PhysicalLocation>,
@@ -39,7 +54,7 @@ export default class PhysicalLocationDirectoryService {
 
   /** Lists physical locations with stable full paths and optional current-state filters. */
   async list(data: ListData) {
-    const query = PhysicalLocation.query().orderBy('name', 'asc').orderBy('id', 'asc')
+    const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
 
     if (!data.includeArchived) {
       query.whereNull('archived_at')
@@ -51,7 +66,7 @@ export default class PhysicalLocationDirectoryService {
 
     const [locations, hierarchy] = await Promise.all([
       query,
-      PhysicalLocation.query().orderBy('id', 'asc'),
+      this.summaryQuery().orderBy('id', 'asc'),
     ])
 
     return this.assignPaths(locations, hierarchy).sort((left, right) => {
@@ -63,18 +78,8 @@ export default class PhysicalLocationDirectoryService {
   /** Loads one physical location with its complete effective-dated structural history. */
   async overview(locationId: string) {
     const [location, hierarchy] = await Promise.all([
-      PhysicalLocation.query()
-        .where('id', locationId)
-        .preload('versions', (versionQuery) => {
-          versionQuery
-            .preload('parent')
-            .preload('changedByAccount', (accountQuery) => {
-              accountQuery.preload('person')
-            })
-            .orderBy('version', 'desc')
-        })
-        .firstOrFail(),
-      PhysicalLocation.query().orderBy('id', 'asc'),
+      this.detailQuery().where('id', locationId).firstOrFail(),
+      this.summaryQuery().orderBy('id', 'asc'),
     ])
 
     this.assignPaths([location], hierarchy)

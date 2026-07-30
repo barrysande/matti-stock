@@ -1,4 +1,5 @@
 import type { DateTime } from 'luxon'
+import type Delegation from '#models/delegation'
 import type RoleAssignment from '#models/role_assignment'
 
 export type RoleAssignmentScopeMode = 'THIS_NODE_ONLY' | 'INCLUDE_DESCENDANTS'
@@ -16,8 +17,13 @@ export type RoleAssignmentIneffectiveReason =
   | 'TERMINATED'
 
 export interface EffectiveAccessGrant {
+  evidenceType: 'DIRECT' | 'DELEGATED'
   assignment: RoleAssignment
   assignmentId: string
+  delegation: Delegation | null
+  delegationId: string | null
+  delegatorAccountId: string | null
+  delegateAccountId: string | null
   permissionKey: string
   roleId: string
   roleKey: string

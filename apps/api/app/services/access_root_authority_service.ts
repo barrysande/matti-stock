@@ -6,11 +6,15 @@ import Permission from '#models/permission'
 import RoleAssignment from '#models/role_assignment'
 import UserAccount from '#models/user_account'
 import EffectiveAccessService from '#services/effective_access_service'
+import RoleAssignmentLifecycleService from '#services/role_assignment_lifecycle_service'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
 @inject()
 export default class AccessRootAuthorityService {
-  constructor(private effectiveAccess: EffectiveAccessService) {}
+  constructor(
+    private effectiveAccess: EffectiveAccessService,
+    private assignmentLifecycle: RoleAssignmentLifecycleService
+  ) {}
 
   private lockAccount(trx: TransactionClientContract, accountId: string) {
     return UserAccount.query({ client: trx }).where('id', accountId).forUpdate().firstOrFail()
@@ -135,7 +139,7 @@ export default class AccessRootAuthorityService {
       .map((assignment) => {
         return {
           startsAt: assignment.startsAt,
-          endsAt: this.effectiveAccess.effectiveEnd(assignment),
+          endsAt: this.assignmentLifecycle.effectiveEnd(assignment),
         }
       })
       .filter(({ startsAt, endsAt }) => !endsAt || startsAt < endsAt)

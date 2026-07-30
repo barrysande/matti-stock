@@ -559,4 +559,100 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/role_assignments_controller').default['replace']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'delegations.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/delegations'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/delegation').indexDelegationsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'delegations.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/delegations/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['show']>>>
+    }
+  }
+  'delegations.store': {
+    methods: ["POST"]
+    pattern: '/delegations'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/delegation').createDelegationValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/delegation').createDelegationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'delegations.accept': {
+    methods: ["POST"]
+    pattern: '/delegations/:id/accept'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/delegation').acceptDelegationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/delegation').acceptDelegationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['accept']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['accept']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'delegations.reject': {
+    methods: ["POST"]
+    pattern: '/delegations/:id/reject'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/delegation').rejectDelegationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/delegation').rejectDelegationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['reject']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['reject']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'delegations.revoke': {
+    methods: ["POST"]
+    pattern: '/delegations/:id/revoke'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/delegation').terminateDelegationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/delegation').terminateDelegationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['revoke']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['revoke']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'delegations.relinquish': {
+    methods: ["POST"]
+    pattern: '/delegations/:id/relinquish'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/delegation').terminateDelegationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/delegation').terminateDelegationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['relinquish']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['relinquish']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'delegations.terminate': {
+    methods: ["POST"]
+    pattern: '/delegations/:id/terminate'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/delegation').terminateDelegationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/delegation').terminateDelegationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['terminate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['terminate']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

@@ -5,11 +5,25 @@ import type { Infer } from '@vinejs/vine/types'
 type ListData = Infer<typeof indexRolesValidator>
 
 export default class RoleDirectoryService {
-  private roleQuery() {
+  private summaryQuery() {
+    return Role.query().preload('versions', (versionQuery) => {
+      versionQuery
+        .select('id', 'role_id', 'version')
+        .preload('permissions', (membershipQuery) => {
+          membershipQuery
+            .select('role_version_id', 'permission_key')
+            .orderBy('permission_key', 'asc')
+        })
+        .withCount('assignments')
+        .orderBy('version', 'desc')
+    })
+  }
+
+  private detailQuery() {
     return Role.query().preload('versions', (versionQuery) => {
       versionQuery
         .preload('permissions', (membershipQuery) => {
-          membershipQuery.preload('permission').orderBy('permission_key', 'asc')
+          membershipQuery.orderBy('permission_key', 'asc')
         })
         .preload('createdByAccount', (accountQuery) => {
           accountQuery.preload('person')
@@ -21,7 +35,7 @@ export default class RoleDirectoryService {
 
   /** Lists reusable roles with their current immutable permission version and assignment counts. */
   list(data: ListData) {
-    const query = this.roleQuery().orderBy('name', 'asc').orderBy('id', 'asc')
+    const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
 
     if (!data.includeArchived) {
       query.whereNull('archived_at')
@@ -40,6 +54,6 @@ export default class RoleDirectoryService {
 
   /** Loads one role with complete permission-version history and assignment usage counts. */
   overview(roleId: string) {
-    return this.roleQuery().where('id', roleId).firstOrFail()
+    return this.detailQuery().where('id', roleId).firstOrFail()
   }
 }

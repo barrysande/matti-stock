@@ -5,6 +5,9 @@ import { beforeCreate, belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { UserAccountSchema } from '#database/schema'
 import AccessEvent from '#models/access_event'
+import Delegation from '#models/delegation'
+import DelegationResponse from '#models/delegation_response'
+import DelegationTermination from '#models/delegation_termination'
 import PasswordResetChallenge from '#models/password_reset_challenge'
 import PasswordResetRedemption from '#models/password_reset_redemption'
 import Person from '#models/person'
@@ -31,6 +34,18 @@ export default class UserAccount extends compose(UserAccountSchema, AuthFinder) 
 
   @hasMany(() => RoleAssignment, { foreignKey: 'grantedByAccountId' })
   declare grantedRoleAssignments: HasMany<typeof RoleAssignment>
+
+  @hasMany(() => Delegation, { foreignKey: 'delegatorAccountId' })
+  declare proposedDelegations: HasMany<typeof Delegation>
+
+  @hasMany(() => Delegation, { foreignKey: 'delegateAccountId' })
+  declare receivedDelegations: HasMany<typeof Delegation>
+
+  @hasMany(() => DelegationResponse, { foreignKey: 'respondedByAccountId' })
+  declare delegationResponses: HasMany<typeof DelegationResponse>
+
+  @hasMany(() => DelegationTermination, { foreignKey: 'terminatedByAccountId' })
+  declare delegationTerminations: HasMany<typeof DelegationTermination>
 
   @hasMany(() => RoleVersion, { foreignKey: 'createdByAccountId' })
   declare createdRoleVersions: HasMany<typeof RoleVersion>

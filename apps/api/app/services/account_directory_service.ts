@@ -1,8 +1,9 @@
 import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import UserAccount from '#models/user_account'
-import EffectiveAccessService from '#services/effective_access_service'
+import DelegationDirectoryService from '#services/delegation_directory_service'
 import RoleAssignmentDirectoryService from '#services/role_assignment_directory_service'
+import RoleAssignmentLifecycleService from '#services/role_assignment_lifecycle_service'
 import type { indexAccountsValidator } from '#validators/account'
 import type { Infer } from '@vinejs/vine/types'
 
@@ -13,16 +14,58 @@ type ListData = Infer<typeof indexAccountsValidator>
 @inject()
 export default class AccountDirectoryService {
   constructor(
-    private effectiveAccess: EffectiveAccessService,
-    private roleAssignments: RoleAssignmentDirectoryService
+    private assignmentLifecycle: RoleAssignmentLifecycleService,
+    private roleAssignments: RoleAssignmentDirectoryService,
+    private delegations: DelegationDirectoryService
   ) {}
+
+  private summaryQuery() {
+    return UserAccount.query().join('people', 'people.id', 'user_accounts.person_id')
+  }
+
+  private detailQuery() {
+    return UserAccount.query()
+      .preload('person')
+      .preload('roleAssignments', (assignmentQuery) => {
+        assignmentQuery
+          .preload('account', (accountQuery) => {
+            accountQuery.preload('person')
+          })
+          .preload('roleVersion', (versionQuery) => {
+            versionQuery.preload('permissions').preload('role', (roleQuery) => {
+              roleQuery.preload('versions', (versionsQuery) => {
+                versionsQuery.orderBy('version', 'desc')
+              })
+            })
+          })
+          .preload('scopeOrgUnit')
+          .preload('grantedByAccount', (accountQuery) => {
+            accountQuery.preload('person')
+          })
+          .preload('termination', (terminationQuery) => {
+            terminationQuery.preload('terminatedByAccount', (accountQuery) => {
+              accountQuery.preload('person')
+            })
+          })
+          .orderBy('starts_at', 'desc')
+          .orderBy('id', 'asc')
+      })
+  }
 
   /** Lists safe account-directory records with stable pagination and administrative filters. */
   list(data: ListData) {
-    const query = UserAccount.query()
-      .join('people', 'people.id', 'user_accounts.person_id')
-      .select('user_accounts.*')
-      .preload('person')
+    const query = this.summaryQuery()
+      .select(
+        'user_accounts.id',
+        'user_accounts.person_id',
+        'user_accounts.email',
+        'user_accounts.status',
+        'user_accounts.last_login_at',
+        'user_accounts.created_at'
+      )
+      .preload('person', (personQuery) => {
+        personQuery.select('id', 'display_name', 'staff_number', 'primary_email_verified_at')
+      })
       .orderBy('people.display_name', 'asc')
       .orderBy('user_accounts.id', 'asc')
 
@@ -50,40 +93,14 @@ export default class AccountDirectoryService {
 
   /** Loads one account with its active and upcoming assignment access overview. */
   async overview(accountId: string, now: DateTime = DateTime.now()) {
-    const account = await UserAccount.query()
-      .where('id', accountId)
-      .preload('person')
-      .preload('roleAssignments', (assignmentQuery) => {
-        assignmentQuery
-          .preload('account', (accountQuery) => {
-            accountQuery.preload('person')
-          })
-          .preload('roleVersion', (versionQuery) => {
-            versionQuery.preload('permissions').preload('role', (roleQuery) => {
-              roleQuery.preload('versions', (versionsQuery) => {
-                versionsQuery.orderBy('version', 'desc')
-              })
-            })
-          })
-          .preload('scopeOrgUnit')
-          .preload('grantedByAccount', (accountQuery) => {
-            accountQuery.preload('person')
-          })
-          .preload('termination', (terminationQuery) => {
-            terminationQuery.preload('terminatedByAccount', (accountQuery) => {
-              accountQuery.preload('person')
-            })
-          })
-          .orderBy('starts_at', 'desc')
-          .orderBy('id', 'asc')
-      })
-      .firstOrFail()
+    const account = await this.detailQuery().where('id', accountId).firstOrFail()
 
     const openAssignments = account.roleAssignments.filter((assignment) =>
-      this.effectiveAccess.isOpen(assignment, now)
+      this.assignmentLifecycle.isOpen(assignment, now)
     )
     account.roleAssignments.splice(0, account.roleAssignments.length, ...openAssignments)
     await this.roleAssignments.prepare(openAssignments, now)
+    account.$extras.delegations = await this.delegations.openForAccount(account.id, now)
     return account
   }
 }

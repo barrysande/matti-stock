@@ -644,12 +644,14 @@ through an open-ended root interval; this prevents both immediate and already
 scheduled last-root gaps.
 
 Assignment reads are exposed through a paginated directory and detail
-resource. They show the immutable grant, role-version currency, permissions,
-full current scope path, derived lifecycle status, current ineffectiveness
-reasons, and termination/replacement context. Account overview includes active
-and upcoming grants, including grants currently blocked by account, role, or
-scope state. Terminal history remains in the assignment directory, while the
-chronological access-event timeline remains a later read slice.
+resource. Directory rows carry only identity, account, lightweight immutable
+role and scope, interval, and derived lifecycle data. Detail is a strict
+superset that adds role-version currency and permissions, grant reason and
+actor, current ineffectiveness reasons, and termination/replacement context.
+Account overview uses the detail projection for its active and upcoming
+grants, including grants currently blocked by account, role, or scope state.
+Terminal history remains in the assignment directory, while the chronological
+access-event timeline remains a later read slice.
 
 **Why.** `starts_at` and `expires_at` cannot represent cancellation before a
 future start without producing an invalid interval or destroying the approved
@@ -660,3 +662,127 @@ guards from disagreeing as expiry, termination, account status, role state, or
 organizational reach changes. Returning the effective assignment context also
 establishes the attribution needed by later business-domain audit events
 without coupling this slice to delegation or workflow reassignment.
+
+## D27 — Delegation is append-only temporary coverage with a reversible single-overlap policy
+
+**Decision.** Delegation is represented by four append-only records:
+`delegations` stores one immutable proposal header and exact interval,
+`delegation_assignments` links its complete source assignments,
+`delegation_responses` stores one atomic `ACCEPTED` or `REJECTED` recipient
+response, and `delegation_terminations` stores one early `REVOKED`,
+`RELINQUISHED`, or `ADMINISTRATIVELY_TERMINATED` action. Proposal and
+termination reasons are mandatory. Acceptance reason is optional; rejection
+reason is mandatory.
+
+One proposal has one delegator, one delegate, one interval, and one
+whole-proposal response. Only the current effective direct holder may propose
+its source assignments. The delegate may accept after the start but strictly
+before expiry; authority requires both an accepted response and
+`starts_at <= now < expires_at`. The delegator may revoke pending or accepted
+coverage, the delegate may relinquish accepted coverage, and transactionally
+revalidated direct `access.root` may terminate either administratively.
+`MASTER_ADMIN`, any assignment containing `access.root`, self-delegation, and
+re-delegation are prohibited.
+
+Proposal creation acquires the shared access-mutation lock, locks the delegator
+and delegate accounts, and locks every source-assignment row in deterministic
+order. It then revalidates effective direct ownership, the known source end,
+the protected-root rule, and interval overlap. If any item fails, the whole
+proposal rolls back. A source may have at most one overlapping pending or
+accepted delegation. Source-row locks make concurrent proposals serialize so
+two requests cannot both observe an empty coverage interval.
+
+The database intentionally does not make the source assignment globally
+unique in `delegation_assignments` and does not install a permanent exclusion
+constraint across proposal intervals. It preserves multiple historical
+delegations while the provisioning service enforces the accepted V1
+single-overlap rule. Rejected or terminated proposals do not block later
+coverage. Basic future support for parallel delegates can therefore be
+introduced by deliberately changing service policy, tests, and documentation
+without rewriting historical rows; an explicit parallel-coverage mode or
+additional approval workflow could still justify later schema changes.
+
+`DelegatedAccessQueryService` is a storage collaborator that selects accepted,
+started, unexpired, unterminated proposals for an active delegate. It does not
+define source effectiveness. `EffectiveAccessService` remains the central
+public resolver and intersects those links with its existing active account,
+assignment, role, organizational-scope, hierarchy, and permission definition.
+Direct and delegated grants form a union. Direct evidence is ordered first;
+delegated evidence is deterministic by delegation start, delegation ID, and
+source-assignment ID. Delegated evidence retains the source assignment,
+delegator, delegate, and delegation.
+
+Role-assignment lifecycle projection is separated into
+`RoleAssignmentLifecycleService` so assignment status remains cohesive while
+the central resolver stays within the functional-module boundary. Current
+account output retains `roleAssignments` for direct appointments, adds
+`delegatedRoleAssignments`, and unions both into `effectivePermissionKeys`.
+Administrative account overview shows incoming and outgoing active or upcoming
+delegations separately. Delegation directory reads are limited to the two
+participants and effective root oversight.
+
+Delegation changes access only. It does not rewrite the source assignment,
+organizational appointment, custody, pending task ownership, or previously
+completed work. A directly appointed Stock Supervisor remains the
+manager-of-record; temporary coverage is presented separately. If one source
+later becomes ineffective, only that item stops authorizing actions. A
+delegation termination ends every item. Natural expiry is always checked
+synchronously; no scheduler or queue is required for security correctness.
+
+**Why.** Whole-assignment delegation is an escape hatch for temporary
+managerial absence, not a capacity-planning mechanism. Parallel delegation
+would multiply complete permission and organizational reach, allow more people
+to initiate unrelated work, turn accidental duplicate proposals into access
+expansion, and blur direct organizational responsibility. The institute has
+therefore selected one overlapping coverage arrangement per source for V1.
+Direct assignments, narrower reusable roles, or later task routing cover
+legitimate parallel participation until operational evidence justifies
+revisiting that policy. Enforcing the choice under service locks provides the
+safe concurrency behavior needed now without freezing the data model around an
+uncertain future rule.
+
+## D28 — Directory summaries and detail resources use separate query graphs
+
+**Decision.** Resource directories with both index and show workflows define a
+`summaryQuery()` and a `detailQuery()`. Index and embedded account-directory
+collections use the summary graph; show uses the detail graph. A detail
+projection is a strict superset of its list projection where practical.
+Mutation endpoints continue to return concise messages because the client
+redirects to, or refreshes, the authoritative read resource after a successful
+write.
+
+Delegation summaries contain participants, proposal interval, derived
+lifecycle, `effectiveItemCount`, `totalItemCount`, and lightweight source
+assignment role, scope, source status, and per-item effectiveness. They omit
+proposal reasons, response and termination audit actors, permission lists,
+grant actors, and complete source-assignment termination context. Delegation
+detail adds those fields and is the only delegation read that invokes the full
+`RoleAssignmentTransformer` projection. Account overview deliberately embeds
+delegation summaries because it is an account-oriented access overview rather
+than a delegation audit resource.
+
+Role-assignment directory rows likewise omit permissions, grant and
+termination actors, reasons, role-version currency, and ineffectiveness
+diagnostics; the assignment detail resource adds them. Role lists avoid
+loading version audit actors and unused permission metadata, while role detail
+retains complete version history. Accounts, organizational units, and physical
+locations already followed lightweight-list/rich-detail response contracts;
+their directory services now name the two query graphs explicitly. The
+permission vocabulary remains list-only and therefore has no artificial
+detail query.
+
+Lifecycle remains derived rather than stored in a mutable status column.
+Delegation participant visibility and delegation and role-assignment status
+filtering remain SQL predicates so pagination is applied only after
+authorization and filtering. Focused tests must keep each SQL status filter
+aligned with the category returned by the applicable in-memory lifecycle
+projection.
+
+**Why.** Reusing a deeply preloaded detail graph for a paginated list multiplies
+fixed relation queries, transfers audit data the list cannot display, and
+couples routine navigation to the most expensive resource shape. Separate
+graphs make read cost and response intent visible without weakening
+authorization or creating a second lifecycle definition. Per-item and
+aggregate effectiveness also prevent a partly effective whole-proposal
+delegation from being presented as though every delegated assignment still
+authorizes work.

@@ -4342,6 +4342,33 @@ their own account. Rejection shall require no replacement action by the system;
 the delegator may propose another delegation. An accepted delegation shall
 grant authority only during its exact validity interval.
 
+One proposal may contain several complete assignments held directly and
+effectively by one delegator, but it shall name one delegate and receive one
+atomic whole-proposal response. Only the current effective direct holder may
+propose an assignment; root administration shall not propose another holder's
+authority. Acceptance may occur after the scheduled start but strictly before
+expiry. Authority begins only after both acceptance and the start have
+occurred. Acceptance reasons are optional; proposal, rejection, revocation,
+relinquishment, and administrative-termination reasons are mandatory.
+
+V1 shall permit at most one overlapping pending or accepted delegation for
+each source role assignment. Proposal creation shall reject the entire bundle
+when any selected source already has overlapping coverage. Rejected, expired,
+revoked, relinquished, and administratively terminated delegations shall not
+block later coverage. This is a reversible application-level safety policy,
+not a permanent database restriction.
+
+The single-coverage rule deliberately treats delegation as an exceptional
+temporary managerial-coverage mechanism. Allowing multiple delegates would
+multiply every permission and the full organizational reach of the source
+assignment, increase the number of people able to initiate unrelated work, and
+make accidental duplicate proposals an access-expansion event. It could also
+blur the distinction between the directly appointed departmental manager and
+temporary acting coverage. V1 sidesteps those risks until real institutional
+evidence establishes a parallel-delegation need. Parallel operational
+participation shall instead use deliberate direct assignments, narrower
+reusable roles, or later task-routing capabilities.
+
 The delegate shall act through their own account, and every resulting event
 shall preserve both the acting user and the delegation through which authority
 was obtained. Re-delegation shall be prohibited by default.
@@ -4356,10 +4383,28 @@ role as non-delegatable when its established authority must not be transferred.
 Routine delegation of a delegatable role shall require the delegator's proposal
 and the delegate's acceptance, without adding a separate managerial approval.
 
+Delegation shall not change who organizational views identify as the directly
+appointed manager or role holder. The direct holder remains the
+manager-of-record, while temporary coverage is shown separately as delegated
+authority. Proposer and recipient interfaces shall warn that the complete
+assignment is being transferred temporarily and shall show its role,
+permissions, organizational scope and descendant reach, and exact interval
+before confirmation.
+
 Delegated authority shall expire automatically and may be revoked earlier
-through an append-only revocation. Authorization checks shall enforce the exact
-validity interval directly: once `now >= expires_at`, access through the
-delegation shall be denied even if a background process is delayed.
+through an append-only action. The delegator may revoke pending or accepted
+coverage, the delegate may relinquish accepted coverage, and effective
+`access.root` may terminate pending or accepted coverage administratively.
+Authorization checks shall enforce the exact validity interval directly: once
+`now >= expires_at`, access through the delegation shall be denied even if a
+background process is delayed.
+
+Every source shall be effective when proposed and shall have a known effective
+end no earlier than the requested delegation expiry. A later source-assignment
+termination or account, role, or organizational-scope deactivation shall stop
+only the affected delegated item immediately; other items in the accepted
+proposal may remain effective. Ending the delegation itself ends all items.
+Delegated authority shall never be a source for another delegation.
 
 A scheduled or queued expiry process may append the expiry event, refresh
 permission projections, invalidate relevant cached authorization or sessions,
@@ -4378,6 +4423,12 @@ checklist. Recipient acceptance proves that the temporary responsibility was
 knowingly received. Enforcing expiry during every authorization decision
 closes the delay window inherent in background jobs, while queued expiry
 processing keeps audit events, caches, sessions, and notifications synchronized.
+Keeping the single-overlap restriction in the service preserves the accepted
+safe default without making it an irreversible data-model assumption. If
+operational evidence later supports parallel temporary coverage, the existing
+append-only proposal, response, termination, and evidence model can retain its
+history while the service policy, tests, and presentation are deliberately
+revised.
 
 #### DEC-006: Preserve account lifecycle and provide manual access oversight
 

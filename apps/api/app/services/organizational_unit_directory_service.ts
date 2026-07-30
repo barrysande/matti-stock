@@ -5,6 +5,21 @@ import type { Infer } from '@vinejs/vine/types'
 type ListData = Infer<typeof indexOrganizationalUnitsValidator>
 
 export default class OrganizationalUnitDirectoryService {
+  private summaryQuery() {
+    return OrganizationalUnit.query()
+  }
+
+  private detailQuery() {
+    return OrganizationalUnit.query().preload('versions', (versionQuery) => {
+      versionQuery
+        .preload('parent')
+        .preload('changedByAccount', (accountQuery) => {
+          accountQuery.preload('person')
+        })
+        .orderBy('version', 'desc')
+    })
+  }
+
   private pathFor(
     unit: OrganizationalUnit,
     units: Map<string, OrganizationalUnit>,
@@ -39,7 +54,7 @@ export default class OrganizationalUnitDirectoryService {
 
   /** Lists the current organizational projection with stable, unambiguous hierarchy paths. */
   async list(data: ListData) {
-    const query = OrganizationalUnit.query().orderBy('name', 'asc').orderBy('id', 'asc')
+    const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
 
     if (!data.includeArchived) {
       query.whereNull('archived_at')
@@ -63,18 +78,8 @@ export default class OrganizationalUnitDirectoryService {
   /** Loads one unit together with its complete effective-dated structural history. */
   async overview(unitId: string) {
     const [unit, allUnits] = await Promise.all([
-      OrganizationalUnit.query()
-        .where('id', unitId)
-        .preload('versions', (versionQuery) => {
-          versionQuery
-            .preload('parent')
-            .preload('changedByAccount', (accountQuery) => {
-              accountQuery.preload('person')
-            })
-            .orderBy('version', 'desc')
-        })
-        .firstOrFail(),
-      OrganizationalUnit.query().orderBy('id', 'asc'),
+      this.detailQuery().where('id', unitId).firstOrFail(),
+      this.summaryQuery().orderBy('id', 'asc'),
     ])
 
     this.assignPaths([...allUnits, unit])

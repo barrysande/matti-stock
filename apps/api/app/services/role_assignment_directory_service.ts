@@ -1,8 +1,8 @@
 import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import RoleAssignment from '#models/role_assignment'
-import EffectiveAccessService from '#services/effective_access_service'
 import OrganizationalScopeService from '#services/organizational_scope_service'
+import RoleAssignmentLifecycleService from '#services/role_assignment_lifecycle_service'
 import type { indexRoleAssignmentsValidator } from '#validators/role_assignment'
 import type { Infer } from '@vinejs/vine/types'
 
@@ -12,11 +12,31 @@ type ListData = Infer<typeof indexRoleAssignmentsValidator>
 @inject()
 export default class RoleAssignmentDirectoryService {
   constructor(
-    private effectiveAccess: EffectiveAccessService,
+    private assignmentLifecycle: RoleAssignmentLifecycleService,
     private organizationalScopes: OrganizationalScopeService
   ) {}
 
-  private assignmentQuery() {
+  private summaryQuery() {
+    return RoleAssignment.query()
+      .preload('account', (builder) => {
+        builder.select('id', 'person_id', 'email', 'status').preload('person', (personBuilder) => {
+          personBuilder.select('id', 'display_name')
+        })
+      })
+      .preload('scopeOrgUnit', (builder) => {
+        builder.select('id', 'name', 'unit_type', 'archived_at')
+      })
+      .preload('termination', (builder) => {
+        builder.select('id', 'assignment_id', 'kind', 'effective_at')
+      })
+      .preload('roleVersion', (builder) => {
+        builder.select('id', 'role_id', 'version').preload('role', (roleBuilder) => {
+          roleBuilder.select('id', 'key', 'name', 'archived_at')
+        })
+      })
+  }
+
+  private detailQuery() {
     return RoleAssignment.query()
       .preload('account', (builder) => {
         builder.preload('person')
@@ -39,13 +59,21 @@ export default class RoleAssignmentDirectoryService {
       })
   }
 
-  private async decorate(assignments: RoleAssignment[], now: DateTime) {
+  private async decorateSummary(assignments: RoleAssignment[], now: DateTime) {
     const { unitMap } = await this.organizationalScopes.hierarchy()
 
     for (const assignment of assignments) {
       const scope = unitMap.get(assignment.scopeOrgUnitId)
       assignment.scopeOrgUnit.$extras.path = scope?.$extras.path ?? assignment.scopeOrgUnit.name
-      assignment.$extras.assignmentState = this.effectiveAccess.state(assignment, now)
+      assignment.$extras.assignmentState = this.assignmentLifecycle.state(assignment, now)
+    }
+
+    return assignments
+  }
+
+  private async decorateDetail(assignments: RoleAssignment[], now: DateTime) {
+    await this.decorateSummary(assignments, now)
+    for (const assignment of assignments) {
       assignment.$extras.isLatestRoleVersion =
         assignment.roleVersion.role.versions[0]?.id === assignment.roleVersionId
     }
@@ -55,12 +83,12 @@ export default class RoleAssignmentDirectoryService {
 
   /** Prepares already-loaded assignments for the shared safe API projection. */
   prepare(assignments: RoleAssignment[], now: DateTime = DateTime.now()) {
-    return this.decorate(assignments, now)
+    return this.decorateDetail(assignments, now)
   }
 
   /** Lists assignment history and current grants using stable pagination and lifecycle filters. */
   async list(data: ListData, now: DateTime = DateTime.now()) {
-    const query = this.assignmentQuery().orderBy('starts_at', 'desc').orderBy('id', 'asc')
+    const query = this.summaryQuery().orderBy('starts_at', 'desc').orderBy('id', 'asc')
 
     if (data.accountId) query.where('account_id', data.accountId)
     if (data.scopeOrganizationalUnitId) {
@@ -95,14 +123,14 @@ export default class RoleAssignmentDirectoryService {
     }
 
     const assignments = await query.paginate(data.page ?? 1, ASSIGNMENTS_PER_PAGE)
-    await this.decorate(assignments.all(), now)
+    await this.decorateSummary(assignments.all(), now)
     return assignments
   }
 
   /** Loads one assignment with its immutable role, scope, grant, and termination context. */
   async overview(assignmentId: string, now: DateTime = DateTime.now()) {
-    const assignment = await this.assignmentQuery().where('id', assignmentId).firstOrFail()
-    await this.decorate([assignment], now)
+    const assignment = await this.detailQuery().where('id', assignmentId).firstOrFail()
+    await this.decorateDetail([assignment], now)
     return assignment
   }
 }

@@ -2,63 +2,81 @@ import { BaseTransformer } from '@adonisjs/core/transformers'
 import type RoleAssignment from '#models/role_assignment'
 import type { RoleAssignmentState } from '#types/role_assignment'
 
+export function roleAssignmentSummary(resource: RoleAssignment) {
+  const state = resource.$extras.assignmentState as RoleAssignmentState
+
+  return {
+    id: resource.id,
+    account: {
+      id: resource.account.id,
+      displayName: resource.account.person.displayName,
+      email: resource.account.email,
+      status: resource.account.status,
+    },
+    role: {
+      id: resource.roleVersion.role.id,
+      key: resource.roleVersion.role.key,
+      name: resource.roleVersion.role.name,
+      versionId: resource.roleVersion.id,
+      version: Number(resource.roleVersion.version),
+    },
+    scope: {
+      organizationalUnitId: resource.scopeOrgUnit.id,
+      name: resource.scopeOrgUnit.name,
+      path: String(resource.scopeOrgUnit.$extras.path),
+      unitType: resource.scopeOrgUnit.unitType,
+      mode: resource.scopeMode,
+    },
+    startsAt: resource.startsAt,
+    expiresAt: resource.expiresAt,
+    status: state.status,
+    effectiveNow: state.effectiveNow,
+  }
+}
+
+export function roleAssignmentOverview(resource: RoleAssignment) {
+  const state = resource.$extras.assignmentState as RoleAssignmentState
+  const termination = resource.termination
+  const summary = roleAssignmentSummary(resource)
+
+  return {
+    ...summary,
+    role: {
+      ...summary.role,
+      isLatestVersion: Boolean(resource.$extras.isLatestRoleVersion),
+      permissionKeys: resource.roleVersion.permissions.map(({ permissionKey }) => permissionKey),
+    },
+    reason: resource.reason,
+    grantedBy: resource.grantedByAccountId
+      ? {
+          accountId: resource.grantedByAccountId,
+          displayName: resource.grantedByAccount.person.displayName,
+        }
+      : null,
+    createdAt: resource.createdAt,
+    ineffectiveReasons: state.ineffectiveReasons,
+    termination: termination
+      ? {
+          kind: termination.kind,
+          effectiveAt: termination.effectiveAt,
+          reason: termination.reason,
+          terminatedBy: {
+            accountId: termination.terminatedByAccountId,
+            displayName: termination.terminatedByAccount.person.displayName,
+          },
+          replacementAssignmentId: termination.replacementAssignmentId,
+          createdAt: termination.createdAt,
+        }
+      : null,
+  }
+}
+
 export default class RoleAssignmentTransformer extends BaseTransformer<RoleAssignment> {
   toObject() {
-    const state = this.resource.$extras.assignmentState as RoleAssignmentState
-    const termination = this.resource.termination
+    return roleAssignmentSummary(this.resource)
+  }
 
-    return {
-      id: this.resource.id,
-      account: {
-        id: this.resource.account.id,
-        displayName: this.resource.account.person.displayName,
-        email: this.resource.account.email,
-        status: this.resource.account.status,
-      },
-      role: {
-        id: this.resource.roleVersion.role.id,
-        key: this.resource.roleVersion.role.key,
-        name: this.resource.roleVersion.role.name,
-        versionId: this.resource.roleVersion.id,
-        version: Number(this.resource.roleVersion.version),
-        isLatestVersion: Boolean(this.resource.$extras.isLatestRoleVersion),
-        permissionKeys: this.resource.roleVersion.permissions.map(
-          ({ permissionKey }) => permissionKey
-        ),
-      },
-      scope: {
-        organizationalUnitId: this.resource.scopeOrgUnit.id,
-        name: this.resource.scopeOrgUnit.name,
-        path: String(this.resource.scopeOrgUnit.$extras.path),
-        unitType: this.resource.scopeOrgUnit.unitType,
-        mode: this.resource.scopeMode,
-      },
-      startsAt: this.resource.startsAt,
-      expiresAt: this.resource.expiresAt,
-      reason: this.resource.reason,
-      grantedBy: this.resource.grantedByAccountId
-        ? {
-            accountId: this.resource.grantedByAccountId,
-            displayName: this.resource.grantedByAccount.person.displayName,
-          }
-        : null,
-      createdAt: this.resource.createdAt,
-      status: state.status,
-      effectiveNow: state.effectiveNow,
-      ineffectiveReasons: state.ineffectiveReasons,
-      termination: termination
-        ? {
-            kind: termination.kind,
-            effectiveAt: termination.effectiveAt,
-            reason: termination.reason,
-            terminatedBy: {
-              accountId: termination.terminatedByAccountId,
-              displayName: termination.terminatedByAccount.person.displayName,
-            },
-            replacementAssignmentId: termination.replacementAssignmentId,
-            createdAt: termination.createdAt,
-          }
-        : null,
-    }
+  forOverview() {
+    return roleAssignmentOverview(this.resource)
   }
 }

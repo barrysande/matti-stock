@@ -134,7 +134,7 @@ test.group('Role assignments directory', (group) => {
     unauthorized.assertStatus(403)
   })
 
-  test('lists filtered assignments with lifecycle, role, permission, and full-scope context', async ({
+  test('lists filtered assignments with lightweight lifecycle, role, and scope context', async ({
     client,
     assert,
   }) => {
@@ -175,8 +175,6 @@ test.group('Role assignments directory', (group) => {
         name: 'Department Counter',
         versionId: fixture.version.id,
         version: 1,
-        isLatestVersion: true,
-        permissionKeys: ['stocktake.count'],
       },
       scope: {
         organizationalUnitId: fixture.department.id,
@@ -187,10 +185,85 @@ test.group('Role assignments directory', (group) => {
       },
       status: 'ACTIVE',
       effectiveNow: true,
-      ineffectiveReasons: [],
-      reason: 'Count Engineering stock',
     })
     assert.notProperty(response.body().data[0].account, 'password')
+    assert.notProperty(response.body().data[0], 'reason')
+    assert.notProperty(response.body().data[0], 'grantedBy')
+    assert.notProperty(response.body().data[0], 'termination')
+    assert.notProperty(response.body().data[0], 'ineffectiveReasons')
+    assert.notProperty(response.body().data[0].role, 'permissionKeys')
+  })
+
+  test('returns the same derived lifecycle category for every SQL status filter', async ({
+    client,
+    assert,
+  }) => {
+    const fixture = await createFixture()
+    const now = DateTime.now()
+    const records: Array<{
+      status: 'UPCOMING' | 'ACTIVE' | 'EXPIRED' | 'ENDED' | 'CANCELLED' | 'REPLACED'
+      assignment: RoleAssignment
+    }> = []
+
+    for (const status of [
+      'UPCOMING',
+      'ACTIVE',
+      'EXPIRED',
+      'ENDED',
+      'CANCELLED',
+      'REPLACED',
+    ] as const) {
+      const assignment = await RoleAssignment.create({
+        accountId: fixture.target.id,
+        roleVersionId: fixture.version.id,
+        scopeOrgUnitId: fixture.department.id,
+        scopeMode: 'THIS_NODE_ONLY',
+        startsAt: status === 'UPCOMING' ? now.plus({ days: 1 }) : now.minus({ days: 1 }),
+        expiresAt: status === 'EXPIRED' ? now.minus({ minutes: 1 }) : now.plus({ days: 2 }),
+        grantedByAccountId: fixture.actor.id,
+        reason: `Lifecycle fixture for ${status}`,
+      })
+      if (status === 'ENDED' || status === 'CANCELLED' || status === 'REPLACED') {
+        const replacement =
+          status === 'REPLACED'
+            ? await RoleAssignment.create({
+                accountId: fixture.actor.id,
+                roleVersionId: fixture.version.id,
+                scopeOrgUnitId: fixture.department.id,
+                scopeMode: 'THIS_NODE_ONLY',
+                startsAt: now.plus({ days: 1 }),
+                expiresAt: now.plus({ days: 3 }),
+                grantedByAccountId: fixture.actor.id,
+                reason: 'Replacement lifecycle fixture',
+              })
+            : null
+        await RoleAssignmentTermination.create({
+          assignmentId: assignment.id,
+          kind: status,
+          effectiveAt: now,
+          replacementAssignmentId: replacement?.id ?? null,
+          terminatedByAccountId: fixture.actor.id,
+          reason: `End ${status.toLowerCase()} fixture`,
+        })
+      }
+      records.push({ status, assignment })
+    }
+
+    for (const { status, assignment } of records) {
+      const response = await authenticatedRequest(
+        client.get('/role-assignments').qs({
+          accountId: fixture.target.id,
+          status,
+        }),
+        fixture.actor
+      )
+      response.assertStatus(200)
+      assert.deepEqual(
+        response.body().data.map(({ id }: { id: string }) => id),
+        [assignment.id]
+      )
+      assert.equal(response.body().data[0].status, status)
+    }
   })
 
   test('shows cancellation and immutable original grant details', async ({ client, assert }) => {
@@ -224,6 +297,8 @@ test.group('Role assignments directory', (group) => {
     assert.equal(response.body().data.status, 'CANCELLED')
     assert.equal(response.body().data.effectiveNow, false)
     assert.equal(response.body().data.startsAt, startsAt.toISO())
+    assert.deepEqual(response.body().data.role.permissionKeys, ['stocktake.count'])
+    assert.equal(response.body().data.reason, 'Planned count coverage')
     assert.deepInclude(response.body().data.termination, {
       kind: 'CANCELLED',
       reason: 'The planned count was cancelled',

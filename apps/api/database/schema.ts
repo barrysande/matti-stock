@@ -36,6 +36,74 @@ export class AccessEventSchema extends BaseModel {
   declare targetType: string
 }
 
+export class DelegationAssignmentSchema extends BaseModel {
+  static $columns = ['createdAt', 'delegationId', 'id', 'sourceAssignmentId'] as const
+  $columns = DelegationAssignmentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare delegationId: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare sourceAssignmentId: string
+}
+
+export class DelegationResponseSchema extends BaseModel {
+  static $columns = ['createdAt', 'delegationId', 'id', 'kind', 'reason', 'respondedByAccountId'] as const
+  $columns = DelegationResponseSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare delegationId: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare kind: string
+  @column()
+  declare reason: string | null
+  @column()
+  declare respondedByAccountId: string
+}
+
+export class DelegationTerminationSchema extends BaseModel {
+  static $columns = ['createdAt', 'delegationId', 'effectiveAt', 'id', 'kind', 'reason', 'terminatedByAccountId'] as const
+  $columns = DelegationTerminationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare delegationId: string
+  @column.dateTime()
+  declare effectiveAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare kind: string
+  @column()
+  declare reason: string
+  @column()
+  declare terminatedByAccountId: string
+}
+
+export class DelegationSchema extends BaseModel {
+  static $columns = ['createdAt', 'delegateAccountId', 'delegatorAccountId', 'expiresAt', 'id', 'reason', 'startsAt'] as const
+  $columns = DelegationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare delegateAccountId: string
+  @column()
+  declare delegatorAccountId: string
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare reason: string
+  @column.dateTime()
+  declare startsAt: DateTime
+}
+
 export class LockSchema extends BaseModel {
   static $columns = ['expiration', 'key', 'owner'] as const
   $columns = LockSchema.$columns

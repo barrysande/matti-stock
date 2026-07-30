@@ -282,6 +282,54 @@ const routes = {
     tokens: [{"old":"/role-assignments/:id/replace","type":0,"val":"role-assignments","end":""},{"old":"/role-assignments/:id/replace","type":1,"val":"id","end":""},{"old":"/role-assignments/:id/replace","type":0,"val":"replace","end":""}],
     types: placeholder as Registry['role_assignments.replace']['types'],
   },
+  'delegations.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/delegations',
+    tokens: [{"old":"/delegations","type":0,"val":"delegations","end":""}],
+    types: placeholder as Registry['delegations.index']['types'],
+  },
+  'delegations.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/delegations/:id',
+    tokens: [{"old":"/delegations/:id","type":0,"val":"delegations","end":""},{"old":"/delegations/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['delegations.show']['types'],
+  },
+  'delegations.store': {
+    methods: ["POST"],
+    pattern: '/delegations',
+    tokens: [{"old":"/delegations","type":0,"val":"delegations","end":""}],
+    types: placeholder as Registry['delegations.store']['types'],
+  },
+  'delegations.accept': {
+    methods: ["POST"],
+    pattern: '/delegations/:id/accept',
+    tokens: [{"old":"/delegations/:id/accept","type":0,"val":"delegations","end":""},{"old":"/delegations/:id/accept","type":1,"val":"id","end":""},{"old":"/delegations/:id/accept","type":0,"val":"accept","end":""}],
+    types: placeholder as Registry['delegations.accept']['types'],
+  },
+  'delegations.reject': {
+    methods: ["POST"],
+    pattern: '/delegations/:id/reject',
+    tokens: [{"old":"/delegations/:id/reject","type":0,"val":"delegations","end":""},{"old":"/delegations/:id/reject","type":1,"val":"id","end":""},{"old":"/delegations/:id/reject","type":0,"val":"reject","end":""}],
+    types: placeholder as Registry['delegations.reject']['types'],
+  },
+  'delegations.revoke': {
+    methods: ["POST"],
+    pattern: '/delegations/:id/revoke',
+    tokens: [{"old":"/delegations/:id/revoke","type":0,"val":"delegations","end":""},{"old":"/delegations/:id/revoke","type":1,"val":"id","end":""},{"old":"/delegations/:id/revoke","type":0,"val":"revoke","end":""}],
+    types: placeholder as Registry['delegations.revoke']['types'],
+  },
+  'delegations.relinquish': {
+    methods: ["POST"],
+    pattern: '/delegations/:id/relinquish',
+    tokens: [{"old":"/delegations/:id/relinquish","type":0,"val":"delegations","end":""},{"old":"/delegations/:id/relinquish","type":1,"val":"id","end":""},{"old":"/delegations/:id/relinquish","type":0,"val":"relinquish","end":""}],
+    types: placeholder as Registry['delegations.relinquish']['types'],
+  },
+  'delegations.terminate': {
+    methods: ["POST"],
+    pattern: '/delegations/:id/terminate',
+    tokens: [{"old":"/delegations/:id/terminate","type":0,"val":"delegations","end":""},{"old":"/delegations/:id/terminate","type":1,"val":"id","end":""},{"old":"/delegations/:id/terminate","type":0,"val":"terminate","end":""}],
+    types: placeholder as Registry['delegations.terminate']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

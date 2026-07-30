@@ -1,6 +1,8 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
+import type Delegation from '#models/delegation'
 import type UserAccount from '#models/user_account'
-import RoleAssignmentTransformer from '#transformers/role_assignment_transformer'
+import { delegationSummary } from '#transformers/delegation_transformer'
+import { roleAssignmentOverview } from '#transformers/role_assignment_transformer'
 
 export default class AccountTransformer extends BaseTransformer<UserAccount> {
   toObject() {
@@ -20,11 +22,17 @@ export default class AccountTransformer extends BaseTransformer<UserAccount> {
   }
 
   forOverview() {
+    const delegations = this.resource.$extras.delegations as
+      { incoming: Delegation[]; outgoing: Delegation[] } | undefined
     return {
       ...this.toObject(),
-      roleAssignments: RoleAssignmentTransformer.transform(
-        this.whenLoaded(this.resource.roleAssignments)
-      ),
+      roleAssignments: this.resource.roleAssignments.map(roleAssignmentOverview),
+      delegations: delegations
+        ? {
+            incoming: delegations.incoming.map(delegationSummary),
+            outgoing: delegations.outgoing.map(delegationSummary),
+          }
+        : undefined,
     }
   }
 }

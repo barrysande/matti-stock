@@ -104,3 +104,17 @@ router
   })
   .prefix('/role-assignments')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.Delegations, 'index'])
+    router.get('/:id', [controllers.Delegations, 'show'])
+    router.post('/', [controllers.Delegations, 'store'])
+    router.post('/:id/accept', [controllers.Delegations, 'accept'])
+    router.post('/:id/reject', [controllers.Delegations, 'reject'])
+    router.post('/:id/revoke', [controllers.Delegations, 'revoke'])
+    router.post('/:id/relinquish', [controllers.Delegations, 'relinquish'])
+    router.post('/:id/terminate', [controllers.Delegations, 'terminate'])
+  })
+  .prefix('/delegations')
+  .use(middleware.auth({ guards: ['web'] }))

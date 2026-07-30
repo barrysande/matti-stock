@@ -9,7 +9,7 @@ import RoleVersion from '#models/role_version'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
-import EffectiveAccessService from '#services/effective_access_service'
+import RoleAssignmentLifecycleService from '#services/role_assignment_lifecycle_service'
 import type { RequestAuditContext } from '#types/access'
 import type { createRoleAssignmentValidator } from '#validators/role_assignment'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -21,7 +21,7 @@ type CreateData = Infer<typeof createRoleAssignmentValidator>
 export default class RoleAssignmentProvisioningService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
-    private effectiveAccess: EffectiveAccessService,
+    private assignmentLifecycle: RoleAssignmentLifecycleService,
     private accessEvents: AccessEventService
   ) {}
 
@@ -147,7 +147,7 @@ export default class RoleAssignmentProvisioningService {
 
     const assignments = await query
     const overlaps = assignments.some((assignment) => {
-      const existingEndsAt = this.effectiveAccess.effectiveEnd(assignment)
+      const existingEndsAt = this.assignmentLifecycle.effectiveEnd(assignment)
 
       return (
         (!expiresAt || assignment.startsAt < expiresAt) &&

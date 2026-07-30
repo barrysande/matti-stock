@@ -7,6 +7,7 @@
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
 import type AccountTransformer from '#transformers/account_transformer'
 import type CurrentAccountTransformer from '#transformers/current_account_transformer'
+import type DelegationTransformer from '#transformers/delegation_transformer'
 import type OrganizationalUnitTransformer from '#transformers/organizational_unit_transformer'
 import type OrganizationalUnitVersionTransformer from '#transformers/organizational_unit_version_transformer'
 import type PermissionTransformer from '#transformers/permission_transformer'
@@ -24,6 +25,10 @@ export namespace Data {
   export type CurrentAccount = InferData<CurrentAccountTransformer>
   export namespace CurrentAccount {
     export type Variants = InferVariants<CurrentAccountTransformer>
+  }
+  export type Delegation = InferData<DelegationTransformer>
+  export namespace Delegation {
+    export type Variants = InferVariants<DelegationTransformer>
   }
   export type OrganizationalUnit = InferData<OrganizationalUnitTransformer>
   export namespace OrganizationalUnit {
