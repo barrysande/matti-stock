@@ -268,10 +268,8 @@ test.group('Organizational units administration', (group) => {
     assert.lengthOf(versions, 2)
     assert.isNotNull(versions[0].effectiveTo)
     assert.equal(versions[1].name, 'Corporate Services')
-    assert.equal(
-      (await AccessEvent.findByOrFail('eventType', 'ORGANIZATIONAL_UNIT_RENAMED')).reason,
-      'Approved institutional rename'
-    )
+    const event = await AccessEvent.findByOrFail('eventType', 'ORGANIZATIONAL_UNIT_RENAMED')
+    assert.equal(event.reason, 'Approved institutional rename')
   })
 
   test('moves only a sub-department and preserves both parent versions', async ({

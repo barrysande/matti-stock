@@ -523,3 +523,42 @@ fingerprints make descendant-access consequences visible and prevent a
 reviewed impact from being silently replaced by a different concurrent state.
 Reusing the root mutation lock keeps hierarchy and access administration in
 one serialization domain.
+
+## D24 — Physical locations use an independent flexible, versioned hierarchy
+
+**Decision.** Physical places use a hierarchy that is independent from
+organizational custody and permission scope. A location may be top-level or
+belong to one other active location, and the hierarchy may be as deep as the
+institute needs for campuses, buildings, floors, rooms, storage areas, shelves,
+or bins. The system prevents self-parenting and descendant cycles.
+
+`physical_locations` is the current projection used for current paths and
+future stock-location foreign keys. Every creation, rename, reparent, archive,
+or restoration also writes an immutable, consecutively numbered
+`physical_location_versions` snapshot with its effective name, parent, archive
+state, actor, reason, and validity interval. Changes take effect when their
+transaction commits; V1 does not backdate or schedule them.
+
+Active sibling names are unique case-insensitively, including among top-level
+locations. A location with active children cannot be archived, and an archived
+child cannot be restored until its parent is active. Reads return unambiguous
+full paths and Transformer-controlled current and historical fields. Writes
+require effective `access.root` authority, revalidate the actor under the
+shared root mutation lock, append an access-administration event, and return
+only a message.
+
+Location changes do not use the organizational access-impact preview or its
+fingerprint. V1 authorization is scoped through organizational units rather
+than physical locations, so moving a location cannot change a role
+assignment's effective reach. No `Central Store` location is seeded: each
+institute records its real premises explicitly, and later stock intake refers
+to that configured physical place without turning a display name into a
+hard-coded system identity.
+
+**Why.** Physical precision varies naturally across premises and therefore
+does not fit the strict three-level organizational structure. Keeping a
+separate current projection makes location selection and stock foreign keys
+simple, while effective-dated versions preserve the paths that applied to
+historical movements and reports. Omitting an access-impact workflow avoids
+asking administrators to confirm authority consequences that physical
+locations do not produce.

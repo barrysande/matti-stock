@@ -39,4 +39,13 @@ export interface ApiDefinition {
     archive: typeof routes['organizational_units.archive']
     restore: typeof routes['organizational_units.restore']
   }
+  physicalLocations: {
+    index: typeof routes['physical_locations.index']
+    show: typeof routes['physical_locations.show']
+    store: typeof routes['physical_locations.store']
+    rename: typeof routes['physical_locations.rename']
+    reparent: typeof routes['physical_locations.reparent']
+    archive: typeof routes['physical_locations.archive']
+    restore: typeof routes['physical_locations.restore']
+  }
 }

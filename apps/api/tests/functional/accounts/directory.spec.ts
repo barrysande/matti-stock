@@ -144,10 +144,7 @@ test.group('Accounts directory and access overview', (group) => {
     overview.assertStatus(403)
   })
 
-  test('returns a safe, alphabetically ordered paginated directory', async ({
-    client,
-    assert,
-  }) => {
+  test('returns a safe, alphabetically ordered paginated directory', async ({ client, assert }) => {
     const { account: actor } = await createRootActor()
     const lastLoginAt = DateTime.now().minus({ hours: 2 })
     const { account: zed } = await createAccount({
@@ -215,9 +212,7 @@ test.group('Accounts directory and access overview', (group) => {
 
     for (const search of ['Jane', 'jane.finance@example.com', 'FIN-042']) {
       const response = await authenticatedRequest(
-        client
-          .get('/accounts')
-          .qs({ search, status: 'SUSPENDED', setupStatus: 'PENDING' }),
+        client.get('/accounts').qs({ search, status: 'SUSPENDED', setupStatus: 'PENDING' }),
         actor
       )
 

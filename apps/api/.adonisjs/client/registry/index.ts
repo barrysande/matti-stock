@@ -156,6 +156,48 @@ const routes = {
     tokens: [{"old":"/organizational-units/:id/restore","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id/restore","type":1,"val":"id","end":""},{"old":"/organizational-units/:id/restore","type":0,"val":"restore","end":""}],
     types: placeholder as Registry['organizational_units.restore']['types'],
   },
+  'physical_locations.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/physical-locations',
+    tokens: [{"old":"/physical-locations","type":0,"val":"physical-locations","end":""}],
+    types: placeholder as Registry['physical_locations.index']['types'],
+  },
+  'physical_locations.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/physical-locations/:id',
+    tokens: [{"old":"/physical-locations/:id","type":0,"val":"physical-locations","end":""},{"old":"/physical-locations/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['physical_locations.show']['types'],
+  },
+  'physical_locations.store': {
+    methods: ["POST"],
+    pattern: '/physical-locations',
+    tokens: [{"old":"/physical-locations","type":0,"val":"physical-locations","end":""}],
+    types: placeholder as Registry['physical_locations.store']['types'],
+  },
+  'physical_locations.rename': {
+    methods: ["POST"],
+    pattern: '/physical-locations/:id/rename',
+    tokens: [{"old":"/physical-locations/:id/rename","type":0,"val":"physical-locations","end":""},{"old":"/physical-locations/:id/rename","type":1,"val":"id","end":""},{"old":"/physical-locations/:id/rename","type":0,"val":"rename","end":""}],
+    types: placeholder as Registry['physical_locations.rename']['types'],
+  },
+  'physical_locations.reparent': {
+    methods: ["POST"],
+    pattern: '/physical-locations/:id/reparent',
+    tokens: [{"old":"/physical-locations/:id/reparent","type":0,"val":"physical-locations","end":""},{"old":"/physical-locations/:id/reparent","type":1,"val":"id","end":""},{"old":"/physical-locations/:id/reparent","type":0,"val":"reparent","end":""}],
+    types: placeholder as Registry['physical_locations.reparent']['types'],
+  },
+  'physical_locations.archive': {
+    methods: ["POST"],
+    pattern: '/physical-locations/:id/archive',
+    tokens: [{"old":"/physical-locations/:id/archive","type":0,"val":"physical-locations","end":""},{"old":"/physical-locations/:id/archive","type":1,"val":"id","end":""},{"old":"/physical-locations/:id/archive","type":0,"val":"archive","end":""}],
+    types: placeholder as Registry['physical_locations.archive']['types'],
+  },
+  'physical_locations.restore': {
+    methods: ["POST"],
+    pattern: '/physical-locations/:id/restore',
+    tokens: [{"old":"/physical-locations/:id/restore","type":0,"val":"physical-locations","end":""},{"old":"/physical-locations/:id/restore","type":1,"val":"id","end":""},{"old":"/physical-locations/:id/restore","type":0,"val":"restore","end":""}],
+    types: placeholder as Registry['physical_locations.restore']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

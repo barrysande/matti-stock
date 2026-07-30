@@ -163,6 +163,50 @@ export class PermissionSchema extends BaseModel {
   declare key: string
 }
 
+export class PhysicalLocationVersionSchema extends BaseModel {
+  static $columns = ['archivedAt', 'changedByAccountId', 'createdAt', 'effectiveFrom', 'effectiveTo', 'id', 'name', 'parentId', 'physicalLocationId', 'reason', 'version'] as const
+  $columns = PhysicalLocationVersionSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column()
+  declare changedByAccountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare effectiveFrom: DateTime
+  @column.dateTime()
+  declare effectiveTo: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare parentId: string | null
+  @column()
+  declare physicalLocationId: string
+  @column()
+  declare reason: string
+  @column()
+  declare version: number
+}
+
+export class PhysicalLocationSchema extends BaseModel {
+  static $columns = ['archivedAt', 'createdAt', 'id', 'name', 'parentId', 'updatedAt'] as const
+  $columns = PhysicalLocationSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare parentId: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class QueueJobSchema extends BaseModel {
   static $columns = ['acquiredAt', 'data', 'dedupAt', 'dedupId', 'dedupTtl', 'error', 'executeAt', 'finishedAt', 'id', 'queue', 'score', 'status', 'workerId'] as const
   $columns = QueueJobSchema.$columns

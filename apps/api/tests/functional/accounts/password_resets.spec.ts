@@ -146,7 +146,10 @@ test.group('Administrative account credential recovery', (group) => {
     assert.equal(event.reason, reason.reason)
     assert.equal(event.metadata.challengeId, challenge.id)
     assert.equal(event.metadata.purpose, 'RESET')
-    assert.deepEqual(queued.map(({ job }) => job.payload), [{ challengeId: challenge.id }])
+    assert.deepEqual(
+      queued.map(({ job }) => job.payload),
+      [{ challengeId: challenge.id }]
+    )
     assert.deepEqual(Object.keys(response.body()), ['message'])
   })
 
@@ -237,10 +240,8 @@ test.group('Administrative account credential recovery', (group) => {
       .json(reason)
 
     response.assertStatus(200)
-    assert.equal(
-      (await PasswordResetChallenge.findByOrFail('accountId', actor.id)).purpose,
-      'RESET'
-    )
+    const challenge = await PasswordResetChallenge.findByOrFail('accountId', actor.id)
+    assert.equal(challenge.purpose, 'RESET')
     fake.assertPushedCount(1, { queue: 'emails' })
   })
 

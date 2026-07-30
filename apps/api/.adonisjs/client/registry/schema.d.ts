@@ -307,4 +307,88 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'physical_locations.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/physical-locations'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/physical_location').indexPhysicalLocationsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'physical_locations.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/physical-locations/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['show']>>>
+    }
+  }
+  'physical_locations.store': {
+    methods: ["POST"]
+    pattern: '/physical-locations'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/physical_location').createPhysicalLocationValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/physical_location').createPhysicalLocationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'physical_locations.rename': {
+    methods: ["POST"]
+    pattern: '/physical-locations/:id/rename'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/physical_location').renamePhysicalLocationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/physical_location').renamePhysicalLocationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['rename']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['rename']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'physical_locations.reparent': {
+    methods: ["POST"]
+    pattern: '/physical-locations/:id/reparent'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/physical_location').reparentPhysicalLocationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/physical_location').reparentPhysicalLocationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['reparent']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['reparent']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'physical_locations.archive': {
+    methods: ["POST"]
+    pattern: '/physical-locations/:id/archive'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/physical_location').administerPhysicalLocationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/physical_location').administerPhysicalLocationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'physical_locations.restore': {
+    methods: ["POST"]
+    pattern: '/physical-locations/:id/restore'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/physical_location').administerPhysicalLocationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/physical_location').administerPhysicalLocationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

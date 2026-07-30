@@ -59,3 +59,16 @@ router
   })
   .prefix('/organizational-units')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.PhysicalLocations, 'index'])
+    router.get('/:id', [controllers.PhysicalLocations, 'show'])
+    router.post('/', [controllers.PhysicalLocations, 'store'])
+    router.post('/:id/rename', [controllers.PhysicalLocations, 'rename'])
+    router.post('/:id/reparent', [controllers.PhysicalLocations, 'reparent'])
+    router.post('/:id/archive', [controllers.PhysicalLocations, 'archive'])
+    router.post('/:id/restore', [controllers.PhysicalLocations, 'restore'])
+  })
+  .prefix('/physical-locations')
+  .use(middleware.auth({ guards: ['web'] }))
