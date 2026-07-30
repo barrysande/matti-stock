@@ -198,6 +198,54 @@ const routes = {
     tokens: [{"old":"/physical-locations/:id/restore","type":0,"val":"physical-locations","end":""},{"old":"/physical-locations/:id/restore","type":1,"val":"id","end":""},{"old":"/physical-locations/:id/restore","type":0,"val":"restore","end":""}],
     types: placeholder as Registry['physical_locations.restore']['types'],
   },
+  'permissions.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/permissions',
+    tokens: [{"old":"/permissions","type":0,"val":"permissions","end":""}],
+    types: placeholder as Registry['permissions.index']['types'],
+  },
+  'roles.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/roles',
+    tokens: [{"old":"/roles","type":0,"val":"roles","end":""}],
+    types: placeholder as Registry['roles.index']['types'],
+  },
+  'roles.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/roles/:id',
+    tokens: [{"old":"/roles/:id","type":0,"val":"roles","end":""},{"old":"/roles/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['roles.show']['types'],
+  },
+  'roles.store': {
+    methods: ["POST"],
+    pattern: '/roles',
+    tokens: [{"old":"/roles","type":0,"val":"roles","end":""}],
+    types: placeholder as Registry['roles.store']['types'],
+  },
+  'roles.rename': {
+    methods: ["POST"],
+    pattern: '/roles/:id/rename',
+    tokens: [{"old":"/roles/:id/rename","type":0,"val":"roles","end":""},{"old":"/roles/:id/rename","type":1,"val":"id","end":""},{"old":"/roles/:id/rename","type":0,"val":"rename","end":""}],
+    types: placeholder as Registry['roles.rename']['types'],
+  },
+  'roles.replace_permissions': {
+    methods: ["POST"],
+    pattern: '/roles/:id/permissions',
+    tokens: [{"old":"/roles/:id/permissions","type":0,"val":"roles","end":""},{"old":"/roles/:id/permissions","type":1,"val":"id","end":""},{"old":"/roles/:id/permissions","type":0,"val":"permissions","end":""}],
+    types: placeholder as Registry['roles.replace_permissions']['types'],
+  },
+  'roles.archive': {
+    methods: ["POST"],
+    pattern: '/roles/:id/archive',
+    tokens: [{"old":"/roles/:id/archive","type":0,"val":"roles","end":""},{"old":"/roles/:id/archive","type":1,"val":"id","end":""},{"old":"/roles/:id/archive","type":0,"val":"archive","end":""}],
+    types: placeholder as Registry['roles.archive']['types'],
+  },
+  'roles.restore': {
+    methods: ["POST"],
+    pattern: '/roles/:id/restore',
+    tokens: [{"old":"/roles/:id/restore","type":0,"val":"roles","end":""},{"old":"/roles/:id/restore","type":1,"val":"id","end":""},{"old":"/roles/:id/restore","type":0,"val":"restore","end":""}],
+    types: placeholder as Registry['roles.restore']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

@@ -62,6 +62,7 @@ async function createRootActor() {
   const permission = await Permission.create({
     key: 'access.root',
     description: 'Administer identity, access, and organizational authority',
+    customRoleAssignable: false,
   })
   const { roleVersion } = await createRole('MASTER_ADMIN', 'Master Admin')
   await RoleVersionPermission.create({

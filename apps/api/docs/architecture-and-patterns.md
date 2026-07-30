@@ -562,3 +562,42 @@ simple, while effective-dated versions preserve the paths that applied to
 historical movements and reports. Omitting an access-impact workflow avoids
 asking administrators to confirm authority consequences that physical
 locations do not produce.
+
+## D25 — Software-defined permissions feed configurable, immutable role versions
+
+**Decision.** The application owns a stable registry of action-specific
+permission keys. Master Admin may bundle permissions marked as
+custom-role-assignable into centrally managed reusable roles, but cannot invent
+new permission keys through the API. `access.root` is reserved for the
+system-managed `MASTER_ADMIN` role; additional root holders receive that role
+rather than constructing equivalent authority under another name.
+
+The access-registry seeder creates the stable permissions and five initial role
+definitions. `MASTER_ADMIN` remains protected and grants only `access.root`.
+`STORE_SUPERVISOR`, `STOCK_SUPERVISOR`, `FINANCE_SUPERVISOR`, and
+`STOCK_TAKER` are configurable starter roles whose initial memberships express
+the accepted V1 responsibility boundaries. Rerunning the seeder creates
+missing registry entries but never edits an existing immutable role version;
+incompatible existing registry state fails explicitly.
+
+Custom roles receive an opaque immutable `CUSTOM_<UUID>` key while their
+user-facing names may change. Active names are unique case-insensitively.
+Creating or materially changing a role requires at least one distinct,
+assignable permission. A permission change appends a consecutively numbered
+role version and never edits prior memberships. Existing assignments remain on
+the version originally granted, and role reads expose older-version assignment
+counts so replacement can be deliberate.
+
+Only configurable roles may be renamed, re-versioned, archived, or restored. A
+role with an active or upcoming assignment cannot be archived; assignment
+ending and replacement remain explicit access-administration actions. All role
+writes serialize on the shared `access.root` mutation lock, revalidate the
+actor inside the transaction, append an access event, and return only a
+message.
+
+**Why.** A software-owned vocabulary keeps authorization predictable and
+testable, while configurable starter roles provide useful deployment defaults
+without freezing the institute's staffing model. Immutable versions prevent a
+role edit from silently changing existing authority. Reserving the root
+permission and requiring explicit assignment cleanup protect access
+administration from misleading aliases and hidden mass revocation.

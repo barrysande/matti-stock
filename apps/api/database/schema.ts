@@ -153,10 +153,12 @@ export class PersonSchema extends BaseModel {
 }
 
 export class PermissionSchema extends BaseModel {
-  static $columns = ['createdAt', 'description', 'key'] as const
+  static $columns = ['createdAt', 'customRoleAssignable', 'description', 'key'] as const
   $columns = PermissionSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare customRoleAssignable: boolean
   @column()
   declare description: string
   @column({ isPrimary: true })
@@ -334,7 +336,7 @@ export class RoleVersionSchema extends BaseModel {
 }
 
 export class RoleSchema extends BaseModel {
-  static $columns = ['archivedAt', 'createdAt', 'id', 'key', 'name', 'systemManaged'] as const
+  static $columns = ['archivedAt', 'createdAt', 'id', 'key', 'name', 'systemManaged', 'updatedAt'] as const
   $columns = RoleSchema.$columns
   @column.dateTime()
   declare archivedAt: DateTime | null
@@ -348,6 +350,8 @@ export class RoleSchema extends BaseModel {
   declare name: string
   @column()
   declare systemManaged: boolean
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 }
 
 export class UserAccountSchema extends BaseModel {

@@ -72,3 +72,23 @@ router
   })
   .prefix('/physical-locations')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.Permissions, 'index'])
+  })
+  .prefix('/permissions')
+  .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.Roles, 'index'])
+    router.get('/:id', [controllers.Roles, 'show'])
+    router.post('/', [controllers.Roles, 'store'])
+    router.post('/:id/rename', [controllers.Roles, 'rename'])
+    router.post('/:id/permissions', [controllers.Roles, 'replacePermissions'])
+    router.post('/:id/archive', [controllers.Roles, 'archive'])
+    router.post('/:id/restore', [controllers.Roles, 'restore'])
+  })
+  .prefix('/roles')
+  .use(middleware.auth({ guards: ['web'] }))

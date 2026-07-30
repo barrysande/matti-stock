@@ -10,8 +10,11 @@ import type AccountTransformer from '#transformers/account_transformer'
 import type CurrentAccountTransformer from '#transformers/current_account_transformer'
 import type OrganizationalUnitTransformer from '#transformers/organizational_unit_transformer'
 import type OrganizationalUnitVersionTransformer from '#transformers/organizational_unit_version_transformer'
+import type PermissionTransformer from '#transformers/permission_transformer'
 import type PhysicalLocationTransformer from '#transformers/physical_location_transformer'
 import type PhysicalLocationVersionTransformer from '#transformers/physical_location_version_transformer'
+import type RoleTransformer from '#transformers/role_transformer'
+import type RoleVersionTransformer from '#transformers/role_version_transformer'
 
 export namespace Data {
   export type AccountRoleAssignment = InferData<AccountRoleAssignmentTransformer>
@@ -34,6 +37,10 @@ export namespace Data {
   export namespace OrganizationalUnitVersion {
     export type Variants = InferVariants<OrganizationalUnitVersionTransformer>
   }
+  export type Permission = InferData<PermissionTransformer>
+  export namespace Permission {
+    export type Variants = InferVariants<PermissionTransformer>
+  }
   export type PhysicalLocation = InferData<PhysicalLocationTransformer>
   export namespace PhysicalLocation {
     export type Variants = InferVariants<PhysicalLocationTransformer>
@@ -41,5 +48,13 @@ export namespace Data {
   export type PhysicalLocationVersion = InferData<PhysicalLocationVersionTransformer>
   export namespace PhysicalLocationVersion {
     export type Variants = InferVariants<PhysicalLocationVersionTransformer>
+  }
+  export type Role = InferData<RoleTransformer>
+  export namespace Role {
+    export type Variants = InferVariants<RoleTransformer>
+  }
+  export type RoleVersion = InferData<RoleVersionTransformer>
+  export namespace RoleVersion {
+    export type Variants = InferVariants<RoleVersionTransformer>
   }
 }

@@ -391,4 +391,100 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'permissions.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/permissions'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/permissions_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/permissions_controller').default['index']>>>
+    }
+  }
+  'roles.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/roles'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/role').indexRolesValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'roles.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/roles/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['show']>>>
+    }
+  }
+  'roles.store': {
+    methods: ["POST"]
+    pattern: '/roles'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role').createRoleValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/role').createRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'roles.rename': {
+    methods: ["POST"]
+    pattern: '/roles/:id/rename'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role').renameRoleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/role').renameRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['rename']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['rename']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'roles.replace_permissions': {
+    methods: ["POST"]
+    pattern: '/roles/:id/permissions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role').replaceRolePermissionsValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/role').replaceRolePermissionsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['replacePermissions']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['replacePermissions']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'roles.archive': {
+    methods: ["POST"]
+    pattern: '/roles/:id/archive'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role').administerRoleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/role').administerRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'roles.restore': {
+    methods: ["POST"]
+    pattern: '/roles/:id/restore'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/role').administerRoleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/role').administerRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

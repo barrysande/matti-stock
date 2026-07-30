@@ -9,6 +9,8 @@ export const controllers = {
   OrganizationalUnits: () => import('#controllers/organizational_units_controller'),
   PasswordResets: () => import('#controllers/password_resets_controller'),
   PasswordSetups: () => import('#controllers/password_setups_controller'),
+  Permissions: () => import('#controllers/permissions_controller'),
   PhysicalLocations: () => import('#controllers/physical_locations_controller'),
+  Roles: () => import('#controllers/roles_controller'),
   Sessions: () => import('#controllers/sessions_controller'),
 }

@@ -48,4 +48,16 @@ export interface ApiDefinition {
     archive: typeof routes['physical_locations.archive']
     restore: typeof routes['physical_locations.restore']
   }
+  permissions: {
+    index: typeof routes['permissions.index']
+  }
+  roles: {
+    index: typeof routes['roles.index']
+    show: typeof routes['roles.show']
+    store: typeof routes['roles.store']
+    rename: typeof routes['roles.rename']
+    replacePermissions: typeof routes['roles.replace_permissions']
+    archive: typeof routes['roles.archive']
+    restore: typeof routes['roles.restore']
+  }
 }
