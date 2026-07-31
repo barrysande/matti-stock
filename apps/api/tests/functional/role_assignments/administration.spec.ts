@@ -409,9 +409,7 @@ test.group('Role assignments administration', (group) => {
 
   test('transactionally rejects an actor whose root authority became stale', async ({ assert }) => {
     const fixture = await createFixture()
-    await fixture.rootAssignment
-      .merge({ expiresAt: DateTime.now().minus({ seconds: 1 }) })
-      .save()
+    await fixture.rootAssignment.merge({ expiresAt: DateTime.now().minus({ seconds: 1 }) }).save()
     const service = await app.container.make(RoleAssignmentProvisioningService)
     const payload = await createRoleAssignmentValidator.validate(grantPayload(fixture))
 

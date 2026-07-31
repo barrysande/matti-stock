@@ -104,5 +104,4 @@ interface DelegationTimelineTarget {
 }
 
 export type AccountAccessEventTargetContext =
-  | RoleAssignmentTimelineTarget
-  | DelegationTimelineTarget
+  RoleAssignmentTimelineTarget | DelegationTimelineTarget

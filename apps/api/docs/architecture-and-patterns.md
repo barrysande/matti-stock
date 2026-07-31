@@ -848,3 +848,38 @@ prevents security and credential internals from becoming an accidental audit
 API. Deferring indirect-resource inference and institution-wide audit filters
 keeps this slice useful without fixing the later global audit architecture
 before its domain and scope requirements exist.
+
+## D31 — Independent participation is enforced through pairwise person identity
+
+**Decision.** `PersonSeparationService` enforces each established independent
+participation rule by comparing the two participants' stable `personId`
+values. Account IDs, role keys, role assignments, wider authority, and direct
+or delegated authorization evidence cannot make one person count as two
+independent participants.
+
+Pairwise comparison is the deliberate boundary. A workflow calls
+`assertDifferentPeople` once for each accepted exclusion, such as proposer
+versus approver, reporter versus confirmer, or counter versus finalizer. The
+service does not accept a generic participant set, invent participant roles,
+build an approval graph, or decide which workflow combinations require
+separation. Those rules remain explicit in the consuming domain workflow.
+
+The guard has no endpoint, validator, transformer, database query, or mutable
+state. A consuming workflow must load and lock its exact proposal version,
+revalidate the acting account's current authority, retain the returned
+authorization evidence, and pass the proposal's stored person identity and
+the acting account's person identity to the guard inside the transaction. A
+conflict throws the stable `E_PERSON_PARTICIPATION_CONFLICT` domain error.
+
+The comparison occurs when the independent action is attempted. A later
+account, role, assignment, delegation, or hierarchy change does not
+retroactively invalidate a properly recorded historical decision. The
+eventual decision record must preserve the proposal version, acting account,
+acting person, and exact authorization evidence used at that time.
+
+**Why.** Independence is a relationship between people, not credentials or
+grants. A small pairwise guard is sufficient for every currently accepted
+separation rule and keeps each domain workflow readable. A generic
+participant-set engine would hide which two responsibilities must be
+independent and would create a workflow abstraction before concrete proposal
+models and state transitions exist.

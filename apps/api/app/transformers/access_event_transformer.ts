@@ -21,9 +21,7 @@ function numberValue(metadata: Record<string, unknown>, key: string) {
 
 function stringArray(metadata: Record<string, unknown>, key: string) {
   const value = metadata[key]
-  return Array.isArray(value) && value.every((item) => typeof item === 'string')
-    ? value
-    : undefined
+  return Array.isArray(value) && value.every((item) => typeof item === 'string') ? value : undefined
 }
 
 function details(resource: AccessEvent) {

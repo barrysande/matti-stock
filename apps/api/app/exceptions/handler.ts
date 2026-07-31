@@ -29,6 +29,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     'E_INVALID_ROLE_ASSIGNMENT_CHANGE',
     'E_INVALID_ROLE_CHANGE',
     'E_LAST_ROOT_ACCESS',
+    'E_PERSON_PARTICIPATION_CONFLICT',
     'E_STALE_ORGANIZATIONAL_ACCESS_IMPACT',
   ]
 

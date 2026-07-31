@@ -610,9 +610,7 @@ test.group('Delegation administration', (group) => {
     await fixture.delegate.merge({ status: 'ACTIVE' }).save()
 
     await fixture.supervisorAssignment.load('roleVersion', (builder) => builder.preload('role'))
-    await fixture.supervisorAssignment.roleVersion.role
-      .merge({ archivedAt: DateTime.now() })
-      .save()
+    await fixture.supervisorAssignment.roleVersion.role.merge({ archivedAt: DateTime.now() }).save()
     assert.isNull(
       await access.authorize(fixture.delegate.id, 'stocktake.count', fixture.workshop.id)
     )
