@@ -29,6 +29,10 @@ export default class AccessPolicy extends BasePolicy {
     return this.canManageAccess(account)
   }
 
+  viewTimeline(account: UserAccount) {
+    return this.canManageAccess(account)
+  }
+
   suspend(account: UserAccount) {
     return this.canManageAccess(account)
   }

@@ -224,7 +224,7 @@ export default class PhysicalLocationAdministrationService {
         location,
         data.reason,
         actorAccountId,
-        { archivedAt: location.archivedAt.toISO(), version: Number(version.version) },
+        { archivedAt: now.toISO(), version: Number(version.version) },
         trx,
         request
       )

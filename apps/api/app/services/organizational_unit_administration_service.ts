@@ -184,7 +184,7 @@ export default class OrganizationalUnitAdministrationService {
         unit,
         data.reason,
         actorAccountId,
-        { archivedAt: unit.archivedAt.toISO(), version: Number(version.version) },
+        { archivedAt: now.toISO(), version: Number(version.version) },
         trx,
         request
       )

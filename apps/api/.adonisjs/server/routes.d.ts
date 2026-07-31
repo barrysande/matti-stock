@@ -15,6 +15,7 @@ export type ScannedRoutes = {
     'sessions.change_password': { paramsTuple?: []; params?: {} }
     'accounts.index': { paramsTuple?: []; params?: {} }
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'account_access_events.index': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.store': { paramsTuple?: []; params?: {} }
     'accounts.reset_password': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -65,6 +66,7 @@ export type ScannedRoutes = {
     'sessions.me': { paramsTuple?: []; params?: {} }
     'accounts.index': { paramsTuple?: []; params?: {} }
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'account_access_events.index': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.index': { paramsTuple?: []; params?: {} }
     'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.index': { paramsTuple?: []; params?: {} }
@@ -83,6 +85,7 @@ export type ScannedRoutes = {
     'sessions.me': { paramsTuple?: []; params?: {} }
     'accounts.index': { paramsTuple?: []; params?: {} }
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'account_access_events.index': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.index': { paramsTuple?: []; params?: {} }
     'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.index': { paramsTuple?: []; params?: {} }

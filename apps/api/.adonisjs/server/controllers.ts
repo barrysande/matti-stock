@@ -4,6 +4,7 @@
  */
 
 export const controllers = {
+  AccountAccessEvents: () => import('#controllers/account_access_events_controller'),
   Accounts: () => import('#controllers/accounts_controller'),
   Delegations: () => import('#controllers/delegations_controller'),
   HealthChecks: () => import('#controllers/health_checks_controller'),

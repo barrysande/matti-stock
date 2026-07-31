@@ -192,7 +192,7 @@ export default class RoleAdministrationService {
           targetId: role.id,
           reason: data.reason,
           request,
-          metadata: { archivedAt: role.archivedAt.toISO() },
+          metadata: { archivedAt: now.toISO() },
         },
         trx
       )

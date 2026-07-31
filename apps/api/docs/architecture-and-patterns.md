@@ -808,3 +808,43 @@ arbitrary exception message safe for an API response. Database messages may
 contain SQL, schema names, constraint details, or submitted values. Narrow
 constraint matching also prevents an internal uniqueness defect from being
 misrepresented as a user-correctable duplicate.
+
+## D30 — Account access timelines expose direct history through a fail-closed projection
+
+**Decision.** The initial access-event read is the root-authorized
+`GET /accounts/:id/access-events` timeline. It is account-specific rather than
+a premature global audit log. The query includes events directly targeting the
+account, events targeting role assignments owned by the account, and events
+targeting delegations in which the account is the delegator or delegate. It
+does not include unrelated actions merely because the selected account acted
+as administrator, nor does it infer indirect effects from role,
+organizational-unit, or physical-location administration.
+
+The timeline uses fixed 20-row pagination ordered by event time and ID in
+descending order. It supports category and exact-event-type filters. Effective
+`access.root` is required and is authorized before filter validation or account
+lookup. Self-service timeline visibility and the later permission-scoped global
+audit log remain separate disclosure decisions.
+
+`AccessEventTransformer` is a fail-closed boundary. It returns the event
+identity, category, time, reason, system or lightweight account actor, stable
+target identity, optional assignment or delegation context, and only
+event-specific allowlisted details. It never returns raw metadata, request IP
+or request ID, identifier fingerprints, challenge identifiers, credential
+versions, password-reset versions, or actor email and staff data. A future
+unknown event type retains its safe core envelope with an empty detail object
+instead of exposing new metadata or disappearing from history.
+
+Assignment and delegation context is resolved in bounded page-level batches.
+If a polymorphic target cannot be resolved, the event remains visible with its
+stable target type and ID. Authorization context is returned only when the
+event actually preserved an authority assignment or effective permission; the
+read model does not fabricate historical evidence absent from older writes.
+
+**Why.** The account overview is the first concrete Week 2 consumer and has an
+existing root-only authorization boundary. Relational ownership avoids treating
+unstructured JSON metadata as query truth, while a strict transformer allowlist
+prevents security and credential internals from becoming an accidental audit
+API. Deferring indirect-resource inference and institution-wide audit filters
+keeps this slice useful without fixing the later global audit architecture
+before its domain and scope requirements exist.

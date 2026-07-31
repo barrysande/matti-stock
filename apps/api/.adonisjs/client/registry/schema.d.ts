@@ -139,6 +139,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/accounts_controller').default['show']>>>
     }
   }
+  'account_access_events.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/accounts/:id/access-events'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/access_event').indexAccountAccessEventsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_access_events_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_access_events_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'accounts.store': {
     methods: ["POST"]
     pattern: '/accounts'

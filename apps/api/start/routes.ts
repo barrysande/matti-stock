@@ -36,6 +36,7 @@ router
   .group(() => {
     router.get('/', [controllers.Accounts, 'index'])
     router.get('/:id', [controllers.Accounts, 'show'])
+    router.get('/:id/access-events', [controllers.AccountAccessEvents, 'index'])
     router.post('/', [controllers.Accounts, 'store'])
     router.post('/:id/password-reset', [controllers.Accounts, 'resetPassword'])
     router.post('/:id/suspend', [controllers.Accounts, 'suspend'])

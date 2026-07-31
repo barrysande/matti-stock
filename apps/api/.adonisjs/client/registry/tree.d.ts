@@ -29,6 +29,9 @@ export interface ApiDefinition {
     deactivate: typeof routes['accounts.deactivate']
     reactivate: typeof routes['accounts.reactivate']
   }
+  accountAccessEvents: {
+    index: typeof routes['account_access_events.index']
+  }
   organizationalUnits: {
     index: typeof routes['organizational_units.index']
     show: typeof routes['organizational_units.show']

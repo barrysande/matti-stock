@@ -72,6 +72,12 @@ const routes = {
     tokens: [{"old":"/accounts/:id","type":0,"val":"accounts","end":""},{"old":"/accounts/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['accounts.show']['types'],
   },
+  'account_access_events.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/accounts/:id/access-events',
+    tokens: [{"old":"/accounts/:id/access-events","type":0,"val":"accounts","end":""},{"old":"/accounts/:id/access-events","type":1,"val":"id","end":""},{"old":"/accounts/:id/access-events","type":0,"val":"access-events","end":""}],
+    types: placeholder as Registry['account_access_events.index']['types'],
+  },
   'accounts.store': {
     methods: ["POST"],
     pattern: '/accounts',
