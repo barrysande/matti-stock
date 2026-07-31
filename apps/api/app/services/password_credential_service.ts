@@ -190,18 +190,22 @@ export default class PasswordCredentialService {
         { client: trx }
       )
 
-      account.password = data.password
-      account.credentialVersion = Number(account.credentialVersion) + 1
-      account.passwordResetVersion = Number(account.passwordResetVersion) + 1
-      await account.save()
+      await account
+        .merge({
+          password: data.password,
+          credentialVersion: Number(account.credentialVersion) + 1,
+          passwordResetVersion: Number(account.passwordResetVersion) + 1,
+        })
+        .save()
 
       if (expectedPurpose === 'INITIAL_SETUP') {
         const person = await Person.query({ client: trx })
           .where('id', account.personId)
           .forUpdate()
           .firstOrFail()
-        person.primaryEmailVerifiedAt = person.primaryEmailVerifiedAt ?? DateTime.now()
-        await person.save()
+        await person
+          .merge({ primaryEmailVerifiedAt: person.primaryEmailVerifiedAt ?? DateTime.now() })
+          .save()
       }
 
       await this.accessEvents.record(

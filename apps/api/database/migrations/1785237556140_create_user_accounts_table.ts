@@ -13,7 +13,7 @@ export default class extends BaseSchema {
         .references('id')
         .inTable('people')
         .onDelete('RESTRICT')
-      table.string('email', 254).notNullable().unique()
+      table.string('email', 254).notNullable().unique('user_accounts_email_unique')
       table.string('password', 255).notNullable()
       table
         .string('status', 32)

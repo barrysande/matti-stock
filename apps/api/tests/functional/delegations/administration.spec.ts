@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import app from '@adonisjs/core/services/app'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import type { ApiRequest } from '@japa/api-client'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
@@ -151,26 +151,8 @@ async function createFixture() {
   }
 }
 
-async function cleanupTables() {
-  for (const table of [
-    'access_events',
-    'delegation_terminations',
-    'delegation_responses',
-    'delegation_assignments',
-    'delegations',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'organizational_unit_versions',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]) {
-    await db.from(table).delete()
-  }
+function cleanupTables() {
+  return testUtils.db().truncate()
 }
 
 function authenticatedRequest(request: ApiRequest, account: UserAccount) {
@@ -211,7 +193,6 @@ async function proposeAndAccept(
 
 test.group('Delegation administration', (group) => {
   group.each.setup(cleanupTables)
-  group.each.teardown(cleanupTables)
 
   test('proposes and accepts several complete assignments through one atomic response', async ({
     client,
@@ -604,9 +585,12 @@ test.group('Delegation administration', (group) => {
     )
 
     await sourceTermination.delete()
-    delegation.startsAt = DateTime.now().minus({ days: 1 })
-    delegation.expiresAt = DateTime.now().minus({ seconds: 1 })
-    await delegation.save()
+    await delegation
+      .merge({
+        startsAt: DateTime.now().minus({ days: 1 }),
+        expiresAt: DateTime.now().minus({ seconds: 1 }),
+      })
+      .save()
     assert.isNull(
       await access.authorize(fixture.delegate.id, 'stocktake.count', fixture.workshop.id)
     )
@@ -619,25 +603,22 @@ test.group('Delegation administration', (group) => {
     await proposeAndAccept(fixture)
     const access = await app.container.make(EffectiveAccessService)
 
-    fixture.delegate.status = 'SUSPENDED'
-    await fixture.delegate.save()
+    await fixture.delegate.merge({ status: 'SUSPENDED' }).save()
     assert.isNull(
       await access.authorize(fixture.delegate.id, 'stocktake.count', fixture.workshop.id)
     )
-    fixture.delegate.status = 'ACTIVE'
-    await fixture.delegate.save()
+    await fixture.delegate.merge({ status: 'ACTIVE' }).save()
 
     await fixture.supervisorAssignment.load('roleVersion', (builder) => builder.preload('role'))
-    fixture.supervisorAssignment.roleVersion.role.archivedAt = DateTime.now()
-    await fixture.supervisorAssignment.roleVersion.role.save()
+    await fixture.supervisorAssignment.roleVersion.role
+      .merge({ archivedAt: DateTime.now() })
+      .save()
     assert.isNull(
       await access.authorize(fixture.delegate.id, 'stocktake.count', fixture.workshop.id)
     )
-    fixture.supervisorAssignment.roleVersion.role.archivedAt = null
-    await fixture.supervisorAssignment.roleVersion.role.save()
+    await fixture.supervisorAssignment.roleVersion.role.merge({ archivedAt: null }).save()
 
-    fixture.department.archivedAt = DateTime.now()
-    await fixture.department.save()
+    await fixture.department.merge({ archivedAt: DateTime.now() }).save()
     assert.isNull(
       await access.authorize(fixture.delegate.id, 'stocktake.count', fixture.workshop.id)
     )

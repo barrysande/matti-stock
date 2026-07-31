@@ -1,5 +1,5 @@
 import hash from '@adonisjs/core/services/hash'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import limiter from '@adonisjs/limiter/services/main'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
@@ -33,25 +33,14 @@ async function createAccount(options: AccountOptions = {}) {
   return { account, person }
 }
 
-async function cleanupAccountTables() {
-  const tables = [
-    'password_reset_redemptions',
-    'password_reset_challenges',
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'user_accounts',
-    'people',
-  ]
-
-  for (const table of tables) {
-    await db.from(table).delete()
-  }
+function cleanupAccountTables() {
+  return testUtils.db().truncate()
 }
 
 test.group('Authentication sessions', (group) => {
+  group.each.setup(cleanupAccountTables)
+
   group.each.setup(async () => {
-    await cleanupAccountTables()
     await limiter.clear(['memory'])
   })
 

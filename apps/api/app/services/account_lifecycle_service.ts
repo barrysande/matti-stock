@@ -122,10 +122,13 @@ export default class AccountLifecycleService {
       const previousCredentialVersion = Number(account.credentialVersion)
       const previousPasswordResetVersion = Number(account.passwordResetVersion)
 
-      account.status = targetStatus
-      account.credentialVersion = previousCredentialVersion + 1
-      account.passwordResetVersion = previousPasswordResetVersion + 1
-      await account.save()
+      await account
+        .merge({
+          status: targetStatus,
+          credentialVersion: previousCredentialVersion + 1,
+          passwordResetVersion: previousPasswordResetVersion + 1,
+        })
+        .save()
 
       await this.recordTransition(
         account,
@@ -225,12 +228,15 @@ export default class AccountLifecycleService {
       const previousPasswordResetVersion = Number(account.passwordResetVersion)
       const targetStatus: AccountStatus = person.primaryEmailVerifiedAt ? 'ACTIVE' : 'INVITED'
 
-      account.status = targetStatus
-      account.credentialVersion = previousCredentialVersion + 1
-      if (targetStatus === 'ACTIVE') {
-        account.passwordResetVersion = previousPasswordResetVersion + 1
-      }
-      await account.save()
+      await account
+        .merge({
+          status: targetStatus,
+          credentialVersion: previousCredentialVersion + 1,
+          ...(targetStatus === 'ACTIVE'
+            ? { passwordResetVersion: previousPasswordResetVersion + 1 }
+            : {}),
+        })
+        .save()
 
       const challenge =
         targetStatus === 'INVITED'

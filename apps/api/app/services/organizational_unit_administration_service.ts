@@ -20,6 +20,7 @@ import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE =
   'An active organizational unit with this name already exists under the selected parent.'
+const DUPLICATE_NAME_CONSTRAINTS = ['organizational_units_active_sibling_name_unique'] as const
 
 type RenameData = Infer<typeof renameOrganizationalUnitValidator>
 type ReparentData = Infer<typeof reparentOrganizationalUnitValidator>
@@ -82,8 +83,7 @@ export default class OrganizationalUnitAdministrationService {
           this.invalid('The organizational unit already uses this name.')
         }
 
-        unit.name = data.name
-        await unit.save()
+        await unit.merge({ name: data.name }).save()
         const version = await this.history.appendVersion(
           unit,
           data.reason,
@@ -104,7 +104,7 @@ export default class OrganizationalUnitAdministrationService {
         return unit
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 
@@ -130,8 +130,7 @@ export default class OrganizationalUnitAdministrationService {
         const unit = await this.lockUnit(trx, unitId)
         const previousParentId = unit.parentId
 
-        unit.parentId = data.parentId
-        await unit.save()
+        await unit.merge({ parentId: data.parentId }).save()
         const version = await this.history.appendVersion(
           unit,
           data.reason,
@@ -156,7 +155,7 @@ export default class OrganizationalUnitAdministrationService {
         return unit
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 
@@ -178,8 +177,7 @@ export default class OrganizationalUnitAdministrationService {
       )
       const unit = await this.lockUnit(trx, unitId)
 
-      unit.archivedAt = now
-      await unit.save()
+      await unit.merge({ archivedAt: now }).save()
       const version = await this.history.appendVersion(unit, data.reason, actorAccountId, trx, now)
       await this.history.recordChange(
         'ORGANIZATIONAL_UNIT_ARCHIVED',
@@ -215,8 +213,7 @@ export default class OrganizationalUnitAdministrationService {
         const unit = await this.lockUnit(trx, unitId)
         const previousArchivedAt = unit.archivedAt
 
-        unit.archivedAt = null
-        await unit.save()
+        await unit.merge({ archivedAt: null }).save()
         const version = await this.history.appendVersion(
           unit,
           data.reason,
@@ -240,7 +237,7 @@ export default class OrganizationalUnitAdministrationService {
         return unit
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 }

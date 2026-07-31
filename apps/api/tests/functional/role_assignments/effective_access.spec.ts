@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import app from '@adonisjs/core/services/app'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
 import OrganizationalUnit from '#models/organizational_unit'
@@ -109,22 +109,8 @@ async function createAssignment(
   })
 }
 
-async function cleanupTables() {
-  for (const table of [
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'organizational_unit_versions',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]) {
-    await db.from(table).delete()
-  }
+function cleanupTables() {
+  return testUtils.db().truncate()
 }
 
 test.group('Role assignments effective access', (group) => {
@@ -231,9 +217,12 @@ test.group('Role assignments effective access', (group) => {
       await access.authorize(fixture.account.id, 'stocktake.review', fixture.engineering.id)
     )
 
-    future.startsAt = DateTime.now().minus({ days: 2 })
-    future.expiresAt = DateTime.now().minus({ days: 1 })
-    await future.save()
+    await future
+      .merge({
+        startsAt: DateTime.now().minus({ days: 2 }),
+        expiresAt: DateTime.now().minus({ days: 1 }),
+      })
+      .save()
     assert.isNull(
       await access.authorize(fixture.account.id, 'stocktake.review', fixture.engineering.id)
     )

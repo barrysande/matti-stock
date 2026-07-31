@@ -1,6 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import hash from '@adonisjs/core/services/hash'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import limiter from '@adonisjs/limiter/services/main'
 import { QueueManager } from '@adonisjs/queue'
 import { DateTime } from 'luxon'
@@ -47,25 +47,14 @@ async function issueSetup(account: UserAccount) {
   return { challenge, token: service.createToken(challenge) }
 }
 
-async function cleanupAccountTables() {
-  const tables = [
-    'password_reset_redemptions',
-    'password_reset_challenges',
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'user_accounts',
-    'people',
-  ]
-
-  for (const table of tables) {
-    await db.from(table).delete()
-  }
+function cleanupAccountTables() {
+  return testUtils.db().truncate()
 }
 
 test.group('Password setup', (group) => {
+  group.each.setup(cleanupAccountTables)
+
   group.each.setup(async () => {
-    await cleanupAccountTables()
     await limiter.clear(['memory'])
   })
 
@@ -145,9 +134,12 @@ test.group('Password setup', (group) => {
   test('rejects an expired setup challenge', async ({ client, assert }) => {
     const { account } = await createInvitedAccount()
     const { challenge, token } = await issueSetup(account)
-    challenge.createdAt = DateTime.now().minus({ hours: 2 })
-    challenge.expiresAt = DateTime.now().minus({ hours: 1 })
-    await challenge.save()
+    await challenge
+      .merge({
+        createdAt: DateTime.now().minus({ hours: 2 }),
+        expiresAt: DateTime.now().minus({ hours: 1 }),
+      })
+      .save()
 
     const response = await client.post('/auth/password/set').json({
       token,

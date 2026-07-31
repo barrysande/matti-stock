@@ -1,4 +1,5 @@
 import app from '@adonisjs/core/services/app'
+import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
 import mail from '@adonisjs/mail/services/main'
 import { DateTime } from 'luxon'
@@ -66,26 +67,8 @@ async function captureError(callback: () => Promise<unknown>) {
   throw new Error('Expected the operation to fail')
 }
 
-async function cleanupBootstrapTables() {
-  const tables = [
-    'password_reset_redemptions',
-    'password_reset_challenges',
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'organizational_unit_versions',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]
-
-  for (const table of tables) {
-    await db.from(table).delete()
-  }
+function cleanupBootstrapTables() {
+  return testUtils.db().truncate()
 }
 
 test.group('Master Admin bootstrap service', (group) => {

@@ -60,8 +60,7 @@ export default class OrganizationalUnitHistoryService {
     const current = await this.lockCurrentVersion(trx, unit.id)
     const effectiveFrom = this.nextEffectiveTime(current, proposedNow)
 
-    current.effectiveTo = effectiveFrom
-    await current.save()
+    await current.merge({ effectiveTo: effectiveFrom }).save()
 
     return OrganizationalUnitVersion.create(
       {

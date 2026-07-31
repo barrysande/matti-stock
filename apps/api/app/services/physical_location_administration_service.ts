@@ -17,6 +17,10 @@ import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE =
   'An active physical location with this name already exists under the selected parent.'
+const DUPLICATE_NAME_CONSTRAINTS = [
+  'physical_locations_active_top_level_name_unique',
+  'physical_locations_active_sibling_name_unique',
+] as const
 
 type RenameData = Infer<typeof renamePhysicalLocationValidator>
 type ReparentData = Infer<typeof reparentPhysicalLocationValidator>
@@ -110,8 +114,7 @@ export default class PhysicalLocationAdministrationService {
           this.invalid('The physical location already uses this name.')
         }
 
-        location.name = data.name
-        await location.save()
+        await location.merge({ name: data.name }).save()
         const version = await this.history.appendVersion(
           location,
           data.reason,
@@ -132,7 +135,7 @@ export default class PhysicalLocationAdministrationService {
         return location
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 
@@ -157,8 +160,7 @@ export default class PhysicalLocationAdministrationService {
         }
         await this.assertValidParent(location, parentId, trx)
 
-        location.parentId = parentId
-        await location.save()
+        await location.merge({ parentId }).save()
         const version = await this.history.appendVersion(
           location,
           data.reason,
@@ -183,7 +185,7 @@ export default class PhysicalLocationAdministrationService {
         return location
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 
@@ -209,8 +211,7 @@ export default class PhysicalLocationAdministrationService {
         this.invalid('Archive or move active child locations before archiving this location.')
       }
 
-      location.archivedAt = now
-      await location.save()
+      await location.merge({ archivedAt: now }).save()
       const version = await this.history.appendVersion(
         location,
         data.reason,
@@ -259,8 +260,7 @@ export default class PhysicalLocationAdministrationService {
         }
 
         const previousArchivedAt = location.archivedAt
-        location.archivedAt = null
-        await location.save()
+        await location.merge({ archivedAt: null }).save()
         const version = await this.history.appendVersion(
           location,
           data.reason,
@@ -284,7 +284,7 @@ export default class PhysicalLocationAdministrationService {
         return location
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 }

@@ -59,8 +59,7 @@ export default class PhysicalLocationHistoryService {
     const current = await this.lockCurrentVersion(trx, location.id)
     const effectiveFrom = this.nextEffectiveTime(current, proposedNow)
 
-    current.effectiveTo = effectiveFrom
-    await current.save()
+    await current.merge({ effectiveTo: effectiveFrom }).save()
 
     return PhysicalLocationVersion.create(
       {

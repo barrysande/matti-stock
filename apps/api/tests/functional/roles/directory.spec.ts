@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
 import type { ApiRequest } from '@japa/api-client'
 import { DateTime } from 'luxon'
@@ -76,22 +77,8 @@ async function createRootActor() {
   return { account, institute }
 }
 
-async function cleanupTables() {
-  for (const table of [
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'organizational_unit_versions',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]) {
-    await db.from(table).delete()
-  }
+function cleanupTables() {
+  return testUtils.db().truncate()
 }
 
 function authenticatedRequest(request: ApiRequest, account: UserAccount) {

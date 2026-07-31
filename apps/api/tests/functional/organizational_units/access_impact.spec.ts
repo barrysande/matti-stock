@@ -1,5 +1,5 @@
 import app from '@adonisjs/core/services/app'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import type { ApiRequest } from '@japa/api-client'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
@@ -125,22 +125,8 @@ async function createScopedAssignment(
   })
 }
 
-async function cleanupAccessTables() {
-  for (const table of [
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'organizational_unit_versions',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]) {
-    await db.from(table).delete()
-  }
+function cleanupAccessTables() {
+  return testUtils.db().truncate()
 }
 
 function authenticatedRequest(request: ApiRequest, account: UserAccount) {

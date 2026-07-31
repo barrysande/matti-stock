@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import app from '@adonisjs/core/services/app'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import type { ApiRequest } from '@japa/api-client'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
@@ -131,22 +131,8 @@ async function createFixture() {
   }
 }
 
-async function cleanupTables() {
-  for (const table of [
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'organizational_unit_versions',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]) {
-    await db.from(table).delete()
-  }
+function cleanupTables() {
+  return testUtils.db().truncate()
 }
 
 function authenticatedRequest(request: ApiRequest, account: UserAccount) {
@@ -423,8 +409,9 @@ test.group('Role assignments administration', (group) => {
 
   test('transactionally rejects an actor whose root authority became stale', async ({ assert }) => {
     const fixture = await createFixture()
-    fixture.rootAssignment.expiresAt = DateTime.now().minus({ seconds: 1 })
-    await fixture.rootAssignment.save()
+    await fixture.rootAssignment
+      .merge({ expiresAt: DateTime.now().minus({ seconds: 1 }) })
+      .save()
     const service = await app.container.make(RoleAssignmentProvisioningService)
     const payload = await createRoleAssignmentValidator.validate(grantPayload(fixture))
 

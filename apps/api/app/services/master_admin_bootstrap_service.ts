@@ -20,6 +20,7 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 type BootstrapData = Infer<typeof masterAdminBootstrapValidator>
 
 const DUPLICATE_MESSAGE = 'The Master Admin bootstrap identity already exists'
+const DUPLICATE_CONSTRAINTS = ['people_primary_email_unique', 'user_accounts_email_unique'] as const
 
 @inject()
 export default class MasterAdminBootstrapService {
@@ -165,7 +166,7 @@ export default class MasterAdminBootstrapService {
     try {
       return await this.createBootstrap(data)
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_MESSAGE, DUPLICATE_CONSTRAINTS)
     }
   }
 }

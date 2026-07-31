@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import app from '@adonisjs/core/services/app'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import { QueueManager } from '@adonisjs/queue'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
@@ -88,25 +88,8 @@ async function createRootActor() {
   return { account, assignment }
 }
 
-async function cleanupAccessTables() {
-  const tables = [
-    'password_reset_redemptions',
-    'password_reset_challenges',
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]
-
-  for (const table of tables) {
-    await db.from(table).delete()
-  }
+function cleanupAccessTables() {
+  return testUtils.db().truncate()
 }
 
 test.group('Administrative account credential recovery', (group) => {

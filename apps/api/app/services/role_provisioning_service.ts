@@ -12,6 +12,7 @@ import type { createRoleValidator } from '#validators/role'
 import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE = 'An active role with this name already exists.'
+const DUPLICATE_NAME_CONSTRAINTS = ['roles_active_name_unique'] as const
 type CreateData = Infer<typeof createRoleValidator>
 
 @inject()
@@ -73,7 +74,7 @@ export default class RoleProvisioningService {
         return role
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 }

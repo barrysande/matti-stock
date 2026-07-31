@@ -18,6 +18,7 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE = 'An active role with this name already exists.'
+const DUPLICATE_NAME_CONSTRAINTS = ['roles_active_name_unique'] as const
 type RenameData = Infer<typeof renameRoleValidator>
 type ReplacePermissionsData = Infer<typeof replaceRolePermissionsValidator>
 type AdministerData = Infer<typeof administerRoleValidator>
@@ -94,8 +95,7 @@ export default class RoleAdministrationService {
           this.invalid('The role already uses this name.')
         }
 
-        role.name = data.name
-        await role.save()
+        await role.merge({ name: data.name }).save()
         await this.accessEvents.record(
           {
             eventType: 'ROLE_RENAMED',
@@ -113,7 +113,7 @@ export default class RoleAdministrationService {
         return role
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 
@@ -138,8 +138,7 @@ export default class RoleAdministrationService {
         trx
       )
 
-      role.updatedAt = now
-      await role.save()
+      await role.merge({ updatedAt: now }).save()
       await this.accessEvents.record(
         {
           eventType: 'ROLE_VERSION_CREATED',
@@ -183,8 +182,7 @@ export default class RoleAdministrationService {
         this.invalid('End active and upcoming assignments before archiving this role.')
       }
 
-      role.archivedAt = now
-      await role.save()
+      await role.merge({ archivedAt: now }).save()
       await this.accessEvents.record(
         {
           eventType: 'ROLE_ARCHIVED',
@@ -222,8 +220,7 @@ export default class RoleAdministrationService {
         }
 
         const previousArchivedAt = role.archivedAt
-        role.archivedAt = null
-        await role.save()
+        await role.merge({ archivedAt: null }).save()
         await this.accessEvents.record(
           {
             eventType: 'ROLE_RESTORED',
@@ -241,7 +238,7 @@ export default class RoleAdministrationService {
         return role
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 }

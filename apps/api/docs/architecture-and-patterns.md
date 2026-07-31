@@ -786,3 +786,25 @@ authorization or creating a second lifecycle definition. Per-item and
 aggregate effectiveness also prevent a partly effective whole-proposal
 delegation from being presented as though every delegated assignment still
 authorizes work.
+
+## D29 — Expected database conflicts are translated narrowly and unexpected failures are sanitized
+
+**Decision.** Controllers let service and infrastructure exceptions reach the
+global HTTP exception handler unless they are handling a known recoverable
+side effect after the primary transaction has committed. A service may
+translate PostgreSQL unique violations into a safe `E_DUPLICATE` conflict only
+when the reported constraint name is one of the constraints that workflow
+explicitly expects. Other unique violations and all other unexpected database
+errors remain server failures.
+
+The global handler preserves typed client errors but replaces every unhandled
+5xx response body with the fixed `E_INTERNAL_SERVER_ERROR` envelope. Error
+reporting continues to receive the original exception. Known domain-conflict
+codes are excluded from reporting individually; an otherwise unknown 409 is
+still reported.
+
+**Why.** Disabling debug output removes stack traces but does not make an
+arbitrary exception message safe for an API response. Database messages may
+contain SQL, schema names, constraint details, or submitted values. Narrow
+constraint matching also prevents an internal uniqueness defect from being
+misrepresented as a user-correctable duplicate.

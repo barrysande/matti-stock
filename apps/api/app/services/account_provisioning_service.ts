@@ -11,6 +11,11 @@ import type { createAccountValidator } from '#validators/account'
 import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_MESSAGE = 'An account with this email or staff number already exists'
+const DUPLICATE_CONSTRAINTS = [
+  'people_staff_number_unique',
+  'people_primary_email_unique',
+  'user_accounts_email_unique',
+] as const
 
 type CreateData = Infer<typeof createAccountValidator>
 
@@ -75,7 +80,7 @@ export default class AccountProvisioningService {
         return { account, challenge, person }
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_MESSAGE, DUPLICATE_CONSTRAINTS)
     }
   }
 }

@@ -36,8 +36,9 @@ export default class PasswordChallengeService {
     trx: TransactionClientContract,
     administrator?: { accountId: string; reason: string }
   ) {
-    account.passwordResetVersion = Number(account.passwordResetVersion) + 1
-    await account.save()
+    await account
+      .merge({ passwordResetVersion: Number(account.passwordResetVersion) + 1 })
+      .save()
 
     const challenge = await PasswordResetChallenge.create(
       {

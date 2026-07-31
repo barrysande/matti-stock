@@ -1,5 +1,5 @@
 import app from '@adonisjs/core/services/app'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
 import OrganizationalUnit from '#models/organizational_unit'
@@ -82,25 +82,8 @@ async function createAccessGrant(options: GrantOptions = {}) {
   return { account, assignment, institute, role }
 }
 
-async function cleanupAccessTables() {
-  const tables = [
-    'password_reset_redemptions',
-    'password_reset_challenges',
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]
-
-  for (const table of tables) {
-    await db.from(table).delete()
-  }
+function cleanupAccessTables() {
+  return testUtils.db().truncate()
 }
 
 test.group('Access policy', (group) => {
@@ -131,13 +114,15 @@ test.group('Access policy', (group) => {
     assert.isFalse(await policy.createAccount(account))
 
     await UserAccount.query().where('id', account.id).update({ status: 'ACTIVE' })
-    assignment.startsAt = DateTime.now().plus({ hours: 1 })
-    await assignment.save()
+    await assignment.merge({ startsAt: DateTime.now().plus({ hours: 1 }) }).save()
     assert.isFalse(await policy.createAccount(account))
 
-    assignment.startsAt = DateTime.now().minus({ hours: 2 })
-    assignment.expiresAt = DateTime.now().minus({ hours: 1 })
-    await assignment.save()
+    await assignment
+      .merge({
+        startsAt: DateTime.now().minus({ hours: 2 }),
+        expiresAt: DateTime.now().minus({ hours: 1 }),
+      })
+      .save()
     assert.isFalse(await policy.createAccount(account))
   })
 
@@ -145,14 +130,11 @@ test.group('Access policy', (group) => {
     const { account, assignment, institute, role } = await createAccessGrant()
     const policy = await app.container.make(AccessPolicy)
 
-    role.archivedAt = DateTime.now()
-    await role.save()
+    await role.merge({ archivedAt: DateTime.now() }).save()
     assert.isFalse(await policy.createAccount(account))
 
-    role.archivedAt = null
-    await role.save()
-    assignment.scopeMode = 'THIS_NODE_ONLY'
-    await assignment.save()
+    await role.merge({ archivedAt: null }).save()
+    await assignment.merge({ scopeMode: 'THIS_NODE_ONLY' }).save()
     assert.isFalse(await policy.createAccount(account))
 
     assignment.scopeMode = 'INCLUDE_DESCENDANTS'
@@ -161,8 +143,7 @@ test.group('Access policy', (group) => {
       unitType: 'DEPARTMENT',
       parentId: institute.id,
     })
-    assignment.scopeOrgUnitId = department.id
-    await assignment.save()
+    await assignment.merge({ scopeOrgUnitId: department.id }).save()
     assert.isFalse(await policy.createAccount(account))
   })
 

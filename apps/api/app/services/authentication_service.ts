@@ -75,9 +75,7 @@ export default class AuthenticationService {
         return null
       }
 
-      account.status = 'ACTIVE'
-      account.lastLoginAt = DateTime.now()
-      await account.save()
+      await account.merge({ status: 'ACTIVE', lastLoginAt: DateTime.now() }).save()
 
       if (wasInvited) {
         await this.accessEvents.record(
@@ -136,10 +134,13 @@ export default class AuthenticationService {
         return false
       }
 
-      account.password = data.password
-      account.credentialVersion = Number(account.credentialVersion) + 1
-      account.passwordResetVersion = Number(account.passwordResetVersion) + 1
-      await account.save()
+      await account
+        .merge({
+          password: data.password,
+          credentialVersion: Number(account.credentialVersion) + 1,
+          passwordResetVersion: Number(account.passwordResetVersion) + 1,
+        })
+        .save()
 
       await this.accessEvents.record(
         {

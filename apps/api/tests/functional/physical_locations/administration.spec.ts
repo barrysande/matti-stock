@@ -1,5 +1,5 @@
 import app from '@adonisjs/core/services/app'
-import db from '@adonisjs/lucid/services/db'
+import testUtils from '@adonisjs/core/services/test_utils'
 import type { ApiRequest } from '@japa/api-client'
 import { DateTime } from 'luxon'
 import { test } from '@japa/runner'
@@ -100,24 +100,8 @@ async function createLocation(
   return location
 }
 
-async function cleanupTables() {
-  for (const table of [
-    'access_events',
-    'physical_location_versions',
-    'physical_locations',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'organizational_unit_versions',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]) {
-    await db.from(table).delete()
-  }
+function cleanupTables() {
+  return testUtils.db().truncate()
 }
 
 function authenticatedRequest(request: ApiRequest, account: UserAccount) {
@@ -366,8 +350,7 @@ test.group('Physical locations administration', (group) => {
     assert,
   }) => {
     const { account, assignment } = await createRootActor()
-    assignment.expiresAt = DateTime.now().minus({ seconds: 1 })
-    await assignment.save()
+    await assignment.merge({ expiresAt: DateTime.now().minus({ seconds: 1 }) }).save()
     const service = await app.container.make(PhysicalLocationProvisioningService)
 
     try {

@@ -12,6 +12,10 @@ import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE =
   'An active physical location with this name already exists under the selected parent.'
+const DUPLICATE_NAME_CONSTRAINTS = [
+  'physical_locations_active_top_level_name_unique',
+  'physical_locations_active_sibling_name_unique',
+] as const
 
 type CreateData = Infer<typeof createPhysicalLocationValidator>
 
@@ -80,7 +84,7 @@ export default class PhysicalLocationProvisioningService {
         return location
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 }

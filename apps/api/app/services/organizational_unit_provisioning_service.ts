@@ -13,6 +13,7 @@ import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE =
   'An active organizational unit with this name already exists under the selected parent.'
+const DUPLICATE_NAME_CONSTRAINTS = ['organizational_units_active_sibling_name_unique'] as const
 
 type CreateData = Infer<typeof createOrganizationalUnitValidator>
 
@@ -83,7 +84,7 @@ export default class OrganizationalUnitProvisioningService {
         return unit
       })
     } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE)
+      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
     }
   }
 }

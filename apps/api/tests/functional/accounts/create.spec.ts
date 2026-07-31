@@ -1,3 +1,4 @@
+import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
 import { QueueManager } from '@adonisjs/queue'
 import { DateTime } from 'luxon'
@@ -81,25 +82,8 @@ async function createMasterAdmin() {
   return account
 }
 
-async function cleanupAccessTables() {
-  const tables = [
-    'password_reset_redemptions',
-    'password_reset_challenges',
-    'access_events',
-    'role_assignment_terminations',
-    'role_assignments',
-    'role_version_permissions',
-    'role_versions',
-    'roles',
-    'user_accounts',
-    'people',
-    'organizational_units',
-    'permissions',
-  ]
-
-  for (const table of tables) {
-    await db.from(table).delete()
-  }
+function cleanupAccessTables() {
+  return testUtils.db().truncate()
 }
 
 async function countRows(table: string) {
