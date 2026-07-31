@@ -186,6 +186,21 @@ test.group('Organizational units directory', (group) => {
       filtered.body().data.map((unit: { id: string }) => unit.id),
       [archived.id]
     )
+    assert.equal(filtered.body().data[0].path, 'Matti Institute / Former Office')
+
+    const filteredSubDepartments = await authenticatedRequest(
+      client.get('/organizational-units').qs({ unitType: 'SUB_DEPARTMENT' }),
+      account
+    )
+
+    filteredSubDepartments.assertStatus(200)
+    assert.deepEqual(
+      filteredSubDepartments.body().data.map((unit: { id: string; path: string }) => ({
+        id: unit.id,
+        path: unit.path,
+      })),
+      [{ id: subDepartment.id, path: 'Matti Institute / Finance / Accounts' }]
+    )
   })
 
   test('returns effective-dated structural history in the unit overview', async ({

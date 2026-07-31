@@ -42,8 +42,11 @@ export default class OrganizationalUnitDirectoryService {
     return `${this.pathFor(parent, units, visited)} / ${unit.name}`
   }
 
-  private assignPaths(units: OrganizationalUnit[]) {
-    const unitMap = new Map(units.map((unit) => [unit.id, unit]))
+  private assignPaths(
+    units: OrganizationalUnit[],
+    hierarchyUnits: OrganizationalUnit[] = units
+  ) {
+    const unitMap = new Map(hierarchyUnits.map((unit) => [unit.id, unit]))
 
     for (const unit of units) {
       unit.$extras.path = this.pathFor(unit, unitMap)
@@ -68,7 +71,12 @@ export default class OrganizationalUnitDirectoryService {
       query.whereILike('name', `%${data.search}%`)
     }
 
-    const units = this.assignPaths(await query)
+    const [units, hierarchyUnits] = await Promise.all([
+      query,
+      this.summaryQuery().orderBy('id', 'asc'),
+    ])
+    this.assignPaths(units, hierarchyUnits)
+
     return units.sort((left, right) => {
       const pathOrder = String(left.$extras.path).localeCompare(String(right.$extras.path))
       return pathOrder || left.id.localeCompare(right.id)
