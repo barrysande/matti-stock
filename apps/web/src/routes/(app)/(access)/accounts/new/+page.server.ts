@@ -1,0 +1,40 @@
+import { createAccountSchema } from '$lib/schemas/account';
+import { fail } from '@sveltejs/kit';
+import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { superValidate } from 'sveltekit-superforms';
+import { valibot } from 'sveltekit-superforms/adapters';
+import type { Actions, PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async () => ({
+	form: await superValidate(valibot(createAccountSchema))
+});
+
+export const actions: Actions = {
+	default: async (event) => {
+		const form = await superValidate(event, valibot(createAccountSchema));
+		if (!form.valid) return fail(400, { form });
+
+		const [response, apiError] = await event.locals.client.api.accounts
+			.store({
+				body: {
+					...form.data,
+					staffNumber: form.data.staffNumber || null
+				}
+			})
+			.safe();
+		if (apiError) {
+			setFlash(
+				{ type: 'error', message: 'The account could not be created.' },
+				event.cookies
+			);
+			return fail(apiError.status ?? 400, { form });
+		}
+
+		redirect(
+			303,
+			'/accounts',
+			{ type: 'success', message: response.message },
+			event.cookies
+		);
+	}
+};

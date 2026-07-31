@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import { IconLogout } from '@tabler/icons-svelte';
+	import { IconKey, IconLogout, IconUserCircle } from '@tabler/icons-svelte';
 
 	let {
 		account
@@ -19,6 +19,26 @@
 			<p class="truncate text-sm font-medium">{account.person.displayName}</p>
 			<p class="truncate text-xs text-muted-foreground">{account.account.email}</p>
 		</div>
+	</Sidebar.MenuItem>
+	<Sidebar.MenuItem>
+		<Sidebar.MenuButton tooltipContent="My access">
+			{#snippet child({ props })}
+				<a href="/account" {...props}>
+					<IconUserCircle />
+					<span>My access</span>
+				</a>
+			{/snippet}
+		</Sidebar.MenuButton>
+	</Sidebar.MenuItem>
+	<Sidebar.MenuItem>
+		<Sidebar.MenuButton tooltipContent="Change password">
+			{#snippet child({ props })}
+				<a href="/account#password" {...props}>
+					<IconKey />
+					<span>Change password</span>
+				</a>
+			{/snippet}
+		</Sidebar.MenuButton>
 	</Sidebar.MenuItem>
 	<Sidebar.MenuItem>
 		<form method="POST" action="/logout">

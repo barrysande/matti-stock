@@ -15,6 +15,16 @@ export function requireGuest(event: RequestEvent) {
 	}
 }
 
+export function requireRoot(event: RequestEvent) {
+	const account = requireAuth(event);
+
+	if (!account.effectivePermissionKeys.includes('access.root')) {
+		redirect(303, '/');
+	}
+
+	return account;
+}
+
 export function safeRedirectUrl(value: string | null, fallback = '/') {
 	if (!value || !value.startsWith('/') || value.startsWith('//')) {
 		return fallback;

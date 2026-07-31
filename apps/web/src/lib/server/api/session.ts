@@ -19,6 +19,13 @@ export function resetPassword(
 	return event.locals.client.api.passwordResets.reset({ body }).safe();
 }
 
+export function setPassword(
+	event: RequestEvent,
+	body: { token: string; password: string }
+) {
+	return event.locals.client.api.passwordSetups.store({ body }).safe();
+}
+
 export function changePassword(
 	event: RequestEvent,
 	body: { currentPassword: string; password: string }
