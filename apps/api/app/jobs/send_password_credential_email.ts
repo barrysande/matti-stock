@@ -31,18 +31,22 @@ export default class SendPasswordCredentialEmail extends Job<Payload> {
   }
 
   async execute() {
+    this.logger.info('Processing password credential email job')
     const challenge = await PasswordResetChallenge.find(this.payload.challengeId)
     if (!challenge || challenge.expiresAt <= DateTime.now()) {
+      this.logger.info('Skipped unavailable or expired password credential email job')
       return
     }
 
     const redemption = await PasswordResetRedemption.find(challenge.id)
     if (redemption) {
+      this.logger.info('Skipped redeemed password credential email job')
       return
     }
 
     const account = await UserAccount.findOrFail(challenge.accountId)
     if (Number(account.passwordResetVersion) !== Number(challenge.resetVersion)) {
+      this.logger.info('Skipped superseded password credential email job')
       return
     }
 
@@ -51,6 +55,7 @@ export default class SendPasswordCredentialEmail extends Job<Payload> {
 
     if (challenge.purpose === 'INITIAL_SETUP') {
       if (person.primaryEmailVerifiedAt) {
+        this.logger.info('Skipped password setup email for an already verified person')
         return
       }
 
@@ -62,10 +67,12 @@ export default class SendPasswordCredentialEmail extends Job<Payload> {
           setupUrl.toString()
         )
       )
+      this.logger.info('Password setup email sent')
       return
     }
 
     if (!person.primaryEmailVerifiedAt) {
+      this.logger.info('Skipped password reset email for an unverified person')
       return
     }
 
@@ -74,12 +81,10 @@ export default class SendPasswordCredentialEmail extends Job<Payload> {
     await mail.send(
       new PasswordResetMail({ name: person.displayName, email: account.email }, resetUrl.toString())
     )
+    this.logger.info('Password reset email sent')
   }
 
   async failed(error: Error) {
-    this.logger.error(
-      { err: error, challengeId: this.payload.challengeId },
-      'Password credential email job permanently failed'
-    )
+    this.logger.error({ err: error }, 'Password credential email job permanently failed')
   }
 }

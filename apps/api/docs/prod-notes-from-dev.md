@@ -79,6 +79,12 @@ Email delivery belongs to the explicitly named `emails` application queue.
 SMTP credentials must be supplied to the worker process that performs the
 delivery.
 
+The password-credential worker emits sanitized lifecycle logs when it receives,
+skips, completes, or permanently fails a job. These messages intentionally omit
+challenge IDs, tokens, account identifiers, and recipient details. Keep the
+worker `LOG_LEVEL` at `info` or more verbose when operational confirmation is
+required.
+
 ## Private evidence storage
 
 Development and tests select `DRIVE_DISK=fs`; production selects
