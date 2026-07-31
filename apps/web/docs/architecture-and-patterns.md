@@ -90,3 +90,30 @@ only production dependencies and the generated server into its runtime image.
 command in the API container. Building from the root retains one reproducible
 pnpm graph and allows Vite to consume `api/registry` without publishing a
 shared types package.
+
+## D7 — Product choice controls use the styled shadcn Select
+
+**Decision.** Product-facing filters and forms use the Bits UI-backed shadcn
+`Select` component when presenting controlled choices. Triggers fill their
+available grid column at smartphone widths and open the scaffold's styled,
+keyboard-accessible popover. A native select is used only when a product or
+platform requirement explicitly calls for native operating-system behavior.
+
+GET filter forms submit the selected value through a hidden named input so the
+filter remains URL-addressable while the visible shadcn trigger owns the
+interaction and presentation.
+
+**Why.** Merely using a scaffold-provided native primitive does not preserve
+the application's established visual language. The styled Select provides the
+expected menu surface, spacing, focus behavior, and responsive width without
+moving filtering into browser-to-API requests.
+
+## D8 — Sidebar navigation dismisses the smartphone sheet
+
+**Decision.** Links rendered inside the application sidebar close its mobile
+sheet through the shared shadcn sidebar context before navigation. Desktop
+sidebar state is unchanged.
+
+**Why.** A completed smartphone navigation should reveal the destination
+instead of leaving the off-canvas navigation over it. Using the sidebar's own
+context API keeps sheet state ownership inside the scaffolded component.

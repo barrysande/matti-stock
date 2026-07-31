@@ -7,9 +7,12 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import * as NativeSelect from '$lib/components/ui/native-select/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 
 	let { data } = $props();
+	// This value initializes again after the ordinary GET form navigation completes.
+	// svelte-ignore state_referenced_locally
+	let selectedCategory = $state<string>(data.filters.category ?? 'ALL');
 
 	function eventLabel(value: string) {
 		return value
@@ -37,36 +40,56 @@
 
 	<Card.Root>
 		<Card.Content class="pt-6">
-			<form method="GET" class="grid gap-3 md:grid-cols-[12rem_minmax(12rem,1fr)_auto]">
-				<NativeSelect.Root
+			<form method="GET" class="grid min-w-0 gap-3 md:grid-cols-[12rem_minmax(12rem,1fr)_auto]">
+				<input
+					type="hidden"
 					name="category"
-					value={data.filters.category ?? ''}
-					aria-label="Event category"
-				>
-					<NativeSelect.Option value="">All categories</NativeSelect.Option>
-					<NativeSelect.Option value="ACCOUNT">Account</NativeSelect.Option>
-					<NativeSelect.Option value="AUTHENTICATION">Authentication</NativeSelect.Option>
-					<NativeSelect.Option value="CREDENTIAL">Credential</NativeSelect.Option>
-					<NativeSelect.Option value="ROLE_ASSIGNMENT">Role assignment</NativeSelect.Option>
-					<NativeSelect.Option value="DELEGATION">Delegation</NativeSelect.Option>
-				</NativeSelect.Root>
-				<Input
-					name="eventType"
-					value={data.filters.eventType ?? ''}
-					placeholder="Exact event type"
-					aria-label="Exact event type"
+					value={selectedCategory === 'ALL' ? '' : selectedCategory}
 				/>
-				<Button type="submit" variant="outline">Apply filters</Button>
+				<Select.Root type="single" bind:value={selectedCategory}>
+					<Select.Trigger class="w-full" aria-label="Event category">
+						{selectedCategory === 'ALL' ? 'All categories' : eventLabel(selectedCategory)}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Group>
+							<Select.Label>Event category</Select.Label>
+							<Select.Item value="ALL">All categories</Select.Item>
+							<Select.Item value="ACCOUNT">Account</Select.Item>
+							<Select.Item value="AUTHENTICATION">Authentication</Select.Item>
+							<Select.Item value="CREDENTIAL">Credential</Select.Item>
+							<Select.Item value="ROLE_ASSIGNMENT">Role assignment</Select.Item>
+							<Select.Item value="DELEGATION">Delegation</Select.Item>
+						</Select.Group>
+					</Select.Content>
+				</Select.Root>
+				<div class="space-y-1">
+					<Input
+						name="eventType"
+						value={data.filters.eventType ?? ''}
+						placeholder="Exact event type"
+						aria-label="Exact event type"
+						aria-describedby="event-type-guidance"
+					/>
+					<p id="event-type-guidance" class="px-3 text-xs text-muted-foreground">
+						Use an event card title in uppercase snake case, for example LOGIN_SUCCEEDED.
+					</p>
+				</div>
+				<Button type="submit" variant="outline" class="w-full md:w-auto">Apply filters</Button>
 			</form>
 		</Card.Content>
 	</Card.Root>
 
 	{#if data.timeline.data.length}
-		<ol class="relative ms-3 space-y-5 border-s">
-			{#each data.timeline.data as event (event.id)}
-				<li class="ms-6">
+		<ol class="space-y-5">
+			{#each data.timeline.data as event, index (event.id)}
+				<li class="relative ps-8">
+					{#if index < data.timeline.data.length - 1}
+						<span class="absolute start-0 top-8 bottom-[-3.25rem] border-s" aria-hidden="true"
+						></span>
+					{/if}
+					<span class="absolute start-0 top-8 w-8 border-t" aria-hidden="true"></span>
 					<span
-						class="absolute -start-2 mt-1.5 size-4 rounded-full border-4 border-background bg-primary"
+						class="absolute start-[1.625rem] top-[1.625rem] z-10 size-3 rounded-full bg-primary ring-4 ring-background"
 						aria-hidden="true"
 					></span>
 					<Card.Root>
@@ -102,4 +125,3 @@
 		/>
 	{/if}
 </div>
-

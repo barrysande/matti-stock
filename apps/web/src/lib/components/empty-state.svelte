@@ -3,11 +3,8 @@
 	import { IconDatabaseOff } from '@tabler/icons-svelte';
 	import type { Snippet } from 'svelte';
 
-	let {
-		title,
-		description,
-		actions
-	}: { title: string; description: string; actions?: Snippet } = $props();
+	let { title, description, actions }: { title: string; description: string; actions?: Snippet } =
+		$props();
 </script>
 
 <Empty.Root class="border">
@@ -20,4 +17,3 @@
 		<Empty.Content>{@render actions()}</Empty.Content>
 	{/if}
 </Empty.Root>
-

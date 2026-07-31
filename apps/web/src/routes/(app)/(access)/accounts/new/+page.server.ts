@@ -23,18 +23,10 @@ export const actions: Actions = {
 			})
 			.safe();
 		if (apiError) {
-			setFlash(
-				{ type: 'error', message: 'The account could not be created.' },
-				event.cookies
-			);
+			setFlash({ type: 'error', message: 'The account could not be created.' }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirect(
-			303,
-			'/accounts',
-			{ type: 'success', message: response.message },
-			event.cookies
-		);
+		redirect(303, '/accounts', { type: 'success', message: response.message }, event.cookies);
 	}
 };

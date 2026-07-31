@@ -17,4 +17,3 @@
 		$flash = undefined;
 	});
 </script>
-

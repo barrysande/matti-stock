@@ -112,7 +112,9 @@
 		<Card.Root class="h-fit">
 			<Card.Header>
 				<Card.Title>Administrative action</Card.Title>
-				<Card.Description>Every lifecycle or credential action requires an audit reason.</Card.Description>
+				<Card.Description
+					>Every lifecycle or credential action requires an audit reason.</Card.Description
+				>
 			</Card.Header>
 			<Card.Content>
 				<form method="POST" use:enhance class="space-y-4">

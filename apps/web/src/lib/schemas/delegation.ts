@@ -26,4 +26,3 @@ export const optionalReasonSchema = v.object({
 });
 
 export const delegationReasonSchema = v.object({ reason });
-

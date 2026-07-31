@@ -9,11 +9,20 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import * as NativeSelect from '$lib/components/ui/native-select/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { IconPlus, IconSearch } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+	// These values initialize again after the ordinary GET form navigation completes.
+
+	let selectedStatus = $derived<string>(data.filters.status ?? 'ALL');
+
+	let selectedSetupStatus = $derived<string>(data.filters.setupStatus ?? 'ALL');
+
+	function statusLabel(value: string) {
+		return value.toLowerCase().replace(/^./, (character) => character.toUpperCase());
+	}
 </script>
 
 <svelte:head><title>Accounts · Matti Stock</title></svelte:head>
@@ -31,8 +40,11 @@
 
 	<Card.Root>
 		<Card.Content class="pt-6">
-			<form method="GET" class="grid gap-3 md:grid-cols-[minmax(12rem,1fr)_12rem_12rem_auto]">
-				<div class="relative">
+			<form
+				method="GET"
+				class="grid min-w-0 gap-3 md:grid-cols-[minmax(12rem,1fr)_12rem_12rem_auto]"
+			>
+				<div class="relative min-w-0">
 					<IconSearch
 						class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
 					/>
@@ -44,23 +56,45 @@
 						aria-label="Search accounts"
 					/>
 				</div>
-				<NativeSelect.Root name="status" value={data.filters.status ?? ''} aria-label="Status">
-					<NativeSelect.Option value="">All statuses</NativeSelect.Option>
-					<NativeSelect.Option value="INVITED">Invited</NativeSelect.Option>
-					<NativeSelect.Option value="ACTIVE">Active</NativeSelect.Option>
-					<NativeSelect.Option value="SUSPENDED">Suspended</NativeSelect.Option>
-					<NativeSelect.Option value="DEACTIVATED">Deactivated</NativeSelect.Option>
-				</NativeSelect.Root>
-				<NativeSelect.Root
+				<input type="hidden" name="status" value={selectedStatus === 'ALL' ? '' : selectedStatus} />
+				<Select.Root type="single" bind:value={selectedStatus}>
+					<Select.Trigger class="w-full" aria-label="Status">
+						{selectedStatus === 'ALL' ? 'All statuses' : statusLabel(selectedStatus)}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Group>
+							<Select.Label>Account status</Select.Label>
+							<Select.Item value="ALL">All statuses</Select.Item>
+							<Select.Item value="INVITED">Invited</Select.Item>
+							<Select.Item value="ACTIVE">Active</Select.Item>
+							<Select.Item value="SUSPENDED">Suspended</Select.Item>
+							<Select.Item value="DEACTIVATED">Deactivated</Select.Item>
+						</Select.Group>
+					</Select.Content>
+				</Select.Root>
+				<input
+					type="hidden"
 					name="setupStatus"
-					value={data.filters.setupStatus ?? ''}
-					aria-label="Setup status"
-				>
-					<NativeSelect.Option value="">All setup states</NativeSelect.Option>
-					<NativeSelect.Option value="PENDING">Pending setup</NativeSelect.Option>
-					<NativeSelect.Option value="COMPLETE">Setup complete</NativeSelect.Option>
-				</NativeSelect.Root>
-				<Button type="submit" variant="outline">Apply filters</Button>
+					value={selectedSetupStatus === 'ALL' ? '' : selectedSetupStatus}
+				/>
+				<Select.Root type="single" bind:value={selectedSetupStatus}>
+					<Select.Trigger class="w-full" aria-label="Setup status">
+						{selectedSetupStatus === 'ALL'
+							? 'All setup states'
+							: selectedSetupStatus === 'PENDING'
+								? 'Pending setup'
+								: 'Setup complete'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Group>
+							<Select.Label>Setup status</Select.Label>
+							<Select.Item value="ALL">All setup states</Select.Item>
+							<Select.Item value="PENDING">Pending setup</Select.Item>
+							<Select.Item value="COMPLETE">Setup complete</Select.Item>
+						</Select.Group>
+					</Select.Content>
+				</Select.Root>
+				<Button type="submit" variant="outline" class="w-full md:w-auto">Apply filters</Button>
 			</form>
 		</Card.Content>
 	</Card.Root>

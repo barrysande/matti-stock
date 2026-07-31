@@ -38,4 +38,3 @@ export const fingerprint = v.pipe(
 	v.string(),
 	v.regex(/^[0-9a-f]{64}$/, 'Refresh the access-impact preview before continuing.')
 );
-

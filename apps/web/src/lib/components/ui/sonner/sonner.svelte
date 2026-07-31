@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { mode } from "mode-watcher";
-	import { Toaster as Sonner, type ToasterProps as SonnerProps } from "svelte-sonner";
+	import { mode } from 'mode-watcher';
+	import { Toaster as Sonner, type ToasterProps as SonnerProps } from 'svelte-sonner';
 	import { IconLoader } from '@tabler/icons-svelte';
 	import { IconCircleCheck } from '@tabler/icons-svelte';
 	import { IconAlertOctagon } from '@tabler/icons-svelte';

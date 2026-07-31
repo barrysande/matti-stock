@@ -88,7 +88,9 @@
 						<Card.Header>
 							<Card.Title>{assignment.role.name}</Card.Title>
 							<Card.Description>
-								Valid <DateTime value={assignment.startsAt} /> – <DateTime value={assignment.expiresAt} />
+								Valid <DateTime value={assignment.startsAt} /> – <DateTime
+									value={assignment.expiresAt}
+								/>
 							</Card.Description>
 						</Card.Header>
 						<Card.Content><p class="text-sm">{assignment.reason}</p></Card.Content>

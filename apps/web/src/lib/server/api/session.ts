@@ -12,17 +12,11 @@ export function forgotPassword(event: RequestEvent, body: { email: string }) {
 	return event.locals.client.api.passwordResets.request({ body }).safe();
 }
 
-export function resetPassword(
-	event: RequestEvent,
-	body: { token: string; password: string }
-) {
+export function resetPassword(event: RequestEvent, body: { token: string; password: string }) {
 	return event.locals.client.api.passwordResets.reset({ body }).safe();
 }
 
-export function setPassword(
-	event: RequestEvent,
-	body: { token: string; password: string }
-) {
+export function setPassword(event: RequestEvent, body: { token: string; password: string }) {
 	return event.locals.client.api.passwordSetups.store({ body }).safe();
 }
 

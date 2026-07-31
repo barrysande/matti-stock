@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { IconKey, IconLogout, IconUserCircle } from '@tabler/icons-svelte';
@@ -11,6 +12,12 @@
 			person: { displayName: string };
 		};
 	} = $props();
+
+	const sidebar = Sidebar.useSidebar();
+
+	function closeMobileSidebar() {
+		if (sidebar.isMobile) sidebar.setOpenMobile(false);
+	}
 </script>
 
 <Sidebar.Menu>
@@ -23,7 +30,7 @@
 	<Sidebar.MenuItem>
 		<Sidebar.MenuButton tooltipContent="My access">
 			{#snippet child({ props })}
-				<a href="/account" {...props}>
+				<a href={resolve('/account')} {...props} onclick={closeMobileSidebar}>
 					<IconUserCircle />
 					<span>My access</span>
 				</a>
@@ -33,7 +40,9 @@
 	<Sidebar.MenuItem>
 		<Sidebar.MenuButton tooltipContent="Change password">
 			{#snippet child({ props })}
-				<a href="/account#password" {...props}>
+				<!-- The route base is resolved before its in-page fragment is appended. -->
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+				<a href={`${resolve('/account')}#password`} {...props} onclick={closeMobileSidebar}>
 					<IconKey />
 					<span>Change password</span>
 				</a>

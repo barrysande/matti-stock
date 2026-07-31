@@ -1,8 +1,5 @@
 <script lang="ts">
-	let {
-		value,
-		fallback = '—'
-	}: { value: unknown; fallback?: string } = $props();
+	let { value, fallback = '—' }: { value: unknown; fallback?: string } = $props();
 
 	const date = $derived(
 		value instanceof Date

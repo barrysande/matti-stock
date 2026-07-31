@@ -21,10 +21,7 @@ export const actions: Actions = {
 			password: form.data.password
 		});
 		if (error) {
-			setFlash(
-				{ type: 'error', message: 'The current password is incorrect.' },
-				event.cookies
-			);
+			setFlash({ type: 'error', message: 'The current password is incorrect.' }, event.cookies);
 			return fail(error.status ?? 400, { form });
 		}
 

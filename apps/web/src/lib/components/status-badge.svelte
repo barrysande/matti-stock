@@ -6,6 +6,7 @@
 
 	const positive = new Set(['ACTIVE', 'COMPLETE', 'ACCEPTED']);
 	const negative = new Set([
+		'ARCHIVED',
 		'SUSPENDED',
 		'DEACTIVATED',
 		'REJECTED',
@@ -30,4 +31,3 @@
 </script>
 
 <Badge {variant}>{label}</Badge>
-

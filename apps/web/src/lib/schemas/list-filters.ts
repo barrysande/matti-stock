@@ -11,4 +11,3 @@ export function optionalFilter(value: string | null) {
 export function booleanFilter(value: string | null) {
 	return value === 'true' ? true : undefined;
 }
-

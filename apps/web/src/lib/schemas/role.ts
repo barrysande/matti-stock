@@ -21,4 +21,3 @@ export const replaceRolePermissionsSchema = v.object({
 	permissionKeys,
 	reason
 });
-

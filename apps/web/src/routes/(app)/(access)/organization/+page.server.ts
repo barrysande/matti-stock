@@ -1,0 +1,21 @@
+import { booleanFilter, optionalFilter } from '$lib/schemas/list-filters';
+import { error } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async (event) => {
+	const query = {
+		search: optionalFilter(event.url.searchParams.get('search')),
+		unitType: optionalFilter(event.url.searchParams.get('unitType')) as
+			'INSTITUTE' | 'DEPARTMENT' | 'SUB_DEPARTMENT' | undefined,
+		includeArchived: booleanFilter(event.url.searchParams.get('includeArchived'))
+	};
+	const [response, apiError] = await event.locals.client.api.organizationalUnits
+		.index({ query })
+		.safe();
+	if (apiError) error(apiError.status ?? 502, 'The organizational directory could not be loaded.');
+
+	return {
+		directory: response,
+		filters: query
+	};
+};

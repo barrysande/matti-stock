@@ -7,15 +7,9 @@ export const load: PageServerLoad = async (event) => {
 		page: positivePage(event.url.searchParams.get('page')),
 		search: optionalFilter(event.url.searchParams.get('search')),
 		status: optionalFilter(event.url.searchParams.get('status')) as
-			| 'INVITED'
-			| 'ACTIVE'
-			| 'SUSPENDED'
-			| 'DEACTIVATED'
-			| undefined,
+			'INVITED' | 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED' | undefined,
 		setupStatus: optionalFilter(event.url.searchParams.get('setupStatus')) as
-			| 'PENDING'
-			| 'COMPLETE'
-			| undefined
+			'PENDING' | 'COMPLETE' | undefined
 	};
 	const [response, apiError] = await event.locals.client.api.accounts.index({ query }).safe();
 	if (apiError) error(apiError.status ?? 502, 'The account directory could not be loaded.');

@@ -16,4 +16,3 @@ export const reparentLocationSchema = v.object({
 	parentId: optionalUuid,
 	reason
 });
-
