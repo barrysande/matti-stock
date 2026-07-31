@@ -4,7 +4,7 @@
  * is only a progressive enhancement for narrow screens.
  */
 
-const BRAND = 'Matti Stock'
+const BRAND = 'MaTTI Stock'
 const PRODUCT = 'Stock Management System'
 
 interface ShellOptions {

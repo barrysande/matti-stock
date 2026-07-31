@@ -7,6 +7,7 @@ import OrganizationalUnit from '#models/organizational_unit'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
 import OrganizationalAccessImpactService from '#services/organizational_access_impact_service'
 import OrganizationalUnitHistoryService from '#services/organizational_unit_history_service'
+import OrganizationalUnitNameService from '#services/organizational_unit_name_service'
 import type { RequestAuditContext } from '#types/access'
 import type { createOrganizationalUnitValidator } from '#validators/organizational_unit'
 import type { Infer } from '@vinejs/vine/types'
@@ -22,7 +23,8 @@ export default class OrganizationalUnitProvisioningService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
     private accessImpact: OrganizationalAccessImpactService,
-    private history: OrganizationalUnitHistoryService
+    private history: OrganizationalUnitHistoryService,
+    private unitNames: OrganizationalUnitNameService
   ) {}
 
   /**
@@ -49,9 +51,10 @@ export default class OrganizationalUnitProvisioningService {
           throw new StaleOrganizationalAccessImpactException()
         }
 
+        const name = this.unitNames.normalize(data.name, data.unitType)
         const unit = await OrganizationalUnit.create(
           {
-            name: data.name,
+            name,
             unitType: data.unitType,
             parentId: data.parentId,
             archivedAt: null,

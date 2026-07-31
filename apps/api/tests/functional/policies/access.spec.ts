@@ -50,7 +50,7 @@ async function createAccessGrant(options: GrantOptions = {}) {
   }
 
   const institute = await OrganizationalUnit.create({
-    name: 'Matti Institute',
+    name: 'MaTTI Institute',
     unitType: 'INSTITUTE',
     parentId: null,
   })

@@ -12,7 +12,7 @@ test.group('Account mails', () => {
     await mail.buildWithContents()
 
     mail.message.assertTo('master@example.com')
-    mail.message.assertSubject('Set your Matti Stock password')
+    mail.message.assertSubject('Set your MaTTI Stock password')
     mail.message.assertHtmlIncludes('Stock Management System')
     mail.message.assertHtmlIncludes('Master &lt;Admin&gt;')
     mail.message.assertHtmlIncludes('Set password')
@@ -31,7 +31,7 @@ test.group('Account mails', () => {
     await mail.buildWithContents()
 
     mail.message.assertTo('holder@example.com')
-    mail.message.assertSubject('Reset your Matti Stock password')
+    mail.message.assertSubject('Reset your MaTTI Stock password')
     mail.message.assertHtmlIncludes('Stock Management System')
     mail.message.assertHtmlIncludes('Account &lt;Holder&gt;')
     mail.message.assertHtmlIncludes('Reset password')

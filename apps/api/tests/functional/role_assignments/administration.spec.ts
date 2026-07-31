@@ -96,7 +96,7 @@ async function createFixture() {
     { roleVersionId: latestVersion.id, permissionKey: 'stocktake.review' },
   ])
   const institute = await OrganizationalUnit.create({
-    name: 'Matti Institute',
+    name: 'MaTTI Institute',
     unitType: 'INSTITUTE',
     parentId: null,
   })

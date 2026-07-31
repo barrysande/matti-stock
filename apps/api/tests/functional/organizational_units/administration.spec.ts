@@ -73,7 +73,7 @@ async function createRootActor() {
     roleVersionId: roleVersion.id,
     permissionKey: permission.key,
   })
-  const institute = await createUnit('Matti Institute', 'INSTITUTE', null)
+  const institute = await createUnit('MaTTI Institute', 'INSTITUTE', null)
   const account = await createAccount('root.administration@example.com', 'Root Administrator')
   await RoleAssignment.create({
     accountId: account.id,
@@ -144,7 +144,7 @@ test.group('Organizational units administration', (group) => {
 
     const response = await authenticatedRequest(
       client.post('/organizational-units').json({
-        name: 'Finance',
+        name: 'Finance Department',
         unitType: 'DEPARTMENT',
         parentId: institute.id,
         reason: 'Establish Finance accountability',
@@ -167,6 +167,28 @@ test.group('Organizational units administration', (group) => {
     assert.equal(event.targetId, department.id)
     assert.equal(event.actorAccountId, account.id)
     assert.equal(event.reason, 'Establish Finance accountability')
+  })
+
+  test('rejects a descendant name containing only an organizational suffix', async ({ client }) => {
+    const { account, institute } = await createRootActor()
+    const impact = await preview(client, account, institute.id, {
+      operation: 'CREATE_CHILD',
+      childUnitType: 'DEPARTMENT',
+    })
+
+    const response = await authenticatedRequest(
+      client.post('/organizational-units').json({
+        name: 'Department',
+        unitType: 'DEPARTMENT',
+        parentId: institute.id,
+        reason: 'Invalid empty organizational name',
+        impactFingerprint: impact.body().fingerprint,
+      }),
+      account
+    )
+
+    response.assertStatus(409)
+    response.assertBodyContains({ code: 'E_INVALID_ORGANIZATIONAL_UNIT_CHANGE' })
   })
 
   test('enforces institute, department, and sub-department parent types', async ({ client }) => {
@@ -240,7 +262,7 @@ test.group('Organizational units administration', (group) => {
 
     const response = await authenticatedRequest(
       client.post(`/organizational-units/${department.id}/rename`).json({
-        name: 'Corporate Services',
+        name: 'Corporate Services Department',
         reason: 'Approved institutional rename',
       }),
       account
@@ -258,6 +280,22 @@ test.group('Organizational units administration', (group) => {
     assert.equal(versions[1].name, 'Corporate Services')
     const event = await AccessEvent.findByOrFail('eventType', 'ORGANIZATIONAL_UNIT_RENAMED')
     assert.equal(event.reason, 'Approved institutional rename')
+  })
+
+  test('preserves Institute as part of the sole root name', async ({ client, assert }) => {
+    const { account, institute } = await createRootActor()
+
+    const response = await authenticatedRequest(
+      client.post(`/organizational-units/${institute.id}/rename`).json({
+        name: 'National MaTTI Institute',
+        reason: 'Approved institute rename',
+      }),
+      account
+    )
+
+    response.assertStatus(200)
+    await institute.refresh()
+    assert.equal(institute.name, 'National MaTTI Institute')
   })
 
   test('moves only a sub-department and preserves both parent versions', async ({

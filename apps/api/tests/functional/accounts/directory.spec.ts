@@ -70,7 +70,7 @@ async function createRootActor() {
     permissionKey: permission.key,
   })
   const institute = await OrganizationalUnit.create({
-    name: 'Matti Institute',
+    name: 'MaTTI Institute',
     unitType: 'INSTITUTE',
     parentId: null,
   })
@@ -323,7 +323,7 @@ test.group('Accounts directory and access overview', (group) => {
       scope: {
         organizationalUnitId: department.id,
         name: 'Finance',
-        path: 'Matti Institute / Finance',
+        path: 'MaTTI Institute / Finance',
         unitType: 'DEPARTMENT',
         mode: 'THIS_NODE_ONLY',
       },

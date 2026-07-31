@@ -73,7 +73,7 @@ async function createRootActor() {
     permissionKey: permission.key,
   })
   const institute = await OrganizationalUnit.create({
-    name: 'Matti Institute',
+    name: 'MaTTI Institute',
     unitType: 'INSTITUTE',
     parentId: null,
   })
@@ -160,14 +160,14 @@ test.group('Organizational units directory', (group) => {
     response.assertStatus(200)
     assert.deepEqual(
       response.body().data.map((unit: { name: string }) => unit.name),
-      ['Matti Institute', 'Finance', 'Accounts']
+      ['MaTTI Institute', 'Finance', 'Accounts']
     )
     assert.deepEqual(
       response.body().data.map((unit: { path: string }) => unit.path),
       [
-        'Matti Institute / Finance',
-        'Matti Institute / Finance / Accounts',
-        'Matti Institute',
+        'MaTTI Institute / Finance',
+        'MaTTI Institute / Finance / Accounts',
+        'MaTTI Institute',
       ].sort()
     )
     assert.notProperty(response.body().data[0], 'roleAssignments')
@@ -186,7 +186,7 @@ test.group('Organizational units directory', (group) => {
       filtered.body().data.map((unit: { id: string }) => unit.id),
       [archived.id]
     )
-    assert.equal(filtered.body().data[0].path, 'Matti Institute / Former Office')
+    assert.equal(filtered.body().data[0].path, 'MaTTI Institute / Former Office')
 
     const filteredSubDepartments = await authenticatedRequest(
       client.get('/organizational-units').qs({ unitType: 'SUB_DEPARTMENT' }),
@@ -199,7 +199,7 @@ test.group('Organizational units directory', (group) => {
         id: unit.id,
         path: unit.path,
       })),
-      [{ id: subDepartment.id, path: 'Matti Institute / Finance / Accounts' }]
+      [{ id: subDepartment.id, path: 'MaTTI Institute / Finance / Accounts' }]
     )
   })
 
@@ -224,7 +224,7 @@ test.group('Organizational units directory', (group) => {
     )
 
     response.assertStatus(200)
-    assert.equal(response.body().data.path, 'Matti Institute / Corporate Services')
+    assert.equal(response.body().data.path, 'MaTTI Institute / Corporate Services')
     assert.deepEqual(
       response.body().data.versions.map((version: { version: number; name: string }) => ({
         version: version.version,

@@ -20,7 +20,7 @@ import PasswordResetChallenge from '#models/password_reset_challenge'
 import MasterAdminBootstrapService from '#services/master_admin_bootstrap_service'
 
 const data = {
-  instituteName: 'Matti Institute',
+  instituteName: 'MaTTI Institute',
   masterName: 'Master Administrator',
   masterEmail: 'master@example.com',
 }
@@ -169,7 +169,7 @@ test.group('Master Admin bootstrap service', (group) => {
     )
 
     fake.mails.assertSent(AccountPasswordSetupMail, ({ message }) => {
-      return message.hasTo(data.masterEmail) && message.hasSubject('Set your Matti Stock password')
+      return message.hasTo(data.masterEmail) && message.hasSubject('Set your MaTTI Stock password')
     })
   })
 })

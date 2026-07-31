@@ -10,7 +10,7 @@ import {
 } from './layout.ts'
 
 export default class AccountPasswordSetupMail extends BaseMail {
-  subject = 'Set your Matti Stock password'
+  subject = 'Set your MaTTI Stock password'
 
   constructor(
     private recipient: { name: string; email: string },
@@ -22,7 +22,7 @@ export default class AccountPasswordSetupMail extends BaseMail {
   private html() {
     const rows = [
       paragraphRow(
-        `Hello ${escapeHtml(this.recipient.name)}, your Matti Stock account is ready. Set your password using this single-use link within one hour.`
+        `Hello ${escapeHtml(this.recipient.name)}, your MaTTI Stock account is ready. Set your password using this single-use link within one hour.`
       ),
       buttonRow(this.setupUrl, 'Set password'),
       linkFallbackRow(this.setupUrl),
@@ -32,7 +32,7 @@ export default class AccountPasswordSetupMail extends BaseMail {
     return renderShell({
       title: 'Set your password',
       heading: 'Set your password',
-      preheader: 'Set your Matti Stock password. This link expires in one hour.',
+      preheader: 'Set your MaTTI Stock password. This link expires in one hour.',
       rows,
     })
   }
@@ -41,7 +41,7 @@ export default class AccountPasswordSetupMail extends BaseMail {
     return [
       `Hello ${this.recipient.name},`,
       '',
-      'Your Matti Stock account is ready.',
+      'Your MaTTI Stock account is ready.',
       'Set your password using this single-use link within one hour.',
       '',
       'Set your password:',

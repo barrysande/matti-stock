@@ -8,6 +8,7 @@ import OrganizationalUnit from '#models/organizational_unit'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
 import OrganizationalAccessImpactService from '#services/organizational_access_impact_service'
 import OrganizationalUnitHistoryService from '#services/organizational_unit_history_service'
+import OrganizationalUnitNameService from '#services/organizational_unit_name_service'
 import type { RequestAuditContext } from '#types/access'
 import type { OrganizationalImpactRequest } from '#types/organization'
 import type {
@@ -31,7 +32,8 @@ export default class OrganizationalUnitAdministrationService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
     private accessImpact: OrganizationalAccessImpactService,
-    private history: OrganizationalUnitHistoryService
+    private history: OrganizationalUnitHistoryService,
+    private unitNames: OrganizationalUnitNameService
   ) {}
 
   private invalid(message: string): never {
@@ -78,12 +80,13 @@ export default class OrganizationalUnitAdministrationService {
         await this.lockActor(trx, actorAccountId, now)
         const unit = await this.lockUnit(trx, unitId)
         const previousName = unit.name
+        const name = this.unitNames.normalize(data.name, unit.unitType)
 
-        if (previousName === data.name) {
+        if (previousName === name) {
           this.invalid('The organizational unit already uses this name.')
         }
 
-        await unit.merge({ name: data.name }).save()
+        await unit.merge({ name }).save()
         const version = await this.history.appendVersion(
           unit,
           data.reason,

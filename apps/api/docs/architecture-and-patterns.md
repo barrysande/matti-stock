@@ -259,14 +259,14 @@ without building an abstraction before its consumers exist.
 ## D16 — Application mail uses one responsive presentation shell
 
 **Decision.** Application mail classes render both responsive, table-based HTML
-and a plain-text alternative. A shared mail layout owns the Matti Stock
+and a plain-text alternative. A shared mail layout owns the MaTTI Stock
 masthead, hidden preheader, mobile behavior, card structure, typography,
 reusable content rows, link fallback, HTML escaping, and footer. Individual
 mail classes provide only their action-specific content.
 
 Dynamic values are escaped before HTML interpolation. Email content remains
 concise and exposes only the detail needed to identify and complete the
-applicable action. A typographic masthead is used until an approved Matti Stock
+applicable action. A typographic masthead is used until an approved MaTTI Stock
 brand asset exists; an unrelated framework or reference-project logo is not
 embedded.
 
@@ -883,3 +883,24 @@ separation rule and keeps each domain workflow readable. A generic
 participant-set engine would hide which two responsibilities must be
 independent and would create a workflow abstraction before concrete proposal
 models and state transitions exist.
+
+## D32 — Descendant organizational names omit structural suffixes
+
+**Decision.** Department and sub-department names are normalized at the API
+domain-service boundary before uniqueness checks, version creation, auditing,
+and persistence. A trailing `Department`, `Sub-department`, or `Sub Department`
+suffix is removed case-insensitively, repeated structural suffixes are removed,
+and ordinary internal words remain unchanged. A value containing only a
+structural suffix is rejected. Institute names are not normalized because the
+institute is the sole organizational root and its institutional title may be
+part of its proper name.
+
+Web guidance asks administrators for the name only, but the API remains the
+authoritative boundary so alternate clients and later imports cannot store a
+different representation. Existing records are not rewritten implicitly.
+
+**Why.** Unit type already records whether a descendant is a department or
+sub-department. Repeating that classification in the name creates inconsistent
+labels and makes paths, filters, uniqueness, and reporting less predictable.
+Normalizing immediately before persistence keeps every write path consistent
+without coupling the invariant to one user interface.

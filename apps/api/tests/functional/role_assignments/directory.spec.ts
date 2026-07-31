@@ -72,7 +72,7 @@ async function createFixture() {
     permissionKey: countPermission.key,
   })
   const institute = await OrganizationalUnit.create({
-    name: 'Matti Institute',
+    name: 'MaTTI Institute',
     unitType: 'INSTITUTE',
     parentId: null,
   })
@@ -165,7 +165,7 @@ test.group('Role assignments directory', (group) => {
       scope: {
         organizationalUnitId: fixture.department.id,
         name: 'Engineering',
-        path: 'Matti Institute / Engineering',
+        path: 'MaTTI Institute / Engineering',
         unitType: 'DEPARTMENT',
         mode: 'INCLUDE_DESCENDANTS',
       },

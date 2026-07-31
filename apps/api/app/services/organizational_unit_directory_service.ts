@@ -42,10 +42,7 @@ export default class OrganizationalUnitDirectoryService {
     return `${this.pathFor(parent, units, visited)} / ${unit.name}`
   }
 
-  private assignPaths(
-    units: OrganizationalUnit[],
-    hierarchyUnits: OrganizationalUnit[] = units
-  ) {
+  private assignPaths(units: OrganizationalUnit[], hierarchyUnits: OrganizationalUnit[] = units) {
     const unitMap = new Map(hierarchyUnits.map((unit) => [unit.id, unit]))
 
     for (const unit of units) {

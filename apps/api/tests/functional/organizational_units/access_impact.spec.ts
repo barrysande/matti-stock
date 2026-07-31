@@ -142,7 +142,7 @@ test.group('Organizational units access impact', (group) => {
     client,
     assert,
   }) => {
-    const institute = await createUnit('Matti Institute', 'INSTITUTE', null)
+    const institute = await createUnit('MaTTI Institute', 'INSTITUTE', null)
     const department = await createUnit('Finance', 'DEPARTMENT', institute.id)
     const { rootVersion, scopedVersion } = await createRegistry()
     const { account: actor, assignment: rootAssignment } = await createRootActor(
@@ -199,7 +199,7 @@ test.group('Organizational units access impact', (group) => {
     client,
     assert,
   }) => {
-    const institute = await createUnit('Matti Institute', 'INSTITUTE', null)
+    const institute = await createUnit('MaTTI Institute', 'INSTITUTE', null)
     const finance = await createUnit('Finance', 'DEPARTMENT', institute.id)
     const administration = await createUnit('Administration', 'DEPARTMENT', institute.id)
     const accounts = await createUnit('Accounts', 'SUB_DEPARTMENT', finance.id)
@@ -252,7 +252,7 @@ test.group('Organizational units access impact', (group) => {
     client,
     assert,
   }) => {
-    const institute = await createUnit('Matti Institute', 'INSTITUTE', null)
+    const institute = await createUnit('MaTTI Institute', 'INSTITUTE', null)
     const department = await createUnit('Finance', 'DEPARTMENT', institute.id)
     const child = await createUnit('Accounts', 'SUB_DEPARTMENT', department.id)
     const { rootVersion, scopedVersion } = await createRegistry()
@@ -288,7 +288,7 @@ test.group('Organizational units access impact', (group) => {
   })
 
   test('revalidates root authority inside the hierarchy transaction', async ({ assert }) => {
-    const institute = await createUnit('Matti Institute', 'INSTITUTE', null)
+    const institute = await createUnit('MaTTI Institute', 'INSTITUTE', null)
     const department = await createUnit('Finance', 'DEPARTMENT', institute.id)
     const { rootVersion } = await createRegistry()
     const { account: actor, assignment } = await createRootActor(institute, rootVersion)
@@ -323,7 +323,7 @@ test.group('Organizational units access impact', (group) => {
   test('serializes concurrent hierarchy changes and accepts only one reviewed move', async ({
     assert,
   }) => {
-    const institute = await createUnit('Matti Institute', 'INSTITUTE', null)
+    const institute = await createUnit('MaTTI Institute', 'INSTITUTE', null)
     const finance = await createUnit('Finance', 'DEPARTMENT', institute.id)
     const administration = await createUnit('Administration', 'DEPARTMENT', institute.id)
     const academics = await createUnit('Academics', 'DEPARTMENT', institute.id)

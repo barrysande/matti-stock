@@ -64,7 +64,7 @@ async function createMasterAdmin() {
     permissionKey: permission.key,
   })
   const institute = await OrganizationalUnit.create({
-    name: 'Matti Institute',
+    name: 'MaTTI Institute',
     unitType: 'INSTITUTE',
     parentId: null,
   })

@@ -10,7 +10,7 @@ import {
 } from './layout.ts'
 
 export default class PasswordResetMail extends BaseMail {
-  subject = 'Reset your Matti Stock password'
+  subject = 'Reset your MaTTI Stock password'
 
   constructor(
     private recipient: { name: string; email: string },
@@ -22,7 +22,7 @@ export default class PasswordResetMail extends BaseMail {
   private html() {
     const rows = [
       paragraphRow(
-        `Hello ${escapeHtml(this.recipient.name)}, a password reset was requested for your Matti Stock account. This link expires in one hour.`
+        `Hello ${escapeHtml(this.recipient.name)}, a password reset was requested for your MaTTI Stock account. This link expires in one hour.`
       ),
       buttonRow(this.resetUrl, 'Reset password'),
       linkFallbackRow(this.resetUrl),
@@ -32,7 +32,7 @@ export default class PasswordResetMail extends BaseMail {
     return renderShell({
       title: 'Reset your password',
       heading: 'Reset your password',
-      preheader: 'Reset your Matti Stock password. This link expires in one hour.',
+      preheader: 'Reset your MaTTI Stock password. This link expires in one hour.',
       rows,
     })
   }
@@ -41,7 +41,7 @@ export default class PasswordResetMail extends BaseMail {
     return [
       `Hello ${this.recipient.name},`,
       '',
-      'A password reset was requested for your Matti Stock account.',
+      'A password reset was requested for your MaTTI Stock account.',
       'This link expires in one hour.',
       '',
       'Reset your password:',
