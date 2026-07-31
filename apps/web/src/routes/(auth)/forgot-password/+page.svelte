@@ -16,7 +16,7 @@
 	const { form: formData, enhance, submitting } = form;
 </script>
 
-<svelte:head><title>Reset password · Matti Stock</title></svelte:head>
+<svelte:head><title>Reset password · MaTTI Stock</title></svelte:head>
 
 <Card.Root>
 	<Card.Header>

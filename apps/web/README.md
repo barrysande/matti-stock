@@ -1,6 +1,6 @@
-# Matti Stock Web
+# MaTTI Stock Web
 
-The SvelteKit application for Matti Stock.
+The SvelteKit application for MaTTI Stock.
 
 Run workspace commands from the monorepo root:
 

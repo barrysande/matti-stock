@@ -117,3 +117,82 @@ sidebar state is unchanged.
 **Why.** A completed smartphone navigation should reveal the destination
 instead of leaving the off-canvas navigation over it. Using the sidebar's own
 context API keeps sheet state ownership inside the scaffolded component.
+
+## D9 — Access-impact writes preserve one reviewed server form
+
+**Decision.** Organizational writes that require an access-impact review use
+one SuperForm with named SvelteKit preview and mutation actions. The preview
+action validates and returns the current form state together with the API's
+impact response and fingerprint. The mutation action submits that exact
+fingerprint, while the API remains responsible for recalculating impact and
+rejecting stale state under its transaction lock.
+
+The reviewed operation inputs determine whether a preview remains current.
+Changing an input included in the API fingerprint clears the submitted
+fingerprint and requires another review; unrelated fields do not manufacture
+extra invalidation. Browser code never calculates affected access. System
+permission and scope identifiers retain their API values and pass through a
+shared presentation-label function only when rendered for users.
+
+Successful previews open in a responsive confirmation dialog. Its assignment
+list scrolls independently between a persistent summary and action footer, and
+its confirmation button targets the owning form explicitly because dialog
+content is portalled outside the form element. Closing the dialog leaves a
+compact reviewed-state summary that can reopen the same current preview. When
+confirmation temporarily replaces editable controls, hidden inputs preserve
+the validated operation values in the final request. A successful mutation
+closes its dialog; validation, domain, and stale-preview failures keep it open.
+
+**Why.** A single form avoids copying mutable values between separate preview
+and confirmation forms. Named server actions preserve progressive enhancement
+and the browser-facing BFF boundary, while the fingerprint binds confirmation
+to the authoritative hierarchy and assignment state the administrator saw.
+Central presentation labels keep technical identifiers stable in code without
+making users interpret internal vocabulary.
+
+## D10 — Form snapshots are opt-in for non-sensitive administration
+
+**Decision.** Authenticated administration pages may export Superforms'
+`capture` and `restore` methods through a SvelteKit page snapshot when their
+form state contains no credentials, credential links, personal identifiers,
+or other sensitive values. Credential and personal-data forms do not receive
+snapshots without a separate security review and explicit approval.
+
+Access-impact result objects are not included in form snapshots. Restored
+organizational form fields must obtain a fresh authoritative preview before a
+mutation can be confirmed.
+
+**Why.** Browser-history restoration improves navigation through ordinary
+administrative workflows, but indiscriminately snapshotting every form would
+retain passwords, reset tokens, personal data, or sensitive administrative
+reasons longer than their immediate interaction requires. Keeping the feature
+opt-in makes that persistence an explicit data-handling choice.
+
+## D11 — Organizational lifecycle actions remain unit-specific and hierarchy-aware
+
+**Decision.** Rename, reparent, archive, and restore are initiated from the
+organizational-unit detail route. The institute is the sole root: it may be
+renamed but cannot be reparented, archived, or restored. Departments may be
+renamed, archived, and restored. Only active sub-departments may be reparented,
+and the UI offers a preselected alternative from active departments while the
+API remains authoritative for hierarchy validity.
+
+Rename submits directly because it does not change organizational access.
+Reparent, archive, and restore each use one operation-specific SuperForm with a
+named preview action and final mutation action. Their server-issued impact and
+fingerprint stay together through the responsive confirmation dialog. A
+fingerprinted input change or stale response invalidates confirmation. Required
+administrative reasons do not invalidate an otherwise current preview because
+they are not part of effective-access calculation. Confirmation views preserve
+the reviewed parent and reason in the submitted form even while their editable
+controls are not rendered.
+
+Lifecycle dialog forms do not opt into page snapshots because their audit
+reasons may contain sensitive administrative context. Access-impact assignments
+use one shared presentation component across creation and lifecycle workflows.
+
+**Why.** Unit-specific actions keep structural context visible and prevent the
+root or an ineligible descendant from being offered an impossible transition.
+The API-controlled preview and transaction-time fingerprint verification ensure
+the confirmed access consequence is still current without duplicating access
+logic in the browser.

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms';
 	import { valibotClient } from 'sveltekit-superforms/adapters';
+	import { accessLabel } from '$lib/access-labels';
 	import { changePasswordSchema } from '$lib/schemas/auth';
 	import DateTime from '$lib/components/date-time.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
@@ -21,7 +22,7 @@
 	let showNewPassword = $state(false);
 </script>
 
-<svelte:head><title>My access · Matti Stock</title></svelte:head>
+<svelte:head><title>My access · MaTTI Stock</title></svelte:head>
 
 <div class="space-y-8 pb-8">
 	<PageHeader
@@ -41,11 +42,11 @@
 		<Card.Root class="lg:col-span-2">
 			<Card.Header>
 				<Card.Title>Effective permissions</Card.Title>
-				<Card.Description>Combined direct and delegated permission keys.</Card.Description>
+				<Card.Description>Combined direct and delegated permissions.</Card.Description>
 			</Card.Header>
 			<Card.Content class="flex flex-wrap gap-2">
 				{#each data.account.effectivePermissionKeys as permission (permission)}
-					<code class="rounded-md bg-muted px-2 py-1 text-xs">{permission}</code>
+					<span class="rounded-md bg-muted px-2 py-1 text-xs">{accessLabel(permission)}</span>
 				{/each}
 			</Card.Content>
 		</Card.Root>
@@ -59,13 +60,13 @@
 					<Card.Root>
 						<Card.Header>
 							<Card.Title>{assignment.role.name}</Card.Title>
-							<Card.Description>
-								{assignment.scope.mode.replaceAll('_', ' ').toLowerCase()}
-							</Card.Description>
+							<Card.Description>{accessLabel(assignment.scope.mode)}</Card.Description>
 						</Card.Header>
 						<Card.Content class="flex flex-wrap gap-2">
 							{#each assignment.permissionKeys as permission (permission)}
-								<code class="rounded-md bg-muted px-2 py-1 text-xs">{permission}</code>
+								<span class="rounded-md bg-muted px-2 py-1 text-xs">
+									{accessLabel(permission)}
+								</span>
 							{/each}
 						</Card.Content>
 					</Card.Root>

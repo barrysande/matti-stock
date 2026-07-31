@@ -1,6 +1,6 @@
-# Matti Stock
+# MaTTI Stock
 
-Matti Stock is a stock-management system built as a pnpm monorepo.
+MaTTI Stock is a stock-management system built as a pnpm monorepo.
 
 ## Repository guide
 

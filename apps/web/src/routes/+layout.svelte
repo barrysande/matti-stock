@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-	<title>Matti Stock</title>
+	<title>MaTTI Stock</title>
 	<meta
 		name="description"
 		content="Secure stock control for receiving, counting, issuing, and auditing inventory."

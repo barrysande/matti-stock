@@ -11,7 +11,7 @@
 	});
 </script>
 
-<svelte:head><title>Choose a new password · Matti Stock</title></svelte:head>
+<svelte:head><title>Choose a new password · MaTTI Stock</title></svelte:head>
 
 <PasswordCredentialForm
 	{form}

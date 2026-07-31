@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Matti Stock</title>
+	<title>MaTTI Stock</title>
 	<meta
 		name="description"
 		content="Stock control for receiving, counting, issuing, and auditing inventory."
@@ -13,7 +13,7 @@
 <section class="flex flex-1 items-center justify-center py-8 md:py-12">
 	<div class="w-full max-w-lg rounded-3xl bg-card p-6 text-card-foreground shadow-sm md:p-8">
 		<p class="font-heading text-sm font-semibold tracking-[0.18em] text-primary uppercase">
-			Matti Stock
+			MaTTI Stock
 		</p>
 		<h1 class="mt-3 font-heading text-3xl font-semibold tracking-tight">Access established</h1>
 		<p class="mt-3 text-sm leading-6 text-muted-foreground">

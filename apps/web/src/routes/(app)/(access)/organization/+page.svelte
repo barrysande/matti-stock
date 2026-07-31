@@ -8,7 +8,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { IconSearch } from '@tabler/icons-svelte';
+	import { IconPlus, IconSearch } from '@tabler/icons-svelte';
 
 	let { data } = $props();
 	// These values initialize again after the ordinary GET form navigation completes.
@@ -28,17 +28,21 @@
 	}
 </script>
 
-<svelte:head><title>Organization · Matti Stock</title></svelte:head>
+<svelte:head><title>Organization · MaTTI Stock</title></svelte:head>
 
 <div class="space-y-6 pb-8">
 	<PageHeader
 		eyebrow="Access administration"
 		title="Organization"
 		description="Browse the institute, its departments, and optional sub-departments used for custody and access scope."
-	/>
+	>
+		{#snippet actions()}
+			<Button href={resolve('/organization/new')}><IconPlus />Create organizational unit</Button>
+		{/snippet}
+	</PageHeader>
 
 	<Card.Root class="min-w-0">
-		<Card.Content class="pt-6">
+		<Card.Content>
 			<form
 				method="GET"
 				class="grid min-w-0 gap-3 md:grid-cols-[minmax(12rem,1fr)_13rem_13rem_auto]"

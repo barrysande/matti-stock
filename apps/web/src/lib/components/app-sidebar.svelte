@@ -75,7 +75,7 @@
 					{#snippet child({ props })}
 						<a href={resolve('/')} {...props} onclick={closeMobileSidebar}>
 							<IconBuildingWarehouse class="size-5!" />
-							<span class="font-heading text-base font-semibold">Matti Stock</span>
+							<span class="font-heading text-base font-semibold">MaTTI Stock</span>
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>

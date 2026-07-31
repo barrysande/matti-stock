@@ -25,7 +25,7 @@
 	}
 </script>
 
-<svelte:head><title>Accounts · Matti Stock</title></svelte:head>
+<svelte:head><title>Accounts · MaTTI Stock</title></svelte:head>
 
 <div class="space-y-6 pb-8">
 	<PageHeader
@@ -39,7 +39,7 @@
 	</PageHeader>
 
 	<Card.Root>
-		<Card.Content class="pt-6">
+		<Card.Content>
 			<form
 				method="GET"
 				class="grid min-w-0 gap-3 md:grid-cols-[minmax(12rem,1fr)_12rem_12rem_auto]"

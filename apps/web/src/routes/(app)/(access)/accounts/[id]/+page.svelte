@@ -21,7 +21,7 @@
 	const { form: formData, enhance, submitting } = form;
 </script>
 
-<svelte:head><title>{data.account.person.displayName} · Matti Stock</title></svelte:head>
+<svelte:head><title>{data.account.person.displayName} · MaTTI Stock</title></svelte:head>
 
 <div class="space-y-6 pb-8">
 	<PageHeader

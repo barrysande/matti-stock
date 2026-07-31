@@ -18,7 +18,7 @@
 	let showPassword = $state(false);
 </script>
 
-<svelte:head><title>Sign in · Matti Stock</title></svelte:head>
+<svelte:head><title>Sign in · MaTTI Stock</title></svelte:head>
 
 <Card.Root>
 	<Card.Header>

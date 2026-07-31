@@ -17,7 +17,7 @@
 	const { form: formData, enhance, submitting } = form;
 </script>
 
-<svelte:head><title>Create account · Matti Stock</title></svelte:head>
+<svelte:head><title>Create account · MaTTI Stock</title></svelte:head>
 
 <div class="space-y-6 pb-8">
 	<PageHeader

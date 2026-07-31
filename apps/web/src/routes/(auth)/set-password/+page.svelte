@@ -11,12 +11,12 @@
 	});
 </script>
 
-<svelte:head><title>Set your password · Matti Stock</title></svelte:head>
+<svelte:head><title>Set your password · MaTTI Stock</title></svelte:head>
 
 <PasswordCredentialForm
 	{form}
 	title="Set your password"
-	description="Create the password you will use to access Matti Stock."
+	description="Create the password you will use to access MaTTI Stock."
 	submitLabel="Set password"
 	submittingLabel="Saving…"
 />

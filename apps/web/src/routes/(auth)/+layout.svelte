@@ -24,7 +24,7 @@
 			<span class="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
 				<IconBuildingWarehouse class="size-5" />
 			</span>
-			Matti Stock
+			MaTTI Stock
 		</a>
 		{@render children()}
 	</div>

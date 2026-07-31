@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>{page.status} · Matti Stock</title>
+	<title>{page.status} · MaTTI Stock</title>
 </svelte:head>
 
 <section class="flex min-h-[60svh] items-center justify-center py-12">
