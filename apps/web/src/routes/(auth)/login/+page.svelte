@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { superForm } from 'sveltekit-superforms';
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 	import { loginSchema } from '$lib/schemas/auth';
@@ -47,7 +48,10 @@
 					{#snippet children({ props })}
 						<div class="flex items-center gap-4">
 							<Form.Label>Password</Form.Label>
-							<a href="/forgot-password" class="ms-auto text-sm text-primary hover:underline">
+							<a
+								href={resolve('/forgot-password')}
+								class="ms-auto text-sm text-primary hover:underline"
+							>
 								Forgot password?
 							</a>
 						</div>

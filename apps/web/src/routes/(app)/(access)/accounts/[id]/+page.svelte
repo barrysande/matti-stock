@@ -62,16 +62,13 @@
 				{#if data.account.roleAssignments.length}
 					<div class="grid gap-3 lg:grid-cols-2">
 						{#each data.account.roleAssignments as assignment (assignment.id)}
-							<a
-								href={`/role-assignments/${assignment.id}`}
-								class="rounded-xl border bg-card p-4 hover:bg-accent/50"
-							>
+							<div class="rounded-xl border bg-card p-4">
 								<div class="flex items-start justify-between gap-3">
 									<p class="font-medium">{assignment.role.name}</p>
 									<StatusBadge status={assignment.status} />
 								</div>
 								<p class="mt-2 text-sm text-muted-foreground">{assignment.scope.name}</p>
-							</a>
+							</div>
 						{/each}
 					</div>
 				{:else}
@@ -87,17 +84,14 @@
 				{#if data.account.delegations}
 					<div class="grid gap-3 lg:grid-cols-2">
 						{#each [...data.account.delegations.incoming, ...data.account.delegations.outgoing] as delegation (delegation.id)}
-							<a
-								href={`/delegations/${delegation.id}`}
-								class="rounded-xl border bg-card p-4 hover:bg-accent/50"
-							>
+							<div class="rounded-xl border bg-card p-4">
 								<div class="flex items-start justify-between gap-3">
 									<p class="font-medium">
 										{delegation.delegator.displayName} → {delegation.delegate.displayName}
 									</p>
 									<StatusBadge status={delegation.status} />
 								</div>
-							</a>
+							</div>
 						{/each}
 					</div>
 				{:else}

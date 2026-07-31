@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { superForm } from 'sveltekit-superforms';
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 	import { forgotPasswordSchema } from '$lib/schemas/auth';
@@ -44,7 +45,7 @@
 			<Button type="submit" class="w-full" disabled={$submitting}>
 				{$submitting ? 'Requesting…' : 'Send reset link'}
 			</Button>
-			<a href="/login" class="block text-center text-sm text-primary hover:underline">
+			<a href={resolve('/login')} class="block text-center text-sm text-primary hover:underline">
 				Return to sign in
 			</a>
 		</form>
