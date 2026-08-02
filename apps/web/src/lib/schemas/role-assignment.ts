@@ -24,3 +24,5 @@ export const grantRoleAssignmentSchema = pipe(
 		['startsAt']
 	)
 );
+
+export const administerRoleAssignmentSchema = object({ reason });

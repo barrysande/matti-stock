@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { superForm } from 'sveltekit-superforms';
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 	import { reasonSchema } from '$lib/schemas/account';
@@ -10,6 +11,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
+	import { accessLabel } from '$lib/helpers/access-labels';
 	import { IconHistory } from '@tabler/icons-svelte';
 
 	let { data } = $props();
@@ -62,13 +64,19 @@
 				{#if data.account.roleAssignments.length}
 					<div class="grid gap-3 lg:grid-cols-2">
 						{#each data.account.roleAssignments as assignment (assignment.id)}
-							<div class="rounded-xl border bg-card p-4">
+							<a
+								href={resolve(`/role-assignments/${assignment.id}`)}
+								class="block rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
+							>
 								<div class="flex items-start justify-between gap-3">
 									<p class="font-medium">{assignment.role.name}</p>
 									<StatusBadge status={assignment.status} />
 								</div>
-								<p class="mt-2 text-sm text-muted-foreground">{assignment.scope.name}</p>
-							</div>
+								<p class="mt-2 text-sm text-muted-foreground">{assignment.scope.path}</p>
+								<p class="mt-1 text-xs text-muted-foreground">
+									{accessLabel(assignment.scope.mode, assignment.scope.name)}
+								</p>
+							</a>
 						{/each}
 					</div>
 				{:else}

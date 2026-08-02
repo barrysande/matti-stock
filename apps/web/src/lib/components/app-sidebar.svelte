@@ -61,6 +61,8 @@
 				return resolve('/locations');
 			case '/roles':
 				return resolve('/roles');
+			case '/role-assignments':
+				return resolve('/role-assignments');
 			default:
 				return href;
 		}
