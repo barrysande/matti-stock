@@ -384,3 +384,83 @@ scheduling deterministic across browser time zones, while explicit EAT labels
 let administrators understand the values they are approving. Keeping sensitive
 reasons out of browser snapshots reduces unintended retention without losing
 failure-state recovery during the current request.
+
+## D20 — Delegation is a participant workflow with separately presented root oversight
+
+**Decision.** Delegation routes live in the authenticated workspace rather than
+the root-only access-administration group. The directory is therefore visible
+to every account, while the API remains responsible for limiting ordinary
+accounts to proposals in which they participate and allowing effective root
+oversight. Friendly relationship filters map “Proposed by me” and “Received by
+me” to the authenticated account and the API's direction query; a root account
+sees all visible records when neither relationship is selected.
+
+Proposal creation begins with the paginated, searchable recipients returned by
+the narrow proposal-options resource. Selecting a recipient reloads that same
+resource and offers only its compatible direct assignments. The browser never
+calculates compatibility. Assignment selection is whole-record selection and
+shows Role, Applies within, Coverage, friendly permissions, direct-assignment
+dates, and a warning that every displayed permission and area is temporarily
+provided. Proposal dates use the shared single-date Calendar and separate time
+input, label institutional EAT explicitly, and are converted to `+03:00` by the
+BFF. Expiry is mandatory for delegation even though it remains optional for a
+direct assignment.
+
+Detail views derive which controls to display from the authenticated account,
+the returned participants, and the returned lifecycle, but every mutation is
+still authorized and revalidated by the API. Recipient response, proposer
+revocation, and recipient relinquishment are grouped as participant actions.
+Effective-root administrative termination is shown in a separate section even
+when that root account is also a participant, because it records a different
+audit meaning. Proposal, rejection, revocation, relinquishment, and
+administrative-termination reasons are not retained in browser-history
+snapshots. Successful actions redirect to refreshed detail; validation and API
+failures keep the applicable SuperForm and dialog open.
+
+**Why.** Delegation transfers temporary authority between named participants,
+so placing it behind root-only navigation would prevent the recipient from
+knowingly responding and the proposer from managing their own coverage.
+Keeping eligibility and lifecycle enforcement at the API boundary prevents
+presentation state from becoming an authorization decision. Separating root
+intervention from participant choices makes the resulting audit history
+understandable without exposing implementation terminology to users.
+
+## D21 — Error boundaries share a safe state while retaining their owning frame
+
+**Decision.** The root route owns a branded `+error.svelte` boundary for
+unmatched URLs and failures outside the authenticated application group. The
+`(app)` route group retains its nearer boundary so application failures remain
+inside the navigation shell. Both boundaries render one shared error-state
+component with status-aware 404 and 403 guidance, a generic fallback for every
+other status, and a direct route home.
+
+Error states do not render raw server exception messages. The root boundary
+uses the same product mark, color tokens, card primitives, and color-mode
+control as the authentication frame, while the nested boundary lets the app
+shell continue to provide those surrounding concerns.
+
+**Why.** SvelteKit selects the nearest error boundary, so a root boundary is
+required to replace the framework fallback for nonexistent routes while a
+nested boundary preserves useful authenticated navigation. Sharing the state
+keeps language and visual treatment consistent, and suppressing exception
+details avoids exposing implementation information in a user-facing failure.
+
+## D22 — Color mode is a direct toggle with a system-derived default
+
+**Decision.** The shared color-mode control is one icon button that immediately
+toggles between light and dark modes. Its visible sun or moon follows the
+resolved mode. When no explicit preference has been stored, `mode-watcher`
+continues to resolve the initial mode from the operating system; using the
+toggle records the user's explicit light or dark choice.
+
+The control does not expose a dropdown or a separate system-reset action. It is
+shared by the application header, authentication frame, and root error frame.
+Its self-contained tooltip describes the next action from the resolved mode,
+and the button uses that same dynamic text as its accessible name.
+
+**Why.** Theme switching is a frequent binary action, so completing it with one
+click reduces interaction cost without discarding a system-aware first visit.
+One shared control also keeps the behavior and accessible label consistent in
+every application frame. Describing the resulting action instead of only the
+current state makes the compact icon understandable on hover, keyboard focus,
+and assistive technology without making the tooltip essential to activation.
