@@ -290,8 +290,11 @@
 								</div>
 							</Card.Header>
 							<Card.Content class="space-y-3">
-								<p class="text-sm">{version.reason}</p>
 								<dl class="grid gap-3 text-sm sm:grid-cols-2">
+									<div class="sm:col-span-2">
+										<dt class="text-muted-foreground">Reason</dt>
+										<dd>{version.reason}</dd>
+									</div>
 									<div>
 										<dt class="text-muted-foreground">Effective from</dt>
 										<dd><DateTime value={version.effectiveFrom} /></dd>

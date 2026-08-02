@@ -107,7 +107,12 @@
 							</div>
 						</Card.Header>
 						{#if event.reason}
-							<Card.Content><p class="text-sm">{event.reason}</p></Card.Content>
+							<Card.Content>
+								<dl class="text-sm">
+									<dt class="text-muted-foreground">Reason</dt>
+									<dd>{event.reason}</dd>
+								</dl>
+							</Card.Content>
 						{/if}
 					</Card.Root>
 				</li>
