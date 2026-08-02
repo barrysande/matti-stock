@@ -28,6 +28,7 @@
 			<div class="text-muted-foreground">Visitors for the last 6 months</div>
 		</Card.Footer>
 	</Card.Root>
+
 	<Card.Root class="@container/card">
 		<Card.Header>
 			<Card.Description>New Customers</Card.Description>
@@ -48,6 +49,7 @@
 			<div class="text-muted-foreground">Acquisition needs attention</div>
 		</Card.Footer>
 	</Card.Root>
+
 	<Card.Root class="@container/card">
 		<Card.Header>
 			<Card.Description>Active Accounts</Card.Description>
@@ -68,6 +70,7 @@
 			<div class="text-muted-foreground">Engagement exceed targets</div>
 		</Card.Footer>
 	</Card.Root>
+
 	<Card.Root class="@container/card">
 		<Card.Header>
 			<Card.Description>Growth Rate</Card.Description>

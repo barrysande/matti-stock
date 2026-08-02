@@ -21,7 +21,9 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 
 	const topLevelValue = 'TOP_LEVEL';
+
 	let { data } = $props();
+
 	const versions = $derived(data.location.versions ?? []);
 	const currentVersion = $derived(versions[0]);
 	const isArchived = $derived(Boolean(data.location.archivedAt));
@@ -41,6 +43,7 @@
 			if (result.type === 'redirect') renameDialogOpen = false;
 		}
 	});
+
 	const { form: renameData, enhance: renameEnhance, submitting: renameSubmitting } = renameForm;
 
 	// svelte-ignore state_referenced_locally
@@ -52,6 +55,7 @@
 			if (result.type === 'redirect') reparentDialogOpen = false;
 		}
 	});
+
 	const {
 		form: reparentData,
 		enhance: reparentEnhance,
@@ -67,6 +71,7 @@
 			if (result.type === 'redirect') archiveDialogOpen = false;
 		}
 	});
+
 	const { form: archiveData, enhance: archiveEnhance, submitting: archiveSubmitting } = archiveForm;
 
 	// svelte-ignore state_referenced_locally
@@ -78,6 +83,7 @@
 			if (result.type === 'redirect') restoreDialogOpen = false;
 		}
 	});
+
 	const { form: restoreData, enhance: restoreEnhance, submitting: restoreSubmitting } = restoreForm;
 
 	const selectedParent = $derived(
@@ -130,16 +136,19 @@
 			<Card.Header><Card.Description>Parent</Card.Description></Card.Header>
 			<Card.Content>{currentVersion?.parent?.name ?? 'Top-level location'}</Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Status</Card.Description></Card.Header>
 			<Card.Content>
 				<StatusBadge status={isArchived ? 'ARCHIVED' : 'ACTIVE'} />
 			</Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Created</Card.Description></Card.Header>
 			<Card.Content><DateTime value={data.location.createdAt} /></Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Last updated</Card.Description></Card.Header>
 			<Card.Content><DateTime value={data.location.updatedAt} /></Card.Content>

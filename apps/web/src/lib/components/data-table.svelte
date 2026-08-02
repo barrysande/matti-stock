@@ -111,6 +111,7 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 
 	let { data }: { data: Schema[] } = $props();
+
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 	let sorting = $state<SortingState>([]);
 	let columnFilters = $state<ColumnFiltersState>([]);
@@ -269,6 +270,7 @@
 			</Button>
 		</div>
 	</div>
+
 	<Tabs.Content value="outline" class="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
 		<div class="overflow-hidden rounded-lg border">
 			<DragDropProvider

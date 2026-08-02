@@ -13,6 +13,7 @@ export const load: PageServerLoad = async (event) => {
 		includeArchived: booleanFilter(event.url.searchParams.get('includeArchived')),
 		systemManaged: roleTypeFilter(event.url.searchParams.get('systemManaged'))
 	};
+
 	const [response, apiError] = await getRoles(event, query);
 	if (apiError) error(apiError.status ?? 502, 'The role directory could not be loaded.');
 

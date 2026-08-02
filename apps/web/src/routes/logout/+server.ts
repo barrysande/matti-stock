@@ -4,7 +4,6 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async (event) => {
 	const [response, error] = await logout(event);
-
 	if (error) {
 		redirect(
 			303,

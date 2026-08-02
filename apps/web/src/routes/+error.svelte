@@ -17,9 +17,11 @@
 		class="pointer-events-none absolute inset-x-0 top-0 h-72 bg-linear-to-b from-primary/10 to-transparent"
 		aria-hidden="true"
 	></div>
+
 	<div class="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
 		<ModeToggle />
 	</div>
+
 	<div class="relative flex w-full max-w-lg flex-col items-center">
 		<a href={resolve('/')} class="mb-6 flex items-center gap-2 font-heading font-semibold">
 			<span class="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">

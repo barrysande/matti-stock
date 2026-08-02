@@ -9,6 +9,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	requireGuest(event);
+
 	return {
 		form: await superValidate(
 			{ token: event.url.searchParams.get('token') ?? '' },

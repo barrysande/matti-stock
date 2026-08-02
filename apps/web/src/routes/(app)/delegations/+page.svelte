@@ -21,7 +21,6 @@
 	let { data } = $props();
 
 	let selectedRelationship = $derived<string>(data.filters.relationship ?? 'ALL');
-
 	let selectedStatus = $derived<string>(data.filters.status ?? 'ALL');
 	const statuses = [
 		'PENDING',

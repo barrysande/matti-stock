@@ -49,6 +49,7 @@
 		$formData.roleId = roleId;
 		const role = roles.find(({ id }) => id === roleId);
 		if (role?.key !== 'MASTER_ADMIN') return;
+
 		const institute = organizationalUnits.find(({ unitType }) => unitType === 'INSTITUTE');
 		$formData.scopeOrganizationalUnitId = institute?.id ?? '';
 		$formData.scopeMode = 'INCLUDE_DESCENDANTS';

@@ -55,24 +55,28 @@ export const actions: Actions = {
 			(reason) => requestAccountPasswordReset(event, event.params.id, reason),
 			'Credential recovery could not be requested.'
 		),
+
 	suspend: (event) =>
 		action(
 			event,
 			(reason) => suspendAccount(event, event.params.id, reason),
 			'The account could not be suspended.'
 		),
+
 	restore: (event) =>
 		action(
 			event,
 			(reason) => restoreAccount(event, event.params.id, reason),
 			'The account could not be restored.'
 		),
+
 	deactivate: (event) =>
 		action(
 			event,
 			(reason) => deactivateAccount(event, event.params.id, reason),
 			'The account could not be deactivated.'
 		),
+
 	reactivate: (event) =>
 		action(
 			event,

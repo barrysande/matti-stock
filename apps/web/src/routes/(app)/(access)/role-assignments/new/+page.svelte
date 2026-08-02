@@ -15,12 +15,14 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 
 	let { data } = $props();
+
 	// svelte-ignore state_referenced_locally
 	const form = superForm(data.form, {
 		id: 'role-assignment-create',
 		validators: valibotClient(grantRoleAssignmentSchema),
 		resetForm: false
 	});
+
 	const selectedAccount = $derived(
 		data.selectedAccount
 			? {

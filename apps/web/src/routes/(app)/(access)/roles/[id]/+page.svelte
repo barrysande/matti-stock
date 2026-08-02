@@ -30,12 +30,14 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 
 	let { data } = $props();
+
 	const versions = $derived(data.role.versions ?? []);
 	const isArchived = $derived(Boolean(data.role.archivedAt));
 	const isConfigurable = $derived(!data.role.systemManaged);
 	const recordedAssignmentCount = $derived(
 		data.role.currentVersion.assignmentCount + data.role.olderVersionAssignmentCount
 	);
+
 	function permissionCountLabel(count: number) {
 		return `${count} ${count === 1 ? 'permission' : 'permissions'}`;
 	}
@@ -54,6 +56,7 @@
 			if (result.type === 'redirect') renameDialogOpen = false;
 		}
 	});
+
 	const { form: renameData, enhance: renameEnhance, submitting: renameSubmitting } = renameForm;
 
 	// svelte-ignore state_referenced_locally
@@ -65,6 +68,7 @@
 			if (result.type === 'redirect') permissionsDialogOpen = false;
 		}
 	});
+
 	const {
 		form: permissionsData,
 		enhance: permissionsEnhance,
@@ -80,6 +84,7 @@
 			if (result.type === 'redirect') archiveDialogOpen = false;
 		}
 	});
+
 	const { form: archiveData, enhance: archiveEnhance, submitting: archiveSubmitting } = archiveForm;
 
 	// svelte-ignore state_referenced_locally
@@ -91,6 +96,7 @@
 			if (result.type === 'redirect') restoreDialogOpen = false;
 		}
 	});
+
 	const { form: restoreData, enhance: restoreEnhance, submitting: restoreSubmitting } = restoreForm;
 </script>
 
@@ -162,6 +168,7 @@
 			<Card.Header><Card.Description>Status</Card.Description></Card.Header>
 			<Card.Content><StatusBadge status={isArchived ? 'ARCHIVED' : 'ACTIVE'} /></Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Role type</Card.Description></Card.Header>
 			<Card.Content>
@@ -172,6 +179,7 @@
 				<p class="mt-1 font-mono text-xs break-all text-muted-foreground">{data.role.key}</p>
 			</Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Current version</Card.Description></Card.Header>
 			<Card.Content class="flex items-center gap-2 font-medium">
@@ -181,6 +189,7 @@
 				)}
 			</Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Recorded assignments</Card.Description></Card.Header>
 			<Card.Content class="flex items-center gap-2 font-medium">

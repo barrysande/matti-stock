@@ -45,14 +45,17 @@
 			<Card.Header><Card.Description>Status</Card.Description></Card.Header>
 			<Card.Content><StatusBadge status={data.account.status} /></Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Password setup</Card.Description></Card.Header>
 			<Card.Content><StatusBadge status={data.account.setupStatus} /></Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Staff number</Card.Description></Card.Header>
 			<Card.Content>{data.account.person.staffNumber ?? 'Not recorded'}</Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Last login</Card.Description></Card.Header>
 			<Card.Content><DateTime value={data.account.lastLoginAt} fallback="Never" /></Card.Content>

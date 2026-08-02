@@ -72,6 +72,7 @@ export const actions: Actions = {
 			id: formIds.accept
 		});
 		if (!form.valid) return fail(400, { form });
+
 		const [response, apiError] = await acceptDelegation(
 			event,
 			event.params.id,
@@ -79,6 +80,7 @@ export const actions: Actions = {
 		);
 		if (apiError)
 			return mutationFailure(event, apiError, form, 'The proposal could not be accepted.');
+
 		redirectToDelegation(event, response.message);
 	},
 
@@ -87,9 +89,11 @@ export const actions: Actions = {
 			id: formIds.reject
 		});
 		if (!form.valid) return fail(400, { form });
+
 		const [response, apiError] = await rejectDelegation(event, event.params.id, form.data.reason);
 		if (apiError)
 			return mutationFailure(event, apiError, form, 'The proposal could not be declined.');
+
 		redirectToDelegation(event, response.message);
 	},
 
@@ -98,9 +102,11 @@ export const actions: Actions = {
 			id: formIds.revoke
 		});
 		if (!form.valid) return fail(400, { form });
+
 		const [response, apiError] = await revokeDelegation(event, event.params.id, form.data.reason);
 		if (apiError)
 			return mutationFailure(event, apiError, form, 'The temporary coverage could not be ended.');
+
 		redirectToDelegation(event, response.message);
 	},
 
@@ -109,6 +115,7 @@ export const actions: Actions = {
 			id: formIds.relinquish
 		});
 		if (!form.valid) return fail(400, { form });
+
 		const [response, apiError] = await relinquishDelegation(
 			event,
 			event.params.id,
@@ -121,6 +128,7 @@ export const actions: Actions = {
 				form,
 				'The temporary responsibility could not be relinquished.'
 			);
+
 		redirectToDelegation(event, response.message);
 	},
 
@@ -129,6 +137,7 @@ export const actions: Actions = {
 			id: formIds.terminate
 		});
 		if (!form.valid) return fail(400, { form });
+
 		const [response, apiError] = await terminateDelegation(
 			event,
 			event.params.id,
@@ -141,6 +150,7 @@ export const actions: Actions = {
 				form,
 				'The administrative termination could not be completed.'
 			);
+
 		redirectToDelegation(event, response.message);
 	}
 };

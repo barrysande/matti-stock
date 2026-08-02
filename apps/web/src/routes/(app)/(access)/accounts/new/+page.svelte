@@ -10,10 +10,12 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 
 	let { data } = $props();
+
 	// svelte-ignore state_referenced_locally
 	const form = superForm(data.form, {
 		validators: valibotClient(createAccountSchema)
 	});
+
 	const { form: formData, enhance, submitting } = form;
 </script>
 

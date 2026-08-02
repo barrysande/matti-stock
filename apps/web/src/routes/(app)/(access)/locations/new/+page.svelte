@@ -13,6 +13,7 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 
 	const topLevelValue = 'TOP_LEVEL';
+
 	let { data } = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -21,6 +22,7 @@
 		validators: valibotClient(createLocationSchema),
 		resetForm: false
 	});
+
 	const { form: formData, enhance, submitting, capture, restore } = form;
 	export const snapshot = { capture, restore };
 

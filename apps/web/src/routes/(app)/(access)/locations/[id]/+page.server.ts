@@ -59,6 +59,7 @@ export const load: PageServerLoad = async (event) => {
 			}
 		}
 	}
+
 	const parentOptions = locations.filter(
 		(candidate) =>
 			candidate.id !== location.id &&

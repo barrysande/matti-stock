@@ -10,6 +10,7 @@ export const load: PageServerLoad = async (event) => {
 			'INSTITUTE' | 'DEPARTMENT' | 'SUB_DEPARTMENT' | undefined,
 		includeArchived: booleanFilter(event.url.searchParams.get('includeArchived'))
 	};
+
 	const [response, apiError] = await getOrganizationalUnits(event, query);
 	if (apiError) error(apiError.status ?? 502, 'The organizational directory could not be loaded.');
 

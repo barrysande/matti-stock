@@ -21,6 +21,7 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 
 	let { data } = $props();
+
 	const isActive = $derived(data.assignment.status === 'ACTIVE');
 	const isUpcoming = $derived(data.assignment.status === 'UPCOMING');
 	const canReplace = $derived(isActive || isUpcoming);
@@ -54,6 +55,7 @@
 			if (result.type === 'redirect') endDialogOpen = false;
 		}
 	});
+
 	const { form: endData, enhance: endEnhance, submitting: endSubmitting } = endForm;
 
 	// svelte-ignore state_referenced_locally
@@ -65,6 +67,7 @@
 			if (result.type === 'redirect') cancelDialogOpen = false;
 		}
 	});
+
 	const { form: cancelData, enhance: cancelEnhance, submitting: cancelSubmitting } = cancelForm;
 </script>
 

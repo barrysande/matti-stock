@@ -15,7 +15,6 @@ export const load: PageServerLoad = async (event) => {
 		getAccount(event, event.params.id),
 		getAccountAccessEvents(event, event.params.id, query)
 	]);
-
 	if (accountError) error(accountError.status ?? 404, 'The account could not be found.');
 	if (eventsError) error(eventsError.status ?? 502, 'The access timeline could not be loaded.');
 

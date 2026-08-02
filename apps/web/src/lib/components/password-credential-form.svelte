@@ -26,6 +26,7 @@
 
 	// svelte-ignore state_referenced_locally
 	const { form: formData, enhance, submitting } = form;
+
 	let showPassword = $state(false);
 </script>
 

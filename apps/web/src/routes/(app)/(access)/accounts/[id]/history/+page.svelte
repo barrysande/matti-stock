@@ -10,6 +10,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 
 	let { data } = $props();
+
 	// This value initializes again after the ordinary GET form navigation completes.
 	// svelte-ignore state_referenced_locally
 	let selectedCategory = $state<string>(data.filters.category ?? 'ALL');

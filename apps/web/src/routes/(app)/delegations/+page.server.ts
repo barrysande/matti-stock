@@ -26,6 +26,7 @@ function relationship(value: string | null): DelegationRelationship | undefined 
 
 export const load: PageServerLoad = async (event) => {
 	const account = requireAuth(event);
+
 	const selectedRelationship = relationship(event.url.searchParams.get('relationship'));
 	const query = {
 		page: positivePage(event.url.searchParams.get('page')),
@@ -38,6 +39,7 @@ export const load: PageServerLoad = async (event) => {
 					: undefined,
 		status: delegationStatus(event.url.searchParams.get('status'))
 	};
+
 	const [directory, directoryError] = await getDelegations(event, query);
 	if (directoryError)
 		error(directoryError.status ?? 502, 'Temporary coverage records could not be loaded.');

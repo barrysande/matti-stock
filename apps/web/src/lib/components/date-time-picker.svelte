@@ -33,6 +33,7 @@
 	} = $props();
 
 	const formatter = new DateFormatter('en-KE', { dateStyle: 'medium' });
+
 	let open = $state(false);
 
 	function datePart(dateTime: string) {

@@ -9,6 +9,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	requireGuest(event);
+
 	return { form: await superValidate(valibot(loginSchema)) };
 };
 
@@ -18,7 +19,6 @@ export const actions: Actions = {
 		if (!form.valid) return fail(400, { form });
 
 		const [response, error] = await login(event, form.data);
-
 		if (error) {
 			setFlash({ type: 'error', message: 'Invalid email or password.' }, event.cookies);
 			return fail(error.status ?? 400, { form });

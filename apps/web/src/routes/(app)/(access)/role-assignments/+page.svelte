@@ -15,11 +15,13 @@
 	import { IconPlus } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+
 	let selectedStatus = $derived<string>(data.filters.status ?? 'ALL');
 	let selectedRole = $derived<string>(data.filters.roleId ?? 'ALL');
 	let selectedScope = $derived<string>(data.filters.scopeOrganizationalUnitId ?? 'ALL');
 
 	const statusOptions = ['UPCOMING', 'ACTIVE', 'EXPIRED', 'ENDED', 'CANCELLED', 'REPLACED'];
+
 	function label(value: string) {
 		return value
 			.toLowerCase()

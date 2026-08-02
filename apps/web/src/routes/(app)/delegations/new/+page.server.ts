@@ -18,6 +18,7 @@ export const load: PageServerLoad = async (event) => {
 		search: optionalFilter(event.url.searchParams.get('search')),
 		delegateAccountId: optionalFilter(event.url.searchParams.get('delegateAccountId'))
 	};
+
 	const [optionsResponse, optionsError] = await getDelegationProposalOptions(event, query);
 	if (optionsError)
 		error(optionsError.status ?? 502, 'Eligible temporary-coverage options could not be loaded.');
@@ -53,6 +54,7 @@ export const actions: Actions = {
 			startsAt: form.data.startMode === 'SCHEDULED' ? eatInputToIso(form.data.startsAt) : undefined,
 			expiresAt: eatInputToIso(form.data.expiresAt)
 		};
+
 		const [response, apiError] = await createDelegation(event, body);
 		if (apiError) {
 			const fallback = 'The temporary coverage could not be proposed.';

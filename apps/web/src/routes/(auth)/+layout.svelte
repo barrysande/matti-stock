@@ -13,9 +13,11 @@
 		class="pointer-events-none absolute inset-x-0 top-0 h-72 bg-linear-to-b from-primary/10 to-transparent"
 		aria-hidden="true"
 	></div>
+
 	<div class="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
 		<ModeToggle />
 	</div>
+
 	<div class="relative w-full max-w-md">
 		<a
 			href={resolve('/')}

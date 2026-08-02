@@ -65,6 +65,7 @@
 			if (result.type === 'redirect') rejectDialogOpen = false;
 		}
 	});
+
 	const { form: rejectData, enhance: rejectEnhance, submitting: rejectSubmitting } = rejectForm;
 
 	// svelte-ignore state_referenced_locally

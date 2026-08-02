@@ -23,6 +23,7 @@
 	};
 
 	let { data } = $props();
+
 	let impact = $state<AccessImpact | null>(null);
 	let reviewedSelection = $state<ReviewedSelection | null>(null);
 	let impactDialogOpen = $state(false);
@@ -55,6 +56,7 @@
 			}
 		}
 	});
+
 	const { form: formData, enhance, submitting, capture, restore } = form;
 	export const snapshot = { capture, restore };
 

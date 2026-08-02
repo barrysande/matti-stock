@@ -42,6 +42,7 @@ export const load: PageServerLoad = async (event) => {
 	}
 
 	const role = roleResponse.data;
+
 	return {
 		role,
 		permissions: permissionsResponse.data,

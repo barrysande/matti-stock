@@ -10,11 +10,14 @@
 	import { IconEye, IconEyeOff } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+
 	// svelte-ignore state_referenced_locally
 	const form = superForm(data.form, {
 		validators: valibotClient(loginSchema)
 	});
+
 	const { form: formData, enhance, submitting } = form;
+
 	let showPassword = $state(false);
 </script>
 

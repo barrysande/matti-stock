@@ -20,6 +20,7 @@ export const load: PageServerLoad = async (event) => {
 		page: positivePage(event.url.searchParams.get('page')),
 		search: optionalFilter(event.url.searchParams.get('search'))
 	};
+
 	const [accountsResult, rolesResult, unitsResult, selectedAccountResult] = await Promise.all([
 		getAccounts(event, accountQuery),
 		getRoles(event, {}),
@@ -36,6 +37,7 @@ export const load: PageServerLoad = async (event) => {
 	if (selectedAccountResult?.[1]) {
 		error(selectedAccountResult[1].status ?? 404, 'The selected account could not be found.');
 	}
+
 	const selectedAccount = selectedAccountResult?.[0]?.data ?? null;
 	if (selectedAccount && !['ACTIVE', 'INVITED'].includes(selectedAccount.status)) {
 		error(400, 'Only active or invited accounts may receive a role assignment.');

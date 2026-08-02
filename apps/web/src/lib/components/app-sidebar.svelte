@@ -28,6 +28,7 @@
 
 	const sidebar = Sidebar.useSidebar();
 	const isRoot = $derived(account?.effectivePermissionKeys.includes('access.root') ?? false);
+
 	const workspace = [
 		{ href: '/', label: 'Home', icon: IconHome },
 		{ href: '/account', label: 'My access', icon: IconKey },

@@ -5,6 +5,7 @@
 	import { setPasswordSchema } from '$lib/schemas/auth';
 
 	let { data } = $props();
+
 	// svelte-ignore state_referenced_locally
 	const form = superForm(data.form, {
 		validators: valibotClient(setPasswordSchema)

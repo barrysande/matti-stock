@@ -21,6 +21,7 @@ export const load: PageServerLoad = async (event) => {
 		),
 		status: assignmentStatus(event.url.searchParams.get('status'))
 	};
+
 	const [assignmentsResult, rolesResult, unitsResult] = await Promise.all([
 		getRoleAssignments(event, query),
 		getRoles(event, { includeArchived: true }),

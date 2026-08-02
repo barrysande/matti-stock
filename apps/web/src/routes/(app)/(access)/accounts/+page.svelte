@@ -14,10 +14,9 @@
 	import { IconPlus, IconSearch } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+
 	// These values initialize again after the ordinary GET form navigation completes.
-
 	let selectedStatus = $derived<string>(data.filters.status ?? 'ALL');
-
 	let selectedSetupStatus = $derived<string>(data.filters.setupStatus ?? 'ALL');
 
 	function statusLabel(value: string) {

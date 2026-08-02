@@ -17,8 +17,7 @@
 		</p>
 		<h1 class="mt-3 font-heading text-3xl font-semibold tracking-tight">Access established</h1>
 		<p class="mt-3 text-sm leading-6 text-muted-foreground">
-			You are signed in through the session-authenticated SvelteKit boundary. Identity and access
-			administration will arrive in the next Week 2 slice.
+			You are signed in as {data.account.person.displayName}.
 		</p>
 
 		<div class="mt-6 flex items-center gap-3 rounded-2xl bg-muted px-4 py-3">

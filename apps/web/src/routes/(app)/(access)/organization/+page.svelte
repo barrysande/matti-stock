@@ -11,6 +11,7 @@
 	import { IconPlus, IconSearch } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+
 	// These values initialize again after the ordinary GET form navigation completes.
 	// svelte-ignore state_referenced_locally
 	let selectedUnitType = $state<string>(data.filters.unitType ?? 'ALL');

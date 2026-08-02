@@ -56,6 +56,7 @@ export const load: PageServerLoad = async (event) => {
 	const assignment = assignmentResponse.data;
 	const [roleResponse, roleError] = await getRole(event, assignment.role.id);
 	if (roleError) error(roleError.status ?? 404, 'The assigned role could not be loaded.');
+
 	const replacementStartsScheduled = assignment.status === 'UPCOMING';
 
 	return {
@@ -101,6 +102,7 @@ export const actions: Actions = {
 			);
 			return fail(assignmentError.status ?? 404, { form });
 		}
+
 		const assignment = assignmentResponse.data;
 		const body = {
 			...form.data,
@@ -115,6 +117,7 @@ export const actions: Actions = {
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
+
 		redirectToAssignment(event, response.message);
 	},
 
@@ -123,12 +126,14 @@ export const actions: Actions = {
 			id: formIds.end
 		});
 		if (!form.valid) return fail(400, { form });
+
 		const [response, apiError] = await endRoleAssignment(event, event.params.id, form.data.reason);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The role assignment could not be ended.');
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
+
 		redirectToAssignment(event, response.message);
 	},
 
@@ -137,6 +142,7 @@ export const actions: Actions = {
 			id: formIds.cancel
 		});
 		if (!form.valid) return fail(400, { form });
+
 		const [response, apiError] = await cancelRoleAssignment(
 			event,
 			event.params.id,
@@ -147,6 +153,7 @@ export const actions: Actions = {
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
+
 		redirectToAssignment(event, response.message);
 	}
 };

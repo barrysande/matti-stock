@@ -50,6 +50,7 @@ export const load: PageServerLoad = async (event) => {
 	if (unitsError) {
 		error(unitsError.status ?? 502, 'The organizational directory could not be loaded.');
 	}
+
 	const reparentParentId =
 		unitsResponse.data.find(
 			(unit) => unit.unitType === 'DEPARTMENT' && unit.id !== unitResponse.data.parentId

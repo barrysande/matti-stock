@@ -13,12 +13,14 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 
 	let { data } = $props();
+
 	// svelte-ignore state_referenced_locally
 	const form = superForm(data.form, {
 		id: 'role-create',
 		validators: valibotClient(createRoleSchema),
 		resetForm: false
 	});
+
 	const { form: formData, enhance, submitting, capture, restore } = form;
 	export const snapshot = { capture, restore };
 </script>

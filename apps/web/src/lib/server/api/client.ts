@@ -20,7 +20,6 @@ export function createApiClient(event: RequestEvent) {
 			beforeRequest: [
 				(request) => {
 					const cookieHeader = buildCookieHeader(event);
-
 					if (cookieHeader) {
 						request.headers.set('cookie', cookieHeader);
 					}
@@ -37,7 +36,6 @@ export function createApiClient(event: RequestEvent) {
 
 function getApiBaseUrl() {
 	const apiBaseUrl = env.PRIVATE_API_URL;
-
 	if (!apiBaseUrl) {
 		throw new Error('PRIVATE_API_URL must be configured for the SvelteKit server');
 	}
@@ -47,7 +45,6 @@ function getApiBaseUrl() {
 
 function buildCookieHeader(event: RequestEvent) {
 	const cookies = event.cookies.getAll();
-
 	if (cookies.length === 0) {
 		return null;
 	}

@@ -12,6 +12,7 @@
 	import { IconPlus, IconSearch, IconShield, IconVersions } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+
 	// These values initialize again after the ordinary GET form navigation completes.
 	// svelte-ignore state_referenced_locally
 	let archiveVisibility = $state<string>(data.filters.includeArchived ? 'ALL' : 'ACTIVE');

@@ -72,6 +72,7 @@ export const actions: Actions = {
 			}
 		};
 	},
+
 	create: async (event) => {
 		const form = await superValidate(event, valibot(createOrganizationalUnitSchema), {
 			id: formId
@@ -85,7 +86,6 @@ export const actions: Actions = {
 				details.code === 'E_STALE_ORGANIZATIONAL_ACCESS_IMPACT' ||
 				details.code === 'E_INVALID_ORGANIZATIONAL_UNIT_CHANGE';
 			if (previewInvalidated) form.data.impactFingerprint = '';
-
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form, previewInvalidated });
 		}

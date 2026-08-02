@@ -6,7 +6,7 @@ export default class HealthChecksController {
    * A dependency-free probe that only confirms the HTTP process can respond.
    */
   async live({ response }: HttpContext) {
-    return response.ok({})
+    return response.ok({ message: 'healthy' })
   }
 
   /**

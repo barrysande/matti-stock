@@ -23,6 +23,7 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 
 	let { data } = $props();
+
 	const versions = $derived(data.unit.versions ?? []);
 	const isInstitute = $derived(data.unit.unitType === 'INSTITUTE');
 	const isArchived = $derived(Boolean(data.unit.archivedAt));
@@ -51,6 +52,7 @@
 			if (result.type === 'redirect') renameDialogOpen = false;
 		}
 	});
+
 	const { form: renameData, enhance: renameEnhance, submitting: renameSubmitting } = renameForm;
 
 	// svelte-ignore state_referenced_locally
@@ -80,6 +82,7 @@
 			}
 		}
 	});
+
 	const {
 		form: reparentData,
 		enhance: reparentEnhance,
@@ -111,6 +114,7 @@
 			}
 		}
 	});
+
 	const { form: archiveData, enhance: archiveEnhance, submitting: archiveSubmitting } = archiveForm;
 
 	// svelte-ignore state_referenced_locally
@@ -138,6 +142,7 @@
 			}
 		}
 	});
+
 	const { form: restoreData, enhance: restoreEnhance, submitting: restoreSubmitting } = restoreForm;
 
 	const selectedReparent = $derived(
@@ -244,16 +249,19 @@
 			<Card.Header><Card.Description>Type</Card.Description></Card.Header>
 			<Card.Content>{unitTypeLabel(data.unit.unitType)}</Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Status</Card.Description></Card.Header>
 			<Card.Content>
 				<StatusBadge status={data.unit.archivedAt ? 'ARCHIVED' : 'ACTIVE'} />
 			</Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Created</Card.Description></Card.Header>
 			<Card.Content><DateTime value={data.unit.createdAt} /></Card.Content>
 		</Card.Root>
+
 		<Card.Root>
 			<Card.Header><Card.Description>Last updated</Card.Description></Card.Header>
 			<Card.Content><DateTime value={data.unit.updatedAt} /></Card.Content>

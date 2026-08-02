@@ -464,3 +464,22 @@ One shared control also keeps the behavior and accessible label consistent in
 every application frame. Describing the resulting action instead of only the
 current state makes the compact icon understandable on hover, keyboard focus,
 and assistive technology without making the tooltip essential to activation.
+
+## D23 — Source formatting uses semantic code blocks
+
+**Decision.** Web source is formatted as compact blocks of statements that
+serve one intention, with one blank line between blocks that serve different
+intentions. Imports remain one uninterrupted block. Related declarations,
+repeated state, and the internals of one UI element stay together, while props,
+derived concerns, major sibling UI sections, and separate workflow stages are
+visually separated.
+
+SvelteKit server actions group form parsing with its validity guard, then
+separate that validation block from the API workflow and the final successful
+return or redirect. An API request and its immediate error handling remain
+together. Generated shadcn-svelte primitives retain their upstream formatting.
+
+**Why.** Semantic spacing lets a reader identify the purpose and progression of
+small code blocks without adding comments or creating noisy gaps between lines
+that must be understood together. Retaining upstream formatting in generated
+primitives avoids churn that would be overwritten by future component updates.

@@ -15,10 +15,12 @@
 	import { IconEye, IconEyeOff } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+
 	// svelte-ignore state_referenced_locally
 	const form = superForm(data.form, {
 		validators: valibotClient(changePasswordSchema)
 	});
+
 	const { form: formData, enhance, submitting } = form;
 
 	let showNewPassword = $state(false);
@@ -41,6 +43,7 @@
 			</Card.Header>
 			<Card.Content><StatusBadge status={data.account.account.status} /></Card.Content>
 		</Card.Root>
+
 		<Card.Root class="lg:col-span-2">
 			<Card.Header>
 				<Card.Title>Effective permissions</Card.Title>
