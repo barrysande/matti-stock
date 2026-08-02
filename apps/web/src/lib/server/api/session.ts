@@ -35,17 +35,3 @@ export async function getCurrentAccount(event: RequestEvent) {
 	const [response, error] = await event.locals.client.api.sessions.me({}).safe();
 	return error ? null : response.data;
 }
-
-export function apiErrorMessage(error: unknown, fallback: string) {
-	if (!error || typeof error !== 'object' || !('response' in error)) {
-		return fallback;
-	}
-
-	const response = (error as { response?: unknown }).response;
-	if (!response || typeof response !== 'object' || !('message' in response)) {
-		return fallback;
-	}
-
-	const message = (response as { message?: unknown }).message;
-	return typeof message === 'string' ? message : fallback;
-}

@@ -7,7 +7,7 @@ import {
 	getOrganizationalUnits,
 	previewOrganizationalAccessImpact
 } from '$lib/server/api/organizational-units';
-import { apiErrorDetails } from '$lib/utils';
+import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';

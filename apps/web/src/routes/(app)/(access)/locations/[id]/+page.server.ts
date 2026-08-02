@@ -11,7 +11,7 @@ import {
 	reparentPhysicalLocation,
 	restorePhysicalLocation
 } from '$lib/server/api/physical-locations';
-import { apiErrorDetails } from '$lib/utils';
+import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';

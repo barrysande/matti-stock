@@ -1,4 +1,4 @@
-import { optionalFilter, positivePage } from '$lib/schemas/list-filters';
+import { optionalFilter, positivePage } from '$lib/server/helpers/list-filters';
 import { getAccounts } from '$lib/server/api/accounts';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';

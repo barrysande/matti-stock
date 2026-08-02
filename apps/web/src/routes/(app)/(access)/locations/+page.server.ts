@@ -1,4 +1,4 @@
-import { booleanFilter, optionalFilter } from '$lib/schemas/list-filters';
+import { booleanFilter, optionalFilter } from '$lib/server/helpers/list-filters';
 import { getPhysicalLocations } from '$lib/server/api/physical-locations';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
