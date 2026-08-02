@@ -4351,6 +4351,26 @@ expiry. Authority begins only after both acceptance and the start have
 occurred. Acceptance reasons are optional; proposal, rejection, revocation,
 relinquishment, and administrative-termination reasons are mandatory.
 
+V1 delegation recipients shall be restricted through existing direct
+organizational authority rather than an unmodeled employment-department
+assumption. A recipient shall hold at least one currently effective direct,
+non-root role assignment in the same department branch as every delegated
+source. A department and its sub-departments form one branch. An
+institution-scoped source requires a separate direct institution-scoped
+recipient assignment. Delegated authority shall not establish recipient
+eligibility, and the qualifying direct assignment shall have no known effective
+end before the requested delegation expiry.
+
+Recipient discovery shall expose only active accounts sharing at least one
+eligible branch with the delegator's delegatable sources. After a recipient is
+selected, only mutually compatible sources shall be offered. Proposal creation
+and recipient acceptance shall revalidate compatibility authoritatively. Once
+accepted, the bounded delegation itself records the temporary appointment; an
+unexpected later change to the recipient's qualifying assignment shall not
+silently rewrite or terminate that accepted decision. The source assignment,
+delegate account, exact interval, synchronous source effectiveness, and
+explicit termination actions shall continue to control delegated access.
+
 V1 shall permit at most one overlapping pending or accepted delegation for
 each source role assignment. Proposal creation shall reject the entire bundle
 when any selected source already has overlapping coverage. Rejected, expired,
