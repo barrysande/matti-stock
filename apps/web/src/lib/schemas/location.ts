@@ -1,18 +1,22 @@
-import * as v from 'valibot';
+import { object } from 'valibot';
 import { optionalUuid, reason, requiredText } from './common';
 
-export const createLocationSchema = v.object({
+export const createLocationSchema = object({
 	name: requiredText('Name'),
 	parentId: optionalUuid,
 	reason
 });
 
-export const renameLocationSchema = v.object({
+export const renameLocationSchema = object({
 	name: requiredText('Name'),
 	reason
 });
 
-export const reparentLocationSchema = v.object({
+export const reparentLocationSchema = object({
 	parentId: optionalUuid,
+	reason
+});
+
+export const administerLocationSchema = object({
 	reason
 });
