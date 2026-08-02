@@ -1,13 +1,13 @@
-import * as v from 'valibot';
+import { number, object, string, type InferOutput } from 'valibot';
 
-export const schema = v.object({
-	id: v.number(),
-	header: v.string(),
-	type: v.string(),
-	status: v.string(),
-	target: v.string(),
-	limit: v.string(),
-	reviewer: v.string()
+export const schema = object({
+	id: number(),
+	header: string(),
+	type: string(),
+	status: string(),
+	target: string(),
+	limit: string(),
+	reviewer: string()
 });
 
-export type Schema = v.InferOutput<typeof schema>;
+export type Schema = InferOutput<typeof schema>;

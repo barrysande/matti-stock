@@ -1,4 +1,4 @@
-import * as v from 'valibot';
+import { literal, object, picklist, union } from 'valibot';
 import { fingerprint, reason, requiredText, uuid } from './common';
 
 export const organizationalUnitTypes = ['INSTITUTE', 'DEPARTMENT', 'SUB_DEPARTMENT'] as const;
@@ -19,44 +19,44 @@ export type OrganizationalAccessImpact = {
 
 const createOrganizationalUnitFields = {
 	name: requiredText('Name'),
-	unitType: v.picklist(creatableOrganizationalUnitTypes, 'Select a unit type.'),
+	unitType: picklist(creatableOrganizationalUnitTypes, 'Select a unit type.'),
 	parentId: uuid,
 	reason
 };
 
-export const createOrganizationalUnitFormSchema = v.object({
+export const createOrganizationalUnitFormSchema = object({
 	...createOrganizationalUnitFields,
-	impactFingerprint: v.union([fingerprint, v.literal('')])
+	impactFingerprint: union([fingerprint, literal('')])
 });
 
-export const createOrganizationalUnitSchema = v.object({
+export const createOrganizationalUnitSchema = object({
 	...createOrganizationalUnitFields,
 	impactFingerprint: fingerprint
 });
 
-export const renameOrganizationalUnitSchema = v.object({
+export const renameOrganizationalUnitSchema = object({
 	name: requiredText('Name'),
 	reason
 });
 
-export const reparentOrganizationalUnitSchema = v.object({
+export const reparentOrganizationalUnitSchema = object({
 	parentId: uuid,
 	reason,
 	impactFingerprint: fingerprint
 });
 
-export const reparentOrganizationalUnitFormSchema = v.object({
+export const reparentOrganizationalUnitFormSchema = object({
 	parentId: uuid,
 	reason,
-	impactFingerprint: v.union([fingerprint, v.literal('')])
+	impactFingerprint: union([fingerprint, literal('')])
 });
 
-export const administerOrganizationalUnitSchema = v.object({
+export const administerOrganizationalUnitSchema = object({
 	reason,
 	impactFingerprint: fingerprint
 });
 
-export const administerOrganizationalUnitFormSchema = v.object({
+export const administerOrganizationalUnitFormSchema = object({
 	reason,
-	impactFingerprint: v.union([fingerprint, v.literal('')])
+	impactFingerprint: union([fingerprint, literal('')])
 });

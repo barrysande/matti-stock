@@ -1,31 +1,34 @@
-import * as v from 'valibot';
+import { config, forward, maxLength, nonEmpty, object, partialCheck, pipe, string } from 'valibot';
 import { currentPassword, email, password, requiredText } from './common';
 
-export const loginSchema = v.object({
+export const loginSchema = object({
 	email,
-	password: v.pipe(
-		v.string(),
-		v.nonEmpty('Password is required.'),
-		v.maxLength(25, 'Password must be 25 characters or fewer.')
+	password: config(
+		pipe(
+			string(),
+			nonEmpty('Password is required.'),
+			maxLength(25, 'Password must be 25 characters or fewer.')
+		),
+		{ abortPipeEarly: true }
 	)
 });
 
-export const forgotPasswordSchema = v.object({ email });
+export const forgotPasswordSchema = object({ email });
 
-export const resetPasswordSchema = v.object({
+export const resetPasswordSchema = object({
 	token: requiredText('Reset token', 2048),
 	password
 });
 
 export const setPasswordSchema = resetPasswordSchema;
 
-export const changePasswordSchema = v.pipe(
-	v.object({
+export const changePasswordSchema = pipe(
+	object({
 		currentPassword,
 		password
 	}),
-	v.forward(
-		v.partialCheck(
+	forward(
+		partialCheck(
 			[['currentPassword'], ['password']],
 			(input) => input.currentPassword !== input.password,
 			'Choose a password different from the current password.'

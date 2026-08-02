@@ -1,23 +1,23 @@
-import * as v from 'valibot';
+import { array, minLength, nonEmpty, object, pipe, string, trim } from 'valibot';
 import { reason, requiredText } from './common';
 
-const permissionKeys = v.pipe(
-	v.array(v.pipe(v.string(), v.trim(), v.nonEmpty())),
-	v.minLength(1, 'Select at least one permission.')
+const permissionKeys = pipe(
+	array(pipe(string(), trim(), nonEmpty())),
+	minLength(1, 'Select at least one permission.')
 );
 
-export const createRoleSchema = v.object({
+export const createRoleSchema = object({
 	name: requiredText('Name'),
 	permissionKeys,
 	reason
 });
 
-export const renameRoleSchema = v.object({
+export const renameRoleSchema = object({
 	name: requiredText('Name'),
 	reason
 });
 
-export const replaceRolePermissionsSchema = v.object({
+export const replaceRolePermissionsSchema = object({
 	permissionKeys,
 	reason
 });

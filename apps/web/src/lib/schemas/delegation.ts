@@ -1,18 +1,30 @@
-import * as v from 'valibot';
+import {
+	array,
+	forward,
+	maxLength,
+	minLength,
+	object,
+	optional,
+	partialCheck,
+	picklist,
+	pipe,
+	string,
+	trim
+} from 'valibot';
 import { isoDateInput, optionalIsoDateInput, reason, uuid } from './common';
 import { startModes } from './role-assignment';
 
-export const createDelegationSchema = v.pipe(
-	v.object({
+export const createDelegationSchema = pipe(
+	object({
 		delegateAccountId: uuid,
-		assignmentIds: v.pipe(v.array(uuid), v.minLength(1, 'Select at least one assignment.')),
-		startMode: v.picklist(startModes),
+		assignmentIds: pipe(array(uuid), minLength(1, 'Select at least one assignment.')),
+		startMode: picklist(startModes),
 		startsAt: optionalIsoDateInput,
 		expiresAt: isoDateInput,
 		reason
 	}),
-	v.forward(
-		v.partialCheck(
+	forward(
+		partialCheck(
 			[['startMode'], ['startsAt']],
 			(input) => input.startMode === 'NOW' || input.startsAt !== '',
 			'Start date and time are required for a scheduled delegation.'
@@ -21,8 +33,8 @@ export const createDelegationSchema = v.pipe(
 	)
 );
 
-export const optionalReasonSchema = v.object({
-	reason: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(1000)), '')
+export const optionalReasonSchema = object({
+	reason: optional(pipe(string(), trim(), maxLength(1000)), '')
 });
 
-export const delegationReasonSchema = v.object({ reason });
+export const delegationReasonSchema = object({ reason });
