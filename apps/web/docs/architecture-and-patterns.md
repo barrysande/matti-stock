@@ -196,3 +196,79 @@ root or an ineligible descendant from being offered an impossible transition.
 The API-controlled preview and transaction-time fingerprint verification ensure
 the confirmed access consequence is still current without duplicating access
 logic in the browser.
+
+## D12 — Physical-location administration reflects a flexible hierarchy without access previews
+
+**Decision.** Physical-location administration uses a path-ordered responsive
+directory, a separate creation route, and unit-specific lifecycle actions on
+the location detail route. Full paths remain visible in directory, selection,
+and detail contexts so arbitrary hierarchy depth stays understandable without
+introducing browser-owned expandable-tree state.
+
+Creation may establish a top-level location or place it beneath any active
+location. Reparenting may promote a nested location to top level or select an
+eligible active parent. The interface excludes the current location, its
+current parent, and its descendants from parent choices, while the API remains
+authoritative for concurrent hierarchy validation. Active locations expose
+rename, move, and archive; archived locations expose restore. Structural
+history presents every effective-dated name, parent, lifecycle state, reason,
+actor, and interval returned by the API.
+
+Location writes use named SuperForm actions and submit directly from responsive
+dialogs. They do not request organizational access-impact previews or submit
+fingerprints because physical locations are not V1 authorization scopes.
+Successful mutations redirect back to the refreshed detail route; validation,
+duplicate, and domain failures preserve the open dialog and its entered values.
+The non-sensitive creation form opts into browser snapshots, while detail-page
+lifecycle reasons do not.
+
+**Why.** Physical precision varies from campuses to shelves and therefore needs
+more depth than the institutional organization presentation. Full paths make
+that depth clear using the API's existing response contract. Avoiding an access
+preview prevents a false implication that moving stock-location records changes
+organizational authority, while API-side checks still protect hierarchy and
+lifecycle invariants.
+
+## D13 — Valibot schemas use named modular imports
+
+**Decision.** Web schema modules import the Valibot functions and types they use
+by name. They do not import the library as a namespace and prefix every schema
+operation with `v.`.
+
+**Why.** Valibot supports tree shaking for both named and namespace imports, but
+named imports make each module's validation dependencies explicit and keep the
+functional schema syntax concise. The import form therefore communicates the
+intended modular boundary directly in source code instead of relying on bundler
+knowledge to interpret a wildcard import.
+
+## D14 — Field pipelines surface one validation message at a time
+
+**Decision.** A user-facing field pipeline with multiple validation actions is
+wrapped in Valibot's `config` with `abortPipeEarly: true`. The setting remains
+local to that field pipeline; form-object and cross-field pipelines continue to
+collect their independently relevant issues.
+
+**Why.** Showing every failed constraint for one value at once obscures the
+next useful correction. Stopping after the first field-level issue presents the
+required-value message first, then reveals format or length feedback only after
+the earlier constraint passes, while still allowing separate invalid fields to
+report their own messages together.
+
+## D15 — Server API access is grouped by API resource
+
+**Decision.** SvelteKit loads, actions, handlers, and hooks call server-only API
+functions grouped under `src/lib/server/api` by the corresponding API resource
+or route group. Those functions accept the current `RequestEvent`, select the
+typed Tuyau endpoint, and return its safe response tuple. Route modules retain
+form validation, payload transformations, presentation messages, redirects,
+and HTTP error decisions.
+
+The request-scoped client remains available only at this server API boundary.
+Concurrent route reads continue to compose the resource functions with
+`Promise.all`; the functions do not introduce shared clients or serialize
+independent requests.
+
+**Why.** Resource modules keep endpoint paths and Tuyau call syntax out of page
+server files without hiding route-specific behavior. This preserves the BFF's
+request isolation and typed transport while making loads and actions read in
+terms of application operations rather than client traversal details.
