@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms';
 	import { valibotClient } from 'sveltekit-superforms/adapters';
-	import { accessLabel } from '$lib/access-labels';
+	import { accessLabel } from '$lib/helpers/access-labels';
 	import { changePasswordSchema } from '$lib/schemas/auth';
 	import DateTime from '$lib/components/date-time.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';

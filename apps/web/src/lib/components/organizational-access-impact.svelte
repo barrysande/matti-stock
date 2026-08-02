@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { accessLabel } from '$lib/access-labels';
+	import { accessLabel } from '$lib/helpers/access-labels';
 	import type { OrganizationalAccessImpact } from '$lib/schemas/organization-unit';
 	import DateTime from '$lib/components/date-time.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
