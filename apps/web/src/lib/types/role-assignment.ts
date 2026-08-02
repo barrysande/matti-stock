@@ -2,12 +2,7 @@ import type { Data } from 'api/data';
 
 export type RoleAssignmentScopeMode = 'THIS_NODE_ONLY' | 'INCLUDE_DESCENDANTS';
 export type RoleAssignmentStatus =
-	| 'UPCOMING'
-	| 'ACTIVE'
-	| 'EXPIRED'
-	| 'ENDED'
-	| 'CANCELLED'
-	| 'REPLACED';
+	'UPCOMING' | 'ACTIVE' | 'EXPIRED' | 'ENDED' | 'CANCELLED' | 'REPLACED';
 
 export interface RoleAssignmentDirectoryQuery {
 	page?: number;
