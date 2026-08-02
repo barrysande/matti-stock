@@ -349,3 +349,38 @@ browser bundle and prevents server response handling from leaking into shared
 UI utilities. Preserving shadcn-svelte's configured utility path keeps the
 external component system maintainable while still giving application helpers
 one predictable client-safe location and one predictable server-only location.
+
+## D19 — Role assignments expose immutable grants and explicit lifecycle changes
+
+**Decision.** Root role-assignment administration uses a responsive directory,
+a separate account-first creation route, and an assignment detail route. A new
+grant selects an account, reusable role, organizational scope and reach, and an
+effective interval. The API remains responsible for selecting the reusable
+role's latest immutable version. Assignment detail presents that exact version,
+its friendly permission labels, current or historical effectiveness, and the
+grant and termination audit records.
+
+Replacement is restricted to the same account and reusable role. The root user
+may change scope, reach, and effective interval, while the API selects the
+role's latest version for the replacement grant. Moving authority to another
+person or responsibility remains an explicit end-and-create workflow. Active
+assignments may be ended, upcoming assignments may be cancelled, and both the
+original grant and its replacement link remain visible as immutable history.
+
+All entered schedule values are institutional Africa/Nairobi time. Forms label
+date-time controls as EAT and the BFF converts browser `datetime-local` values
+to timestamps carrying an explicit `+03:00` offset. Each timestamp uses the
+shadcn-svelte date-and-time composition: a Popover containing a single-date
+Calendar beside a separate time input. The combined local date-time remains the
+canonical SuperForm value, so administrators choose exact times without a
+range-only abstraction. Audit-reason forms do not use browser-history snapshots.
+Successful mutations redirect to API-refreshed state, while validation and API
+failures preserve the submitted SuperForm and open lifecycle dialog.
+
+**Why.** Treating every grant and termination as a visible immutable record
+matches the API authority model and prevents replacement from becoming a hidden
+identity or responsibility transfer. A fixed institutional time boundary makes
+scheduling deterministic across browser time zones, while explicit EAT labels
+let administrators understand the values they are approving. Keeping sensitive
+reasons out of browser snapshots reduces unintended retention without losing
+failure-state recovery during the current request.
