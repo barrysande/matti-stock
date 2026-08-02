@@ -1,25 +1,10 @@
 import type { RequestEvent } from '@sveltejs/kit';
-
-type PhysicalLocationDirectoryQuery = {
-	search?: string;
-	includeArchived?: boolean;
-};
-
-type CreatePhysicalLocationBody = {
-	name: string;
-	parentId?: string;
-	reason: string;
-};
-
-type RenamePhysicalLocationBody = {
-	name: string;
-	reason: string;
-};
-
-type ReparentPhysicalLocationBody = {
-	parentId: string | null;
-	reason: string;
-};
+import type {
+	PhysicalLocationDirectoryQuery,
+	CreatePhysicalLocationBody,
+	RenamePhysicalLocationBody,
+	ReparentPhysicalLocationBody
+} from '$lib/types/physical-locations';
 
 export function getPhysicalLocations(event: RequestEvent, query: PhysicalLocationDirectoryQuery) {
 	return event.locals.client.api.physicalLocations.index({ query }).safe();

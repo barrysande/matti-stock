@@ -1,29 +1,9 @@
 import type { RequestEvent } from '@sveltejs/kit';
-
-type AccountStatus = 'INVITED' | 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
-type AccountSetupStatus = 'PENDING' | 'COMPLETE';
-type AccountAccessEventCategory =
-	'ACCOUNT' | 'AUTHENTICATION' | 'CREDENTIAL' | 'ROLE_ASSIGNMENT' | 'DELEGATION';
-
-type AccountDirectoryQuery = {
-	page?: number;
-	search?: string;
-	status?: AccountStatus;
-	setupStatus?: AccountSetupStatus;
-};
-
-type AccountAccessEventQuery = {
-	page?: number;
-	category?: AccountAccessEventCategory;
-	eventType?: string;
-};
-
-type CreateAccountBody = {
-	displayName: string;
-	staffNumber: string | null;
-	email: string;
-	reason: string;
-};
+import type {
+	AccountDirectoryQuery,
+	AccountAccessEventQuery,
+	CreateAccountBody
+} from '$lib/types/accounts';
 
 export function getAccounts(event: RequestEvent, query: AccountDirectoryQuery) {
 	return event.locals.client.api.accounts.index({ query }).safe();
