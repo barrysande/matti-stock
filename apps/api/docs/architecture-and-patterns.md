@@ -684,6 +684,25 @@ revalidated direct `access.root` may terminate either administratively.
 `MASTER_ADMIN`, any assignment containing `access.root`, self-delegation, and
 re-delegation are prohibited.
 
+`DelegationScopeCompatibilityService` defines the conservative V1 recipient
+boundary from existing access facts. A candidate qualifies for a source only
+through a currently effective direct, non-root assignment in the same top-level
+department branch; department and sub-department scopes share that branch,
+while an institution-scoped source requires direct institution-scoped
+eligibility. The qualifying assignment must have no known effective end before
+the delegation expiry. Delegated grants never qualify a recipient.
+
+The authenticated `GET /delegations/proposal-options` resource batches this
+compatibility resolution, paginates only matching active accounts, exposes only
+their ID, display name, and official email, and returns proposal-ready direct
+source projections. Selecting a candidate narrows the sources to compatible
+assignments. Provisioning and acceptance reuse and transactionally revalidate
+the same service rule, so presentation does not become an authorization
+decision. Compatibility is an eligibility rule at proposal and acceptance;
+after acceptance the delegation is the explicit bounded temporary appointment
+and is not silently coupled to a later unexpected change in the recipient's
+qualifying assignment.
+
 Proposal creation acquires the shared access-mutation lock, locks the delegator
 and delegate accounts, and locks every source-assignment row in deterministic
 order. It then revalidates effective direct ownership, the known source end,
