@@ -272,3 +272,80 @@ independent requests.
 server files without hiding route-specific behavior. This preserves the BFF's
 request isolation and typed transport while making loads and actions read in
 terms of application operations rather than client traversal details.
+
+## D16 — Role administration presents immutable permission versions explicitly
+
+**Decision.** Reusable-role administration uses a responsive directory, a
+separate creation route, and role-specific administration on the detail route.
+The permission registry is grouped by the stable domain prefix of each key and
+shows its shared friendly label with the API-owned human description as
+supporting text. Technical permission keys remain internal values and are not
+rendered for users. Only permissions marked `customRoleAssignable` are offered
+in configurable-role forms; restricted permissions remain visible when
+reviewing protected system roles.
+
+System-managed roles are visible but read-only. Active configurable roles may
+be renamed, assigned a new permission version, or archived, while archived
+configurable roles may be restored. Permission replacement is presented as
+creating a new immutable version for future assignments. Existing assignments
+remain linked to the exact older version they received, and detail views show
+older-version assignment usage prominently rather than implying that the role
+was updated in place. Role permission changes therefore submit directly without
+an organizational access-impact preview or fingerprint.
+
+Role creation opts into a non-sensitive SuperForm browser snapshot. Detail-page
+rename, permission-version, archive, and restore forms do not retain their audit
+reasons in browser snapshots. Successful mutations redirect to refreshed role
+state; validation and API domain failures preserve the open responsive dialog
+and submitted values.
+
+**Why.** A permission key is stable software vocabulary, while its API
+description and domain grouping make selection understandable without creating
+a second browser-owned permission registry. Showing version-specific assignment
+usage makes the API's non-retroactive authority model visible to administrators.
+Direct submission is appropriate because version creation does not alter any
+existing assignment's effective permissions; later assignment replacement is
+the explicit workflow for moving an account to a newer version.
+
+## D17 — Web files and route directories use kebab-case
+
+**Decision.** Application-owned files and directories under `apps/web` use
+kebab-case when their names contain multiple words. SvelteKit's reserved route
+filenames, including `+page.svelte`, `+page.server.ts`, `+layout.svelte`, and
+`+server.ts`, retain their framework-defined spelling. Conventional tool-owned
+names such as `README.md` and `Dockerfile` also remain unchanged. Route-directory
+names use kebab-case so their URL segments follow the same convention. Generated
+shadcn-svelte files already conform and remain unchanged.
+
+This convention applies to Svelte components, TypeScript modules, server API
+resource modules, schemas, types, hooks, and other web-owned source files. It
+does not change the API application's established filename convention.
+
+**Why.** SvelteKit does not prescribe snake-case for ordinary TypeScript or
+Svelte modules, while this application's shadcn-svelte component system already
+uses kebab-case consistently. One web-wide convention avoids an artificial
+distinction between generated components and application components and keeps
+filenames aligned with route URLs.
+
+## D18 — Helpers are separated by browser safety
+
+**Decision.** General helpers that are safe for browser and server consumers
+live under `src/lib/helpers`. Helpers that depend on server-only data or are
+used only by server loads and actions live under `src/lib/server/helpers`.
+Feature modules import from the applicable boundary rather than placing helper
+functions at the root of `$lib`, inside schema modules, or inside an unrelated
+API resource module.
+
+`$lib/utils.ts` is the deliberate exception. It remains the stable utility
+module configured for shadcn-svelte and contains only external-library and
+generated-component support such as Tailwind class merging and component prop
+utility types. Application, domain, request, response, and server helpers must
+not be added there. Keeping this path stable avoids mechanically rewriting the
+generated component scaffold or changing future shadcn-svelte installation
+behavior.
+
+**Why.** The directory boundary makes it apparent whether a helper may enter a
+browser bundle and prevents server response handling from leaking into shared
+UI utilities. Preserving shadcn-svelte's configured utility path keeps the
+external component system maintainable while still giving application helpers
+one predictable client-safe location and one predictable server-only location.
