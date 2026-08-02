@@ -1,6 +1,6 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/matili logo.png';
+	import favicon from '$lib/assets/matili-logo.png';
 	import FlashToaster from '$lib/components/flash-toaster.svelte';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import { ModeWatcher } from 'mode-watcher';
