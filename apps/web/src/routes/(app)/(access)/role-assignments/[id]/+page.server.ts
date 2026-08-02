@@ -11,6 +11,7 @@ import {
 	replaceRoleAssignment
 } from '$lib/server/api/role-assignments';
 import { getRole } from '$lib/server/api/roles';
+import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import {
 	apiDateToEatInput,
@@ -40,6 +41,8 @@ function redirectToAssignment(event: RequestEvent, message: string) {
 }
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const [assignmentResult, unitsResult, permissionsResult] = await Promise.all([
 		getRoleAssignment(event, event.params.id),
 		getOrganizationalUnits(event, {}),
@@ -89,6 +92,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	replace: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(grantRoleAssignmentSchema), {
 			id: formIds.replace
 		});
@@ -122,6 +127,8 @@ export const actions: Actions = {
 	},
 
 	end: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerRoleAssignmentSchema), {
 			id: formIds.end
 		});
@@ -138,6 +145,8 @@ export const actions: Actions = {
 	},
 
 	cancel: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerRoleAssignmentSchema), {
 			id: formIds.cancel
 		});

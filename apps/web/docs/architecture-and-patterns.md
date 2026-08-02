@@ -483,3 +483,23 @@ together. Generated shadcn-svelte primitives retain their upstream formatting.
 small code blocks without adding comments or creating noisy gaps between lines
 that must be understood together. Retaining upstream formatting in generated
 primitives avoids churn that would be overwritten by future component updates.
+
+## D24 — Page-server boundaries enforce their own session guard
+
+**Decision.** Every authenticated page-server load and form action invokes its
+applicable session guard before validation, query processing, or API access.
+Ordinary authenticated routes use `requireAuth(event)`, effective-root-only
+routes use `requireRoot(event)`, and guest-only authentication routes use
+`requireGuest(event)`. Because `requireRoot` first requires an authenticated
+account, root-only boundaries do not also call `requireAuth`.
+
+Layout guards remain responsible for protecting and populating their shared
+shells, but child page-server boundaries do not rely on a parent layout guard.
+An existing action helper may own the guard when every action necessarily
+passes through that helper; otherwise actions invoke the guard directly.
+
+**Why.** SvelteKit form actions run before page and layout loads are rerun, and
+parent and child loads are separate execution boundaries. Enforcing the invariant
+at each page load and action prevents direct requests from reaching validation
+or protected API workflows before the web application has rejected an absent,
+invalid, or insufficient session.

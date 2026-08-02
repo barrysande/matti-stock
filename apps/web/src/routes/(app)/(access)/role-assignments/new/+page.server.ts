@@ -3,6 +3,7 @@ import { getAccounts, getAccount } from '$lib/server/api/accounts';
 import { getOrganizationalUnits } from '$lib/server/api/organizational-units';
 import { createRoleAssignment } from '$lib/server/api/role-assignments';
 import { getRoles } from '$lib/server/api/roles';
+import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { eatInputToIso, optionalEatInputToIso } from '$lib/server/helpers/date-time';
 import { optionalFilter, positivePage } from '$lib/server/helpers/list-filters';
@@ -15,6 +16,8 @@ import type { Actions, PageServerLoad } from './$types';
 const formId = 'role-assignment-create';
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const selectedAccountId = optionalFilter(event.url.searchParams.get('accountId'));
 	const accountQuery = {
 		page: positivePage(event.url.searchParams.get('page')),
@@ -68,6 +71,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	create: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(grantRoleAssignmentSchema), { id: formId });
 		if (!form.valid) return fail(400, { form });
 

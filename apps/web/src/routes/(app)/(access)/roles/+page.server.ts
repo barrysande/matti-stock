@@ -1,5 +1,6 @@
 import { booleanFilter, optionalFilter } from '$lib/server/helpers/list-filters';
 import { getRoles } from '$lib/server/api/roles';
+import { requireRoot } from '$lib/server/auth/guards';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -8,6 +9,8 @@ function roleTypeFilter(value: string | null) {
 }
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const query = {
 		search: optionalFilter(event.url.searchParams.get('search')),
 		includeArchived: booleanFilter(event.url.searchParams.get('includeArchived')),

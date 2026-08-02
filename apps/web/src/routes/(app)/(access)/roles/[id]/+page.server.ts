@@ -11,6 +11,7 @@ import {
 	replaceRolePermissions,
 	restoreRole
 } from '$lib/server/api/roles';
+import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
@@ -30,6 +31,8 @@ function redirectToRole(event: RequestEvent, message: string) {
 }
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const [roleResult, permissionsResult] = await Promise.all([
 		getRole(event, event.params.id),
 		getPermissions(event)
@@ -68,6 +71,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	rename: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(renameRoleSchema), { id: formIds.rename });
 		if (!form.valid) return fail(400, { form });
 
@@ -82,6 +87,8 @@ export const actions: Actions = {
 	},
 
 	replacePermissions: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(replaceRolePermissionsSchema), {
 			id: formIds.permissions
 		});
@@ -98,6 +105,8 @@ export const actions: Actions = {
 	},
 
 	archive: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerRoleSchema), {
 			id: formIds.archive
 		});
@@ -114,6 +123,8 @@ export const actions: Actions = {
 	},
 
 	restore: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerRoleSchema), {
 			id: formIds.restore
 		});

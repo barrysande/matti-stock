@@ -14,6 +14,7 @@ import {
 	reparentOrganizationalUnit,
 	restoreOrganizationalUnit
 } from '$lib/server/api/organizational-units';
+import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
@@ -40,6 +41,8 @@ function redirectToUnit(event: RequestEvent, message: string) {
 }
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const [unitResult, unitsResult] = await Promise.all([
 		getOrganizationalUnit(event, event.params.id),
 		getOrganizationalUnits(event, {})
@@ -88,6 +91,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	rename: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(renameOrganizationalUnitSchema), {
 			id: formIds.rename
 		});
@@ -104,6 +109,8 @@ export const actions: Actions = {
 	},
 
 	previewReparent: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(reparentOrganizationalUnitFormSchema), {
 			id: formIds.reparent
 		});
@@ -125,6 +132,8 @@ export const actions: Actions = {
 	},
 
 	reparent: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(reparentOrganizationalUnitSchema), {
 			id: formIds.reparent
 		});
@@ -147,6 +156,8 @@ export const actions: Actions = {
 	},
 
 	previewArchive: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerOrganizationalUnitFormSchema), {
 			id: formIds.archive
 		});
@@ -167,6 +178,8 @@ export const actions: Actions = {
 	},
 
 	archive: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerOrganizationalUnitSchema), {
 			id: formIds.archive
 		});
@@ -185,6 +198,8 @@ export const actions: Actions = {
 	},
 
 	previewRestore: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerOrganizationalUnitFormSchema), {
 			id: formIds.restore
 		});
@@ -205,6 +220,8 @@ export const actions: Actions = {
 	},
 
 	restore: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerOrganizationalUnitSchema), {
 			id: formIds.restore
 		});

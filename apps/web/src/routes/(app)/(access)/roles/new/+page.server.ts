@@ -1,6 +1,7 @@
 import { createRoleSchema } from '$lib/schemas/role';
 import { getPermissions } from '$lib/server/api/permissions';
 import { createRole } from '$lib/server/api/roles';
+import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
@@ -11,6 +12,8 @@ import type { Actions, PageServerLoad } from './$types';
 const formId = 'role-create';
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const [response, apiError] = await getPermissions(event);
 	if (apiError) error(apiError.status ?? 502, 'The permission registry could not be loaded.');
 
@@ -26,6 +29,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	create: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(createRoleSchema), { id: formId });
 		if (!form.valid) return fail(400, { form });
 

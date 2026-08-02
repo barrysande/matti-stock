@@ -1,6 +1,7 @@
 import { createDelegationSchema } from '$lib/schemas/delegation';
 import { delegationErrorMessage } from '$lib/helpers/delegation-presentation';
 import { createDelegation, getDelegationProposalOptions } from '$lib/server/api/delegations';
+import { requireAuth } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { eatInputToIso } from '$lib/server/helpers/date-time';
 import { optionalFilter, positivePage } from '$lib/server/helpers/list-filters';
@@ -13,6 +14,8 @@ import type { Actions, PageServerLoad } from './$types';
 const formId = 'delegation-create';
 
 export const load: PageServerLoad = async (event) => {
+	requireAuth(event);
+
 	const query = {
 		page: positivePage(event.url.searchParams.get('page')),
 		search: optionalFilter(event.url.searchParams.get('search')),
@@ -46,6 +49,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	create: async (event) => {
+		requireAuth(event);
+
 		const form = await superValidate(event, valibot(createDelegationSchema), { id: formId });
 		if (!form.valid) return fail(400, { form });
 

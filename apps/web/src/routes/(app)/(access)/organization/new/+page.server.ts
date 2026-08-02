@@ -7,6 +7,7 @@ import {
 	getOrganizationalUnits,
 	previewOrganizationalAccessImpact
 } from '$lib/server/api/organizational-units';
+import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
@@ -17,6 +18,8 @@ import type { Actions, PageServerLoad } from './$types';
 const formId = 'organizational-unit-create';
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const [response, apiError] = await getOrganizationalUnits(event, {});
 	if (apiError) error(apiError.status ?? 502, 'The organizational directory could not be loaded.');
 
@@ -42,6 +45,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	preview: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(createOrganizationalUnitFormSchema), {
 			id: formId
 		});
@@ -74,6 +79,8 @@ export const actions: Actions = {
 	},
 
 	create: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(createOrganizationalUnitSchema), {
 			id: formId
 		});

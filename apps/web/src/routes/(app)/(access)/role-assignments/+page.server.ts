@@ -2,6 +2,7 @@ import { optionalFilter, positivePage } from '$lib/server/helpers/list-filters';
 import { getOrganizationalUnits } from '$lib/server/api/organizational-units';
 import { getRoleAssignments } from '$lib/server/api/role-assignments';
 import { getRoles } from '$lib/server/api/roles';
+import { requireRoot } from '$lib/server/auth/guards';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -12,6 +13,8 @@ function assignmentStatus(value: string | null) {
 }
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const query = {
 		page: positivePage(event.url.searchParams.get('page')),
 		accountId: optionalFilter(event.url.searchParams.get('accountId')),

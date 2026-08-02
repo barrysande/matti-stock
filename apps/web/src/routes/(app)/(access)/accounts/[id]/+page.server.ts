@@ -7,6 +7,7 @@ import {
 	restoreAccount,
 	suspendAccount
 } from '$lib/server/api/accounts';
+import { requireRoot } from '$lib/server/auth/guards';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
@@ -14,6 +15,8 @@ import { valibot } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const [response, apiError] = await getAccount(event, event.params.id);
 	if (apiError) error(apiError.status ?? 404, 'The account could not be found.');
 
@@ -28,6 +31,8 @@ async function action(
 	request: (reason: string) => Promise<unknown>,
 	fallback: string
 ) {
+	requireRoot(event);
+
 	const form = await superValidate(event, valibot(reasonSchema), { id: 'account-action' });
 	if (!form.valid) return fail(400, { form });
 

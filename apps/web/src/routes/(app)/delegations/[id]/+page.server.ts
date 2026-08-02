@@ -8,6 +8,7 @@ import {
 	revokeDelegation,
 	terminateDelegation
 } from '$lib/server/api/delegations';
+import { requireAuth } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
@@ -42,6 +43,8 @@ function mutationFailure<T>(
 }
 
 export const load: PageServerLoad = async (event) => {
+	requireAuth(event);
+
 	const [delegationResponse, delegationError] = await getDelegation(event, event.params.id);
 	if (delegationError)
 		error(delegationError.status ?? 404, 'The temporary coverage record could not be found.');
@@ -68,6 +71,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	accept: async (event) => {
+		requireAuth(event);
+
 		const form = await superValidate(event, valibot(optionalReasonSchema), {
 			id: formIds.accept
 		});
@@ -85,6 +90,8 @@ export const actions: Actions = {
 	},
 
 	reject: async (event) => {
+		requireAuth(event);
+
 		const form = await superValidate(event, valibot(delegationReasonSchema), {
 			id: formIds.reject
 		});
@@ -98,6 +105,8 @@ export const actions: Actions = {
 	},
 
 	revoke: async (event) => {
+		requireAuth(event);
+
 		const form = await superValidate(event, valibot(delegationReasonSchema), {
 			id: formIds.revoke
 		});
@@ -111,6 +120,8 @@ export const actions: Actions = {
 	},
 
 	relinquish: async (event) => {
+		requireAuth(event);
+
 		const form = await superValidate(event, valibot(delegationReasonSchema), {
 			id: formIds.relinquish
 		});
@@ -133,6 +144,8 @@ export const actions: Actions = {
 	},
 
 	terminate: async (event) => {
+		requireAuth(event);
+
 		const form = await superValidate(event, valibot(delegationReasonSchema), {
 			id: formIds.terminate
 		});

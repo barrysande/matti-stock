@@ -11,6 +11,7 @@ import {
 	reparentPhysicalLocation,
 	restorePhysicalLocation
 } from '$lib/server/api/physical-locations';
+import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
@@ -30,6 +31,8 @@ function redirectToLocation(event: RequestEvent, message: string) {
 }
 
 export const load: PageServerLoad = async (event) => {
+	requireRoot(event);
+
 	const [locationResult, locationsResult] = await Promise.all([
 		getPhysicalLocation(event, event.params.id),
 		getPhysicalLocations(event, {})
@@ -92,6 +95,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	rename: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(renameLocationSchema), {
 			id: formIds.rename
 		});
@@ -108,6 +113,8 @@ export const actions: Actions = {
 	},
 
 	reparent: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(reparentLocationSchema), {
 			id: formIds.reparent
 		});
@@ -127,6 +134,8 @@ export const actions: Actions = {
 	},
 
 	archive: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerLocationSchema), {
 			id: formIds.archive
 		});
@@ -147,6 +156,8 @@ export const actions: Actions = {
 	},
 
 	restore: async (event) => {
+		requireRoot(event);
+
 		const form = await superValidate(event, valibot(administerLocationSchema), {
 			id: formIds.restore
 		});

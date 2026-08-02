@@ -15,6 +15,8 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	default: async (event) => {
+		requireGuest(event);
+
 		const form = await superValidate(event, valibot(forgotPasswordSchema));
 		if (!form.valid) return fail(400, { form });
 
