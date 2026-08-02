@@ -1,4 +1,5 @@
 import { optionalFilter, positivePage } from '$lib/schemas/list-filters';
+import { getAccount, getAccountAccessEvents } from '$lib/server/api/accounts';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -11,10 +12,8 @@ export const load: PageServerLoad = async (event) => {
 	};
 
 	const [[accountResponse, accountError], [eventsResponse, eventsError]] = await Promise.all([
-		event.locals.client.api.accounts.show({ params: { id: event.params.id } }).safe(),
-		event.locals.client.api.accountAccessEvents
-			.index({ params: { id: event.params.id }, query })
-			.safe()
+		getAccount(event, event.params.id),
+		getAccountAccessEvents(event, event.params.id, query)
 	]);
 
 	if (accountError) error(accountError.status ?? 404, 'The account could not be found.');

@@ -5,6 +5,15 @@ import {
 	reparentOrganizationalUnitFormSchema,
 	reparentOrganizationalUnitSchema
 } from '$lib/schemas/organization-unit';
+import {
+	archiveOrganizationalUnit,
+	getOrganizationalUnit,
+	getOrganizationalUnits,
+	previewOrganizationalAccessImpact,
+	renameOrganizationalUnit,
+	reparentOrganizationalUnit,
+	restoreOrganizationalUnit
+} from '$lib/server/api/organizational-units';
 import { apiErrorDetails } from '$lib/utils';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
@@ -32,8 +41,8 @@ function redirectToUnit(event: RequestEvent, message: string) {
 
 export const load: PageServerLoad = async (event) => {
 	const [unitResult, unitsResult] = await Promise.all([
-		event.locals.client.api.organizationalUnits.show({ params: { id: event.params.id } }).safe(),
-		event.locals.client.api.organizationalUnits.index({ query: {} }).safe()
+		getOrganizationalUnit(event, event.params.id),
+		getOrganizationalUnits(event, {})
 	]);
 	const [unitResponse, unitError] = unitResult;
 	const [unitsResponse, unitsError] = unitsResult;
@@ -83,9 +92,7 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.rename({ params: { id: event.params.id }, body: form.data })
-			.safe();
+		const [response, apiError] = await renameOrganizationalUnit(event, event.params.id, form.data);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be renamed.');
 			setFlash({ type: 'error', message: details.message }, event.cookies);
@@ -101,12 +108,10 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form, previewInvalidated: true });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.accessImpact({
-				params: { id: event.params.id },
-				body: { operation: 'REPARENT', parentId: form.data.parentId }
-			})
-			.safe();
+		const [response, apiError] = await previewOrganizationalAccessImpact(event, event.params.id, {
+			operation: 'REPARENT',
+			parentId: form.data.parentId
+		});
 		if (apiError) {
 			form.data.impactFingerprint = '';
 			const details = apiErrorDetails(apiError, 'The access-impact preview could not be loaded.');
@@ -124,9 +129,11 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form, previewInvalidated: true });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.reparent({ params: { id: event.params.id }, body: form.data })
-			.safe();
+		const [response, apiError] = await reparentOrganizationalUnit(
+			event,
+			event.params.id,
+			form.data
+		);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be moved.');
 			const previewInvalidated = invalidatesPreview(details.code);
@@ -144,12 +151,9 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form, previewInvalidated: true });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.accessImpact({
-				params: { id: event.params.id },
-				body: { operation: 'ARCHIVE' }
-			})
-			.safe();
+		const [response, apiError] = await previewOrganizationalAccessImpact(event, event.params.id, {
+			operation: 'ARCHIVE'
+		});
 		if (apiError) {
 			form.data.impactFingerprint = '';
 			const details = apiErrorDetails(apiError, 'The access-impact preview could not be loaded.');
@@ -167,9 +171,7 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form, previewInvalidated: true });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.archive({ params: { id: event.params.id }, body: form.data })
-			.safe();
+		const [response, apiError] = await archiveOrganizationalUnit(event, event.params.id, form.data);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be archived.');
 			const previewInvalidated = invalidatesPreview(details.code);
@@ -187,12 +189,9 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form, previewInvalidated: true });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.accessImpact({
-				params: { id: event.params.id },
-				body: { operation: 'RESTORE' }
-			})
-			.safe();
+		const [response, apiError] = await previewOrganizationalAccessImpact(event, event.params.id, {
+			operation: 'RESTORE'
+		});
 		if (apiError) {
 			form.data.impactFingerprint = '';
 			const details = apiErrorDetails(apiError, 'The access-impact preview could not be loaded.');
@@ -210,9 +209,7 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form, previewInvalidated: true });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.restore({ params: { id: event.params.id }, body: form.data })
-			.safe();
+		const [response, apiError] = await restoreOrganizationalUnit(event, event.params.id, form.data);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be restored.');
 			const previewInvalidated = invalidatesPreview(details.code);

@@ -2,19 +2,22 @@ import {
 	createOrganizationalUnitFormSchema,
 	createOrganizationalUnitSchema
 } from '$lib/schemas/organization-unit';
+import {
+	createOrganizationalUnit,
+	getOrganizationalUnits,
+	previewOrganizationalAccessImpact
+} from '$lib/server/api/organizational-units';
+import { apiErrorDetails } from '$lib/utils';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
-import { apiErrorDetails } from '$lib/utils';
 
 const formId = 'organizational-unit-create';
 
 export const load: PageServerLoad = async (event) => {
-	const [response, apiError] = await event.locals.client.api.organizationalUnits
-		.index({ query: {} })
-		.safe();
+	const [response, apiError] = await getOrganizationalUnits(event, {});
 	if (apiError) error(apiError.status ?? 502, 'The organizational directory could not be loaded.');
 
 	const units = response.data;
@@ -44,15 +47,14 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form, previewInvalidated: true });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.accessImpact({
-				params: { id: form.data.parentId },
-				body: {
-					operation: 'CREATE_CHILD',
-					childUnitType: form.data.unitType
-				}
-			})
-			.safe();
+		const [response, apiError] = await previewOrganizationalAccessImpact(
+			event,
+			form.data.parentId,
+			{
+				operation: 'CREATE_CHILD',
+				childUnitType: form.data.unitType
+			}
+		);
 		if (apiError) {
 			form.data.impactFingerprint = '';
 			const details = apiErrorDetails(apiError, 'The access-impact preview could not be loaded.');
@@ -76,9 +78,7 @@ export const actions: Actions = {
 		});
 		if (!form.valid) return fail(400, { form });
 
-		const [response, apiError] = await event.locals.client.api.organizationalUnits
-			.store({ body: form.data })
-			.safe();
+		const [response, apiError] = await createOrganizationalUnit(event, form.data);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be created.');
 			const previewInvalidated =

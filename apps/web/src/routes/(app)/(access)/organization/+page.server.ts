@@ -1,4 +1,5 @@
 import { booleanFilter, optionalFilter } from '$lib/schemas/list-filters';
+import { getOrganizationalUnits } from '$lib/server/api/organizational-units';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -9,9 +10,7 @@ export const load: PageServerLoad = async (event) => {
 			'INSTITUTE' | 'DEPARTMENT' | 'SUB_DEPARTMENT' | undefined,
 		includeArchived: booleanFilter(event.url.searchParams.get('includeArchived'))
 	};
-	const [response, apiError] = await event.locals.client.api.organizationalUnits
-		.index({ query })
-		.safe();
+	const [response, apiError] = await getOrganizationalUnits(event, query);
 	if (apiError) error(apiError.status ?? 502, 'The organizational directory could not be loaded.');
 
 	return {

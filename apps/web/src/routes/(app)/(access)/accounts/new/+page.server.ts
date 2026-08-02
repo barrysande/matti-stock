@@ -1,4 +1,5 @@
 import { createAccountSchema } from '$lib/schemas/account';
+import { createAccount } from '$lib/server/api/accounts';
 import { fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
@@ -14,14 +15,10 @@ export const actions: Actions = {
 		const form = await superValidate(event, valibot(createAccountSchema));
 		if (!form.valid) return fail(400, { form });
 
-		const [response, apiError] = await event.locals.client.api.accounts
-			.store({
-				body: {
-					...form.data,
-					staffNumber: form.data.staffNumber || null
-				}
-			})
-			.safe();
+		const [response, apiError] = await createAccount(event, {
+			...form.data,
+			staffNumber: form.data.staffNumber || null
+		});
 		if (apiError) {
 			setFlash({ type: 'error', message: 'The account could not be created.' }, event.cookies);
 			return fail(apiError.status ?? 400, { form });

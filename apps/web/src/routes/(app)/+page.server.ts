@@ -1,7 +1,8 @@
+import { getLiveness } from '$lib/server/api/health';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const [, error] = await locals.client.api.healthChecks.live({}).safe();
+export const load: PageServerLoad = async (event) => {
+	const [, error] = await getLiveness(event);
 
 	return {
 		apiAvailable: !error

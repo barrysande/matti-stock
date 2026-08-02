@@ -1,4 +1,12 @@
 import { reasonSchema } from '$lib/schemas/account';
+import {
+	deactivateAccount,
+	getAccount,
+	reactivateAccount,
+	requestAccountPasswordReset,
+	restoreAccount,
+	suspendAccount
+} from '$lib/server/api/accounts';
 import { error, fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
@@ -6,9 +14,7 @@ import { valibot } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	const [response, apiError] = await event.locals.client.api.accounts
-		.show({ params: { id: event.params.id } })
-		.safe();
+	const [response, apiError] = await getAccount(event, event.params.id);
 	if (apiError) error(apiError.status ?? 404, 'The account could not be found.');
 
 	return {
@@ -46,46 +52,31 @@ export const actions: Actions = {
 	resetPassword: (event) =>
 		action(
 			event,
-			(reason) =>
-				event.locals.client.api.accounts
-					.resetPassword({ params: { id: event.params.id }, body: { reason } })
-					.safe(),
+			(reason) => requestAccountPasswordReset(event, event.params.id, reason),
 			'Credential recovery could not be requested.'
 		),
 	suspend: (event) =>
 		action(
 			event,
-			(reason) =>
-				event.locals.client.api.accounts
-					.suspend({ params: { id: event.params.id }, body: { reason } })
-					.safe(),
+			(reason) => suspendAccount(event, event.params.id, reason),
 			'The account could not be suspended.'
 		),
 	restore: (event) =>
 		action(
 			event,
-			(reason) =>
-				event.locals.client.api.accounts
-					.restore({ params: { id: event.params.id }, body: { reason } })
-					.safe(),
+			(reason) => restoreAccount(event, event.params.id, reason),
 			'The account could not be restored.'
 		),
 	deactivate: (event) =>
 		action(
 			event,
-			(reason) =>
-				event.locals.client.api.accounts
-					.deactivate({ params: { id: event.params.id }, body: { reason } })
-					.safe(),
+			(reason) => deactivateAccount(event, event.params.id, reason),
 			'The account could not be deactivated.'
 		),
 	reactivate: (event) =>
 		action(
 			event,
-			(reason) =>
-				event.locals.client.api.accounts
-					.reactivate({ params: { id: event.params.id }, body: { reason } })
-					.safe(),
+			(reason) => reactivateAccount(event, event.params.id, reason),
 			'The account could not be reactivated.'
 		)
 };
