@@ -583,6 +583,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'delegations.proposal_options': {
+    methods: ["GET","HEAD"]
+    pattern: '/delegations/proposal-options'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/delegation').delegationProposalOptionsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['proposalOptions']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['proposalOptions']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'delegations.show': {
     methods: ["GET","HEAD"]
     pattern: '/delegations/:id'

@@ -109,6 +109,7 @@ router
 router
   .group(() => {
     router.get('/', [controllers.Delegations, 'index'])
+    router.get('/proposal-options', [controllers.Delegations, 'proposalOptions'])
     router.get('/:id', [controllers.Delegations, 'show'])
     router.post('/', [controllers.Delegations, 'store'])
     router.post('/:id/accept', [controllers.Delegations, 'accept'])

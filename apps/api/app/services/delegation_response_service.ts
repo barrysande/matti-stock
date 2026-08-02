@@ -6,6 +6,7 @@ import Delegation from '#models/delegation'
 import DelegationResponse from '#models/delegation_response'
 import AccessEventService from '#services/access_event_service'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
+import DelegationScopeCompatibilityService from '#services/delegation_scope_compatibility_service'
 import EffectiveAccessService from '#services/effective_access_service'
 import type { RequestAuditContext } from '#types/access'
 import type { DelegationResponseKind } from '#types/delegation'
@@ -20,6 +21,7 @@ type RejectData = Infer<typeof rejectDelegationValidator>
 export default class DelegationResponseService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
+    private scopeCompatibility: DelegationScopeCompatibilityService,
     private effectiveAccess: EffectiveAccessService,
     private accessEvents: AccessEventService
   ) {}
@@ -67,6 +69,7 @@ export default class DelegationResponseService {
     if (effectiveSources.length !== sourceIds.length) {
       this.invalid('The delegation cannot be accepted because a source is no longer effective.')
     }
+    return effectiveSources
   }
 
   private async respond(
@@ -86,7 +89,19 @@ export default class DelegationResponseService {
       const delegation = await this.lockDelegation(trx, delegationId)
       this.assertRespondable(delegation, actor.id, now)
       if (kind === 'ACCEPTED') {
-        await this.assertSourcesRemainEffective(delegation, now, trx)
+        const sources = await this.assertSourcesRemainEffective(delegation, now, trx)
+        const compatibleSources = await this.scopeCompatibility.compatibleSources(
+          sources,
+          actor.id,
+          delegation.expiresAt,
+          trx,
+          now
+        )
+        if (compatibleSources.length !== sources.length) {
+          this.invalid(
+            'The delegation cannot be accepted because the delegate no longer has compatible direct organizational authority through its expiry.'
+          )
+        }
       }
 
       const response = await DelegationResponse.create(

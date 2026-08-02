@@ -103,6 +103,11 @@ async function createFixture() {
     unitType: 'SUB_DEPARTMENT',
     parentId: department.id,
   })
+  const otherDepartment = await OrganizationalUnit.create({
+    name: 'Information Technology',
+    unitType: 'DEPARTMENT',
+    parentId: institute.id,
+  })
   const root = await createAccount('root.delegation@example.com', 'Root Administrator')
   const holder = await createAccount('holder.delegation@example.com', 'Direct Holder')
   const delegate = await createAccount('delegate.delegation@example.com', 'Proposed Delegate')
@@ -137,12 +142,35 @@ async function createFixture() {
     grantedByAccountId: root.id,
     reason: 'Departmental review',
   })
+  const delegateAssignment = await RoleAssignment.create({
+    accountId: delegate.id,
+    roleVersionId: reviewerRole.version.id,
+    scopeOrgUnitId: workshop.id,
+    scopeMode: 'THIS_NODE_ONLY',
+    startsAt: DateTime.now().minus({ minutes: 1 }),
+    expiresAt: DateTime.now().plus({ days: 20 }),
+    grantedByAccountId: root.id,
+    reason: 'Engineering stock-take appointment',
+  })
+  const otherAssignment = await RoleAssignment.create({
+    accountId: other.id,
+    roleVersionId: reviewerRole.version.id,
+    scopeOrgUnitId: otherDepartment.id,
+    scopeMode: 'INCLUDE_DESCENDANTS',
+    startsAt: DateTime.now().minus({ minutes: 1 }),
+    expiresAt: DateTime.now().plus({ days: 20 }),
+    grantedByAccountId: root.id,
+    reason: 'Information Technology stock-take appointment',
+  })
   return {
     delegate,
+    delegateAssignment,
     department,
     holder,
     institute,
     other,
+    otherAssignment,
+    otherDepartment,
     reviewerAssignment,
     root,
     rootAssignment,
@@ -265,6 +293,138 @@ test.group('Delegation administration', (group) => {
     }
     const anonymous = await client.post('/delegations').json({})
     anonymous.assertStatus(401)
+  })
+
+  test('returns only scope-compatible proposal recipients and source assignments', async ({
+    client,
+    assert,
+  }) => {
+    const fixture = await createFixture()
+    const response = await authenticatedRequest(
+      client.get('/delegations/proposal-options'),
+      fixture.holder
+    )
+    response.assertStatus(200)
+
+    const body = response.body().data
+    assert.deepEqual(
+      body.candidates.data.map(({ accountId }: { accountId: string }) => accountId),
+      [fixture.delegate.id]
+    )
+    assert.equal(body.candidates.data[0].displayName, 'Proposed Delegate')
+    assert.equal(body.candidates.data[0].email, fixture.delegate.email)
+    assert.notProperty(body.candidates.data[0], 'status')
+    assert.deepEqual(
+      body.sourceAssignments.map(({ id }: { id: string }) => id).sort(),
+      [fixture.reviewerAssignment.id, fixture.supervisorAssignment.id].sort()
+    )
+    assert.equal(body.sourceAssignments[0].scope.path, 'MaTTI Institute / Engineering')
+    assert.isArray(body.sourceAssignments[0].role.permissionKeys)
+
+    const noSearchMatch = await authenticatedRequest(
+      client.get('/delegations/proposal-options').qs({ search: 'Information Technology' }),
+      fixture.holder
+    )
+    noSearchMatch.assertStatus(200)
+    assert.deepEqual(noSearchMatch.body().data.candidates.data, [])
+
+    const selected = await authenticatedRequest(
+      client.get('/delegations/proposal-options').qs({ delegateAccountId: fixture.delegate.id }),
+      fixture.holder
+    )
+    selected.assertStatus(200)
+    selected.assertBodyContains({
+      data: {
+        selectedDelegate: { accountId: fixture.delegate.id },
+      },
+    })
+
+    const incompatible = await authenticatedRequest(
+      client.get('/delegations/proposal-options').qs({ delegateAccountId: fixture.other.id }),
+      fixture.holder
+    )
+    incompatible.assertStatus(200)
+    assert.isNull(incompatible.body().data.selectedDelegate)
+    assert.deepEqual(incompatible.body().data.sourceAssignments, [])
+
+    const anonymous = await client.get('/delegations/proposal-options')
+    anonymous.assertStatus(401)
+  })
+
+  test('rejects cross-branch recipients and affiliations ending before delegation expiry', async ({
+    client,
+  }) => {
+    const fixture = await createFixture()
+    const crossBranch = await authenticatedRequest(
+      client.post('/delegations').json(proposal(fixture, undefined, fixture.other.id)),
+      fixture.holder
+    )
+    crossBranch.assertStatus(409)
+
+    await fixture.delegateAssignment.merge({ expiresAt: DateTime.now().plus({ days: 2 }) }).save()
+    const affiliationEndsEarly = await authenticatedRequest(
+      client.post('/delegations').json(proposal(fixture)),
+      fixture.holder
+    )
+    affiliationEndsEarly.assertStatus(409)
+  })
+
+  test('revalidates recipient scope compatibility before acceptance', async ({ client }) => {
+    const fixture = await createFixture()
+    const service = await app.container.make(DelegationProvisioningService)
+    const delegation = await service.create(
+      await createDelegationValidator.validate(proposal(fixture)),
+      fixture.holder.id
+    )
+    await RoleAssignmentTermination.create({
+      assignmentId: fixture.delegateAssignment.id,
+      kind: 'ENDED',
+      effectiveAt: DateTime.now(),
+      terminatedByAccountId: fixture.root.id,
+      reason: 'Recipient departmental appointment ended',
+    })
+
+    const response = await authenticatedRequest(
+      client.post(`/delegations/${delegation.id}/accept`).json({}),
+      fixture.delegate
+    )
+    response.assertStatus(409)
+  })
+
+  test('requires direct institution scope for an institution-scoped source', async ({ client }) => {
+    const fixture = await createFixture()
+    const instituteSource = await RoleAssignment.create({
+      accountId: fixture.holder.id,
+      roleVersionId: fixture.supervisorAssignment.roleVersionId,
+      scopeOrgUnitId: fixture.institute.id,
+      scopeMode: 'INCLUDE_DESCENDANTS',
+      startsAt: DateTime.now().minus({ minutes: 1 }),
+      expiresAt: DateTime.now().plus({ days: 20 }),
+      grantedByAccountId: fixture.root.id,
+      reason: 'Institution-wide supervision',
+    })
+
+    const departmentOnly = await authenticatedRequest(
+      client.post('/delegations').json(proposal(fixture, [instituteSource.id])),
+      fixture.holder
+    )
+    departmentOnly.assertStatus(409)
+
+    await RoleAssignment.create({
+      accountId: fixture.delegate.id,
+      roleVersionId: fixture.delegateAssignment.roleVersionId,
+      scopeOrgUnitId: fixture.institute.id,
+      scopeMode: 'THIS_NODE_ONLY',
+      startsAt: DateTime.now().minus({ minutes: 1 }),
+      expiresAt: DateTime.now().plus({ days: 20 }),
+      grantedByAccountId: fixture.root.id,
+      reason: 'Institution-wide recipient eligibility',
+    })
+    const institutionCompatible = await authenticatedRequest(
+      client.post('/delegations').json(proposal(fixture, [instituteSource.id])),
+      fixture.holder
+    )
+    institutionCompatible.assertStatus(201)
   })
 
   test('serializes concurrent proposals and commits one overlapping coverage arrangement', async ({

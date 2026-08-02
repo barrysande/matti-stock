@@ -73,6 +73,7 @@ export interface ApiDefinition {
   }
   delegations: {
     index: typeof routes['delegations.index']
+    proposalOptions: typeof routes['delegations.proposal_options']
     show: typeof routes['delegations.show']
     store: typeof routes['delegations.store']
     accept: typeof routes['delegations.accept']

@@ -21,6 +21,12 @@ export const indexDelegationsValidator = vine.create({
     .optional(),
 })
 
+export const delegationProposalOptionsValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
+  search: vine.string().trim().minLength(1).maxLength(255).optional(),
+  delegateAccountId: vine.string().uuid().optional(),
+})
+
 export const createDelegationValidator = vine.create({
   delegateAccountId: vine.string().uuid(),
   assignmentIds: vine.array(vine.string().uuid()).minLength(1),

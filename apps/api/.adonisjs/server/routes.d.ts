@@ -52,6 +52,7 @@ export type ScannedRoutes = {
     'role_assignments.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.replace': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.index': { paramsTuple?: []; params?: {} }
+    'delegations.proposal_options': { paramsTuple?: []; params?: {} }
     'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.store': { paramsTuple?: []; params?: {} }
     'delegations.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -77,6 +78,7 @@ export type ScannedRoutes = {
     'role_assignments.index': { paramsTuple?: []; params?: {} }
     'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.index': { paramsTuple?: []; params?: {} }
+    'delegations.proposal_options': { paramsTuple?: []; params?: {} }
     'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
@@ -96,6 +98,7 @@ export type ScannedRoutes = {
     'role_assignments.index': { paramsTuple?: []; params?: {} }
     'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.index': { paramsTuple?: []; params?: {} }
+    'delegations.proposal_options': { paramsTuple?: []; params?: {} }
     'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {

@@ -6,6 +6,7 @@ import Delegation from '#models/delegation'
 import DelegationAssignment from '#models/delegation_assignment'
 import AccessEventService from '#services/access_event_service'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
+import DelegationScopeCompatibilityService from '#services/delegation_scope_compatibility_service'
 import EffectiveAccessService from '#services/effective_access_service'
 import RoleAssignmentLifecycleService from '#services/role_assignment_lifecycle_service'
 import type { RequestAuditContext } from '#types/access'
@@ -20,6 +21,7 @@ type CreateData = Infer<typeof createDelegationValidator>
 export default class DelegationProvisioningService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
+    private scopeCompatibility: DelegationScopeCompatibilityService,
     private effectiveAccess: EffectiveAccessService,
     private assignmentLifecycle: RoleAssignmentLifecycleService,
     private accessEvents: AccessEventService
@@ -139,6 +141,18 @@ export default class DelegationProvisioningService {
         now,
         trx
       )
+      const compatibleSources = await this.scopeCompatibility.compatibleSources(
+        assignments,
+        delegate.id,
+        interval.expiresAt,
+        trx,
+        now
+      )
+      if (compatibleSources.length !== assignments.length) {
+        this.invalid(
+          'Every source must share an organizational branch with a direct delegate assignment that remains open through the delegation expiry.'
+        )
+      }
       await this.assertNoOverlap(assignmentIds, interval, trx)
 
       const delegation = await Delegation.create(

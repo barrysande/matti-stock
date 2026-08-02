@@ -294,6 +294,12 @@ const routes = {
     tokens: [{"old":"/delegations","type":0,"val":"delegations","end":""}],
     types: placeholder as Registry['delegations.index']['types'],
   },
+  'delegations.proposal_options': {
+    methods: ["GET","HEAD"],
+    pattern: '/delegations/proposal-options',
+    tokens: [{"old":"/delegations/proposal-options","type":0,"val":"delegations","end":""},{"old":"/delegations/proposal-options","type":0,"val":"proposal-options","end":""}],
+    types: placeholder as Registry['delegations.proposal_options']['types'],
+  },
   'delegations.show': {
     methods: ["GET","HEAD"],
     pattern: '/delegations/:id',

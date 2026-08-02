@@ -2,13 +2,16 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import DelegationPolicy from '#policies/delegation_policy'
 import DelegationDirectoryService from '#services/delegation_directory_service'
+import DelegationProposalOptionsService from '#services/delegation_proposal_options_service'
 import DelegationProvisioningService from '#services/delegation_provisioning_service'
 import DelegationResponseService from '#services/delegation_response_service'
 import DelegationTerminationService from '#services/delegation_termination_service'
 import DelegationTransformer from '#transformers/delegation_transformer'
+import DelegationProposalOptionsTransformer from '#transformers/delegation_proposal_options_transformer'
 import {
   acceptDelegationValidator,
   createDelegationValidator,
+  delegationProposalOptionsValidator,
   indexDelegationsValidator,
   rejectDelegationValidator,
   terminateDelegationValidator,
@@ -19,6 +22,7 @@ export default class DelegationsController {
   constructor(
     private provisioning: DelegationProvisioningService,
     private directory: DelegationDirectoryService,
+    private proposalOptionsService: DelegationProposalOptionsService,
     private responses: DelegationResponseService,
     private terminations: DelegationTerminationService
   ) {}
@@ -44,6 +48,13 @@ export default class DelegationsController {
     const actor = auth.getUserOrFail()
     const delegation = await this.directory.overview(params.id, actor.id)
     return serialize(DelegationTransformer.transform(delegation).useVariant('forOverview'))
+  }
+
+  async proposalOptions({ request, serialize, auth }: HttpContext) {
+    const filters = await request.validateUsing(delegationProposalOptionsValidator)
+    const actor = auth.getUserOrFail()
+    const options = await this.proposalOptionsService.get(filters, actor.id)
+    return serialize(DelegationProposalOptionsTransformer.transform(options))
   }
 
   async accept({ params, request, response, auth }: HttpContext) {
