@@ -53,6 +53,8 @@
 				return resolve('/');
 			case '/account':
 				return resolve('/account');
+			case '/delegations':
+				return resolve('/delegations');
 			case '/accounts':
 				return resolve('/accounts');
 			case '/organization':
@@ -97,7 +99,7 @@
 						<Sidebar.MenuItem>
 							<Sidebar.MenuButton isActive={active(item.href)} tooltipContent={item.label}>
 								{#snippet child({ props })}
-									<!-- Existing routes are resolved by navigationHref; pending routes retain their declared paths. -->
+									<!-- Dynamic navigation targets are resolved centrally above. -->
 									<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 									<a href={navigationHref(item.href)} {...props} onclick={closeMobileSidebar}>
 										<item.icon />
@@ -120,7 +122,7 @@
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton isActive={active(item.href)} tooltipContent={item.label}>
 									{#snippet child({ props })}
-										<!-- Existing routes are resolved by navigationHref; pending routes retain their declared paths. -->
+										<!-- Dynamic navigation targets are resolved centrally above. -->
 										<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 										<a href={navigationHref(item.href)} {...props} onclick={closeMobileSidebar}>
 											<item.icon />

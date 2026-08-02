@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { superForm } from 'sveltekit-superforms';
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 	import { accessLabel } from '$lib/helpers/access-labels';
@@ -19,6 +20,7 @@
 		validators: valibotClient(changePasswordSchema)
 	});
 	const { form: formData, enhance, submitting } = form;
+
 	let showNewPassword = $state(false);
 </script>
 
@@ -94,7 +96,12 @@
 								/>
 							</Card.Description>
 						</Card.Header>
-						<Card.Content><p class="text-sm">{assignment.reason}</p></Card.Content>
+						<Card.Content class="space-y-3">
+							<p class="text-sm">{assignment.reason}</p>
+							<Button variant="outline" href={resolve(`/delegations/${assignment.delegationId}`)}>
+								Open coverage record
+							</Button>
+						</Card.Content>
 					</Card.Root>
 				{/each}
 			</div>

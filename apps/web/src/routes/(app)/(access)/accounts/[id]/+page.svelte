@@ -15,11 +15,13 @@
 	import { IconHistory } from '@tabler/icons-svelte';
 
 	let { data } = $props();
+
 	// svelte-ignore state_referenced_locally
 	const form = superForm(data.reasonForm, {
 		id: 'account-action',
 		validators: valibotClient(reasonSchema)
 	});
+
 	const { form: formData, enhance, submitting } = form;
 </script>
 
@@ -92,14 +94,17 @@
 				{#if data.account.delegations}
 					<div class="grid gap-3 lg:grid-cols-2">
 						{#each [...data.account.delegations.incoming, ...data.account.delegations.outgoing] as delegation (delegation.id)}
-							<div class="rounded-xl border bg-card p-4">
+							<a
+								href={resolve(`/delegations/${delegation.id}`)}
+								class="block rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
+							>
 								<div class="flex items-start justify-between gap-3">
 									<p class="font-medium">
 										{delegation.delegator.displayName} → {delegation.delegate.displayName}
 									</p>
 									<StatusBadge status={delegation.status} />
 								</div>
-							</div>
+							</a>
 						{/each}
 					</div>
 				{:else}
