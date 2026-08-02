@@ -77,12 +77,14 @@ export default class DelegationScopeCompatibilityService {
     const affiliations = await this.effectiveAccess
       .effectiveAssignments(client, now)
       .whereIn('account_id', delegateAccountIds)
+
     const eligibleAffiliations = affiliations.filter((assignment) => {
       if (this.grantsProtectedRoot(assignment)) return false
       if (!expiresAt) return true
       const effectiveEnd = this.assignmentLifecycle.effectiveEnd(assignment)
       return !effectiveEnd || effectiveEnd >= expiresAt
     })
+
     const { unitMap } = await this.organizationalScopes.hierarchy(client)
     const sourceBranches = new Map(
       sources.map((source) => [source.id, this.branchId(source.scopeOrgUnitId, unitMap)])
