@@ -1,41 +1,31 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { resetMode, setMode } from 'mode-watcher';
-	import { IconDeviceDesktop, IconMoon, IconSun } from '@tabler/icons-svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import { mode, toggleMode } from 'mode-watcher';
+	import { IconMoon, IconSun } from '@tabler/icons-svelte';
+
+	const actionLabel = $derived(
+		mode.current === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+	);
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger>
-		{#snippet child({ props })}
-			<Button
-				{...props}
-				type="button"
-				variant="ghost"
-				size="icon"
-				class="relative"
-				aria-label="Change color theme"
-			>
-				<IconSun class="size-5 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-				<IconMoon
-					class="absolute size-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"
-				/>
-			</Button>
-		{/snippet}
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content align="end" class="min-w-40">
-		<DropdownMenu.Label>Color theme</DropdownMenu.Label>
-		<DropdownMenu.Item onclick={() => setMode('light')}>
-			<IconSun />
-			Light
-		</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => setMode('dark')}>
-			<IconMoon />
-			Dark
-		</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={resetMode}>
-			<IconDeviceDesktop />
-			System
-		</DropdownMenu.Item>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+<Tooltip.Provider delayDuration={300}>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					type="button"
+					variant="ghost"
+					size="icon"
+					onclick={toggleMode}
+					aria-label={actionLabel}
+				>
+					<IconSun class="size-5 dark:hidden" />
+					<IconMoon class="hidden size-5 dark:block" />
+				</Button>
+			{/snippet}
+		</Tooltip.Trigger>
+		<Tooltip.Content>{actionLabel}</Tooltip.Content>
+	</Tooltip.Root>
+</Tooltip.Provider>
