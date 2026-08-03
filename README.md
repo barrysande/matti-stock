@@ -6,6 +6,8 @@ MaTTI Stock is a stock-management system built as a pnpm monorepo.
 
 - Product requirements, accepted design decisions, and delivery planning:
   [`planning/`](./planning/)
+- Developer-oriented system workflow diagrams:
+  [`docs/system-flows/`](./docs/system-flows/)
 - API implementation documentation: [`apps/api/docs/`](./apps/api/docs/)
 - Web implementation documentation: [`apps/web/docs/`](./apps/web/docs/)
 
