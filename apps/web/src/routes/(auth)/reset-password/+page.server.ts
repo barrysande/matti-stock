@@ -30,10 +30,10 @@ export const actions: Actions = {
 			password: form.data.password
 		});
 		if (error) {
-			setFlash(
-				{ type: 'error', message: 'This password reset link is invalid or has expired.' },
-				event.cookies
-			);
+			const message = error.isStatus(409)
+				? error.response.message
+				: 'This password reset link is invalid or has expired.';
+			setFlash({ type: 'error', message }, event.cookies);
 			return fail(error.status ?? 422, { form });
 		}
 

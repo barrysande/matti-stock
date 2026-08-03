@@ -503,3 +503,26 @@ parent and child loads are separate execution boundaries. Enforcing the invarian
 at each page load and action prevents direct requests from reaching validation
 or protected API workflows before the web application has rejected an absent,
 invalid, or insufficient session.
+
+## D25 — Authentication forms narrow and present safe API errors
+
+**Decision.** Guest authentication actions retain Tuyau's `.safe()` tuple and
+use `error.isStatus(...)` before reading a typed API error response. Login
+presents the API's `401` message. Login and forgot-password distinguish rate
+limiting with controlled local copy and use generic fallbacks for transport or
+unexpected failures. Password setup and reset present the API's shared
+account-unavailable message for `409` while retaining their existing
+invalid-or-expired fallback for every other failure.
+
+The account administration page offers credential recovery only while the
+account is `ACTIVE` or `INVITED`. The API remains authoritative when a stale
+page or direct action request races with a lifecycle change. Anonymous recovery
+keeps its neutral response and therefore does not disclose whether an entered
+email belongs to an unknown, suspended, or deactivated account.
+
+**Why.** Tuyau status narrowing preserves the controller-derived response type
+and safely excludes network failures, whose error has no response payload.
+Restricting rendered API messages to the explicit status contract prevents
+unexpected server details from reaching authentication pages. Matching action
+visibility to account status avoids inviting an operation that the domain
+correctly rejects without treating the interface as an authorization boundary.

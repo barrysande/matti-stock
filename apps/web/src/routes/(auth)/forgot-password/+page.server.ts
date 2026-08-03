@@ -22,10 +22,10 @@ export const actions: Actions = {
 
 		const [response, error] = await forgotPassword(event, form.data);
 		if (error) {
-			setFlash(
-				{ type: 'error', message: 'The reset request could not be completed.' },
-				event.cookies
-			);
+			const message = error.isStatus(429)
+				? 'Too many reset requests. Please wait before trying again.'
+				: 'The reset request could not be completed.';
+			setFlash({ type: 'error', message }, event.cookies);
 			return fail(error.status ?? 400, { form });
 		}
 

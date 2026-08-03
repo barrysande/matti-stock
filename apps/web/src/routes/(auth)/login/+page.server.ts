@@ -22,7 +22,12 @@ export const actions: Actions = {
 
 		const [response, error] = await login(event, form.data);
 		if (error) {
-			setFlash({ type: 'error', message: 'Invalid email or password.' }, event.cookies);
+			const message = error.isStatus(401)
+				? error.response.message
+				: error.isStatus(429)
+					? 'Too many sign-in attempts. Please wait before trying again.'
+					: 'Sign-in could not be completed. Please try again.';
+			setFlash({ type: 'error', message }, event.cookies);
 			return fail(error.status ?? 400, { form });
 		}
 

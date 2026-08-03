@@ -138,14 +138,16 @@
 						<Form.FieldErrors />
 					</Form.Field>
 					<div class="grid gap-2">
-						<Button
-							type="submit"
-							variant="outline"
-							formaction="?/resetPassword"
-							disabled={$submitting}
-						>
-							Request credential recovery
-						</Button>
+						{#if data.account.status === 'ACTIVE' || data.account.status === 'INVITED'}
+							<Button
+								type="submit"
+								variant="outline"
+								formaction="?/resetPassword"
+								disabled={$submitting}
+							>
+								Request credential recovery
+							</Button>
+						{/if}
 						{#if data.account.status === 'ACTIVE'}
 							<Button type="submit" formaction="?/suspend" disabled={$submitting}>
 								Suspend account
