@@ -5,8 +5,6 @@ import PasswordChallengeService from '#services/password_challenge_service'
 import PasswordCredentialService from '#services/password_credential_service'
 import { forgotPasswordValidator, resetPasswordValidator } from '#validators/session'
 
-const GENERIC_RESET_MESSAGE = 'If an account uses that email, a password reset link will be sent.'
-
 @inject()
 export default class PasswordResetsController {
   constructor(
@@ -32,7 +30,9 @@ export default class PasswordResetsController {
       }
     }
 
-    return response.ok({ message: GENERIC_RESET_MESSAGE })
+    return response.ok({
+      message: 'If an account uses that email, a password reset link will be sent.',
+    })
   }
 
   async reset({ request, response }: HttpContext) {
@@ -42,10 +42,17 @@ export default class PasswordResetsController {
       requestId: request.id(),
     })
 
-    if (!reset) {
+    if (reset.kind === 'INVALID') {
       return response.unprocessableEntity({
         code: 'E_INVALID_PASSWORD_RESET',
         message: 'This password reset link is invalid or has expired.',
+      })
+    }
+
+    if (reset.kind === 'ACCOUNT_SIGN_IN_UNAVAILABLE') {
+      return response.conflict({
+        code: 'E_ACCOUNT_SIGN_IN_UNAVAILABLE',
+        message: 'This account cannot currently sign in. Contact administrator.',
       })
     }
 

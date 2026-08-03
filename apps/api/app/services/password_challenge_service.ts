@@ -123,7 +123,7 @@ export default class PasswordChallengeService {
         return null
       }
 
-      if (account.status === 'DEACTIVATED') {
+      if (!['INVITED', 'ACTIVE'].includes(account.status)) {
         await this.accessEvents.record(
           {
             eventType: 'PASSWORD_RESET_REJECTED_ACCOUNT_STATUS',

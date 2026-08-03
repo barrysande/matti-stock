@@ -33,7 +33,7 @@ export default class AccountCredentialAdministrationService {
 
       await this.rootAuthority.assertEffectiveActor(actor, trx, now)
 
-      if (target.status === 'DEACTIVATED') {
+      if (!['INVITED', 'ACTIVE'].includes(target.status)) {
         throw new AccountCredentialRecoveryException()
       }
 

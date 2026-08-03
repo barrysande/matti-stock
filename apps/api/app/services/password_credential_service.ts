@@ -8,10 +8,12 @@ import Person from '#models/person'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
 import type {
+  AccountStatus,
   PasswordChallengePurpose,
   PasswordCredentialToken,
   RequestAuditContext,
 } from '#types/access'
+import type { PasswordCredentialRedemptionResult } from '#types/authentication'
 import type { resetPasswordValidator, setPasswordValidator } from '#validators/session'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
@@ -24,12 +26,14 @@ type PasswordCredentialRejectionReason =
   | 'CHALLENGE_NOT_FOUND'
   | 'EXPIRED'
   | 'WRONG_PURPOSE'
+  | 'ACCOUNT_STATUS'
   | 'SUPERSEDED'
   | 'ALREADY_REDEEMED'
 
 interface PasswordCredentialRejection {
   reason: PasswordCredentialRejectionReason
   accountId?: string
+  accountStatus?: AccountStatus
   challengeId?: string
   client?: TransactionClientContract
 }
@@ -62,6 +66,9 @@ export default class PasswordCredentialService {
     if (rejection.challengeId) {
       metadata.challengeId = rejection.challengeId
     }
+    if (rejection.accountStatus) {
+      metadata.status = rejection.accountStatus
+    }
 
     return this.accessEvents.record(
       {
@@ -80,7 +87,7 @@ export default class PasswordCredentialService {
     data: PasswordCredentialData,
     expectedPurpose: PasswordChallengePurpose,
     request: RequestAuditContext
-  ) {
+  ): Promise<PasswordCredentialRedemptionResult> {
     const payload = encryption.decrypt(
       data.token,
       'password-credential'
@@ -92,7 +99,7 @@ export default class PasswordCredentialService {
       !Number.isInteger(payload.resetVersion)
     ) {
       await this.recordRejectedCredential(expectedPurpose, { reason: 'INVALID_TOKEN' }, request)
-      return false
+      return { kind: 'INVALID' }
     }
 
     return db.transaction(async (trx) => {
@@ -110,7 +117,7 @@ export default class PasswordCredentialService {
           },
           request
         )
-        return false
+        return { kind: 'INVALID' }
       }
 
       if (challenge.expiresAt <= DateTime.now()) {
@@ -124,7 +131,7 @@ export default class PasswordCredentialService {
           },
           request
         )
-        return false
+        return { kind: 'INVALID' }
       }
 
       const account = await UserAccount.query({ client: trx })
@@ -143,7 +150,7 @@ export default class PasswordCredentialService {
           },
           request
         )
-        return false
+        return { kind: 'INVALID' }
       }
 
       const redemption = await PasswordResetRedemption.query({ client: trx })
@@ -160,7 +167,7 @@ export default class PasswordCredentialService {
           },
           request
         )
-        return false
+        return { kind: 'INVALID' }
       }
 
       if (
@@ -177,7 +184,22 @@ export default class PasswordCredentialService {
           },
           request
         )
-        return false
+        return { kind: 'INVALID' }
+      }
+
+      if (!['INVITED', 'ACTIVE'].includes(account.status)) {
+        await this.recordRejectedCredential(
+          expectedPurpose,
+          {
+            reason: 'ACCOUNT_STATUS',
+            accountId: account.id,
+            accountStatus: account.status as AccountStatus,
+            challengeId: challenge.id,
+            client: trx,
+          },
+          request
+        )
+        return { kind: 'ACCOUNT_SIGN_IN_UNAVAILABLE' }
       }
 
       await PasswordResetRedemption.create(
@@ -225,7 +247,7 @@ export default class PasswordCredentialService {
         trx
       )
 
-      return true
+      return { kind: 'COMPLETED' }
     })
   }
 

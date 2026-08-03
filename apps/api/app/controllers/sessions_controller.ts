@@ -14,18 +14,26 @@ export default class SessionsController {
 
   async login({ request, response, auth, session }: HttpContext) {
     const payload = await request.validateUsing(loginValidator)
-    const account = await this.authentication.verifyCredentials(payload, {
+    const verification = await this.authentication.verifyCredentials(payload, {
       ip: request.ip(),
       requestId: request.id(),
     })
 
-    if (!account) {
+    if (verification.kind === 'INVALID_CREDENTIALS') {
       return response.unauthorized({
         code: 'E_INVALID_CREDENTIALS',
         message: 'Invalid email or password.',
       })
     }
 
+    if (verification.kind === 'ACCOUNT_SIGN_IN_UNAVAILABLE') {
+      return response.unauthorized({
+        code: 'E_ACCOUNT_SIGN_IN_UNAVAILABLE',
+        message: 'This account cannot currently sign in. Contact administrator.',
+      })
+    }
+
+    const account = verification.account
     await auth.use('web').login(account)
     session.put('auth.credentialVersion', Number(account.credentialVersion))
 

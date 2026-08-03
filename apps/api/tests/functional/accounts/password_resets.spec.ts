@@ -138,29 +138,30 @@ test.group('Administrative account credential recovery', (group) => {
     assert.deepEqual(Object.keys(response.body()), ['message'])
   })
 
-  test('allows recovery for a suspended verified account without restoring it', async ({
-    client,
-    assert,
-  }) => {
+  test('rejects recovery for suspended and deactivated accounts', async ({ client, assert }) => {
     const fake = QueueManager.fake()
     const { account: actor } = await createRootActor()
-    const { account } = await createAccount({
-      email: 'suspended@example.com',
-      status: 'SUSPENDED',
-    })
 
-    const response = await client
-      .post(`/accounts/${account.id}/password-reset`)
-      .loginAs(actor)
-      .withSession({ 'auth.credentialVersion': Number(actor.credentialVersion) })
-      .json(reason)
+    for (const status of ['SUSPENDED', 'DEACTIVATED'] as const) {
+      const { account } = await createAccount({
+        email: `${status.toLowerCase()}@example.com`,
+        status,
+      })
+      const response = await client
+        .post(`/accounts/${account.id}/password-reset`)
+        .loginAs(actor)
+        .withSession({ 'auth.credentialVersion': Number(actor.credentialVersion) })
+        .json(reason)
 
-    response.assertStatus(200)
-    await account.refresh()
-    const challenge = await PasswordResetChallenge.findByOrFail('accountId', account.id)
-    assert.equal(account.status, 'SUSPENDED')
-    assert.equal(challenge.purpose, 'RESET')
-    fake.assertPushedCount(1, { queue: 'emails' })
+      response.assertStatus(409)
+      response.assertBodyContains({
+        code: 'E_ACCOUNT_CREDENTIAL_RECOVERY_UNAVAILABLE',
+        message: 'This account cannot currently sign in. Contact administrator.',
+      })
+    }
+
+    assert.lengthOf(await PasswordResetChallenge.all(), 0)
+    fake.assertNothingPushed()
   })
 
   test('replaces setup for an unverified account and supersedes its previous link', async ({
@@ -281,29 +282,6 @@ test.group('Administrative account credential recovery', (group) => {
       .json(reason)
 
     response.assertStatus(404)
-    assert.lengthOf(await PasswordResetChallenge.all(), 0)
-    assert.lengthOf(await AccessEvent.all(), 0)
-    fake.assertNothingPushed()
-  })
-
-  test('rejects recovery for a deactivated account', async ({ client, assert }) => {
-    const fake = QueueManager.fake()
-    const { account: actor } = await createRootActor()
-    const { account } = await createAccount({
-      email: 'deactivated@example.com',
-      status: 'DEACTIVATED',
-    })
-
-    const response = await client
-      .post(`/accounts/${account.id}/password-reset`)
-      .loginAs(actor)
-      .withSession({ 'auth.credentialVersion': Number(actor.credentialVersion) })
-      .json(reason)
-
-    response.assertStatus(409)
-    response.assertBodyContains({
-      code: 'E_ACCOUNT_CREDENTIAL_RECOVERY_UNAVAILABLE',
-    })
     assert.lengthOf(await PasswordResetChallenge.all(), 0)
     assert.lengthOf(await AccessEvent.all(), 0)
     fake.assertNothingPushed()

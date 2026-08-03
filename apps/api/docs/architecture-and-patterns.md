@@ -923,3 +923,39 @@ sub-department. Repeating that classification in the name creates inconsistent
 labels and makes paths, filters, uniqueness, and reporting less predictable.
 Normalizing immediately before persistence keeps every write path consistent
 without coupling the invariant to one user interface.
+
+## D33 — Blocked accounts cannot authenticate or replace credentials
+
+**Decision.** `SUSPENDED` and `DEACTIVATED` accounts cannot sign in, request a
+password challenge, receive an administrator-issued credential-recovery
+challenge, or redeem an otherwise-current password setup or reset challenge.
+This supersedes D20's allowance for administrators to issue recovery challenges
+to suspended accounts. Restoring or reactivating the account through its
+explicit lifecycle workflow must occur before credential recovery can begin or
+complete.
+
+Credential verification returns a discriminated result so invalid credentials
+remain distinct from a verified account whose status blocks sign-in. Both
+blocked statuses share the public code `E_ACCOUNT_SIGN_IN_UNAVAILABLE` and the
+same user-facing message, while the rejection audit event retains the exact
+account status. An incorrect password always produces the neutral invalid-
+credentials response, even when the matching account is blocked.
+
+Anonymous recovery continues to return the same neutral success response for
+unknown and blocked accounts, but creates no challenge or email job for either.
+Administrative recovery rejects both blocked statuses as the same account-state
+conflict. Credential redemption rechecks the locked account status in addition
+to the lifecycle version guard, returns the shared blocked-account message for a
+valid current link, and records the exact status internally. Malformed,
+expired, wrong-purpose, superseded, and redeemed links retain their existing
+generic invalid-or-expired response.
+
+**Why.** Suspension and deactivation are access-control states, so allowing a
+blocked holder to initiate or complete credential replacement creates an
+unnecessary credential workflow while access is intentionally unavailable.
+Checking status at issuance and redemption protects both boundaries, while the
+existing lifecycle version increments continue to invalidate links issued
+before a status transition. Neutral anonymous requests prevent account-status
+enumeration, and a shared public message gives a holder with verified
+credentials or a valid challenge a useful next step without exposing the
+internal lifecycle distinction.

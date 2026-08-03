@@ -7,6 +7,7 @@ import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
 import EffectiveAccessService from '#services/effective_access_service'
 import type { RequestAuditContext } from '#types/access'
+import type { LoginVerificationResult } from '#types/authentication'
 import type { changePasswordValidator, loginValidator } from '#validators/session'
 import type { Infer } from '@vinejs/vine/types'
 
@@ -21,7 +22,10 @@ export default class AuthenticationService {
   ) {}
 
   /** Verifies credentials and activates an invited account on its first successful login. */
-  async verifyCredentials(data: LoginData, request: RequestAuditContext) {
+  async verifyCredentials(
+    data: LoginData,
+    request: RequestAuditContext
+  ): Promise<LoginVerificationResult> {
     let verifiedAccount: UserAccount
 
     try {
@@ -38,7 +42,7 @@ export default class AuthenticationService {
         identifierFingerprint: this.accessEvents.fingerprintIdentifier(data.email),
         request,
       })
-      return null
+      return { kind: 'INVALID_CREDENTIALS' }
     }
 
     if (!['INVITED', 'ACTIVE'].includes(verifiedAccount.status)) {
@@ -50,7 +54,7 @@ export default class AuthenticationService {
         request,
         metadata: { status: verifiedAccount.status },
       })
-      return null
+      return { kind: 'ACCOUNT_SIGN_IN_UNAVAILABLE' }
     }
 
     return db.transaction(async (trx) => {
@@ -72,7 +76,7 @@ export default class AuthenticationService {
           },
           trx
         )
-        return null
+        return { kind: 'ACCOUNT_SIGN_IN_UNAVAILABLE' }
       }
 
       await account.merge({ status: 'ACTIVE', lastLoginAt: DateTime.now() }).save()
@@ -104,7 +108,7 @@ export default class AuthenticationService {
         trx
       )
 
-      return account
+      return { kind: 'AUTHENTICATED', account }
     })
   }
 

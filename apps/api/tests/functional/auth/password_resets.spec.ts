@@ -110,21 +110,33 @@ test.group('Password resets', (group) => {
     assert.isNotNull(event.identifierFingerprint)
   })
 
-  test('returns the same response for a deactivated account', async ({ client, assert }) => {
+  test('returns the same response without issuing work for blocked accounts', async ({
+    client,
+    assert,
+  }) => {
     const fake = QueueManager.fake()
-    const { account } = await createAccount({ status: 'DEACTIVATED' })
 
-    const response = await client.post('/auth/password/forgot').json({
-      email: account.email,
-    })
+    for (const status of ['SUSPENDED', 'DEACTIVATED'] as const) {
+      const { account } = await createAccount({
+        email: `${status.toLowerCase()}@example.com`,
+        status,
+      })
+      const response = await client.post('/auth/password/forgot').json({
+        email: account.email,
+      })
 
-    response.assertStatus(200)
-    response.assertBody({ message: GENERIC_RESET_MESSAGE })
+      response.assertStatus(200)
+      response.assertBody({ message: GENERIC_RESET_MESSAGE })
+
+      const event = await AccessEvent.query()
+        .where('event_type', 'PASSWORD_RESET_REJECTED_ACCOUNT_STATUS')
+        .where('target_id', account.id)
+        .firstOrFail()
+      assert.equal(event.metadata.status, status)
+    }
+
     fake.assertNothingPushed()
     assert.lengthOf(await PasswordResetChallenge.all(), 0)
-    assert.isNotNull(
-      await AccessEvent.findBy('eventType', 'PASSWORD_RESET_REJECTED_ACCOUNT_STATUS')
-    )
   })
 
   test('rate limits repeated reset requests for one normalized identity', async ({ client }) => {
@@ -162,6 +174,40 @@ test.group('Password resets', (group) => {
     assert.equal(Number(account.passwordResetVersion), 2)
     assert.isTrue(await hash.use('argon').verify(account.password!, 'Replacement-password-123'))
     assert.isNotNull(await AccessEvent.findBy('eventType', 'PASSWORD_RESET_COMPLETED'))
+  })
+
+  test('rejects current reset links when the account cannot sign in', async ({
+    client,
+    assert,
+  }) => {
+    for (const status of ['SUSPENDED', 'DEACTIVATED'] as const) {
+      const { account } = await createAccount({ email: `${status.toLowerCase()}@example.com` })
+      const { challenge, token } = await issueChallenge(account)
+      // Isolate the redemption guard from lifecycle version supersession, which is tested separately.
+      await account.merge({ status }).save()
+
+      const response = await client.post('/auth/password/reset').json({
+        token,
+        password: 'Replacement-password-123',
+      })
+
+      response.assertStatus(409)
+      assert.deepEqual(response.body(), {
+        code: 'E_ACCOUNT_SIGN_IN_UNAVAILABLE',
+        message: 'This account cannot currently sign in. Contact administrator.',
+      })
+
+      await account.refresh()
+      assert.isTrue(await hash.use('argon').verify(account.password!, 'Current-password-123'))
+      assert.isNull(await PasswordResetRedemption.findBy('challengeId', challenge.id))
+
+      const event = await AccessEvent.query()
+        .where('event_type', 'PASSWORD_RESET_REJECTED')
+        .where('target_id', account.id)
+        .firstOrFail()
+      assert.equal(event.metadata.reason, 'ACCOUNT_STATUS')
+      assert.equal(event.metadata.status, status)
+    }
   })
 
   test('rejects a malformed reset token', async ({ client, assert }) => {

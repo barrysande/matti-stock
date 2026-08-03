@@ -113,6 +113,35 @@ test.group('Password setup', (group) => {
     current.assertStatus(401)
   })
 
+  test('rejects a current setup link when the account cannot sign in', async ({
+    client,
+    assert,
+  }) => {
+    const { account } = await createInvitedAccount()
+    const { challenge, token } = await issueSetup(account)
+    // Isolate the redemption guard from lifecycle version supersession, which is tested separately.
+    await account.merge({ status: 'DEACTIVATED' }).save()
+
+    const response = await client.post('/auth/password/set').json({
+      token,
+      password: 'Chosen-password-123',
+    })
+
+    response.assertStatus(409)
+    assert.deepEqual(response.body(), {
+      code: 'E_ACCOUNT_SIGN_IN_UNAVAILABLE',
+      message: 'This account cannot currently sign in. Contact administrator.',
+    })
+
+    await account.refresh()
+    assert.isTrue(await hash.use('argon').verify(account.password!, TEMPORARY_PASSWORD))
+    assert.isNull(await PasswordResetRedemption.findBy('challengeId', challenge.id))
+
+    const event = await AccessEvent.findByOrFail('eventType', 'PASSWORD_SETUP_REJECTED')
+    assert.equal(event.metadata.reason, 'ACCOUNT_STATUS')
+    assert.equal(event.metadata.status, 'DEACTIVATED')
+  })
+
   test('rejects validation failures without redeeming the challenge', async ({
     client,
     assert,

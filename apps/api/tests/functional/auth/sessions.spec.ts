@@ -87,18 +87,55 @@ test.group('Authentication sessions', (group) => {
     assert.isNotNull(event.identifierFingerprint)
   })
 
-  test('rejects login for an inactive account', async ({ client, assert }) => {
+  test('returns one public message for suspended and deactivated accounts', async ({
+    client,
+    assert,
+  }) => {
+    for (const status of ['SUSPENDED', 'DEACTIVATED'] as const) {
+      const { account } = await createAccount({
+        email: `${status.toLowerCase()}@example.com`,
+        status,
+      })
+
+      const response = await client.post('/auth/login').json({
+        email: account.email,
+        password: 'Current-password-123',
+      })
+
+      response.assertStatus(401)
+      assert.deepEqual(response.body(), {
+        code: 'E_ACCOUNT_SIGN_IN_UNAVAILABLE',
+        message: 'This account cannot currently sign in. Contact administrator.',
+      })
+
+      const event = await AccessEvent.query()
+        .where('event_type', 'LOGIN_REJECTED_ACCOUNT_STATUS')
+        .where('target_id', account.id)
+        .firstOrFail()
+      assert.equal(event.metadata.status, status)
+    }
+  })
+
+  test('does not disclose blocked account status when the password is incorrect', async ({
+    client,
+    assert,
+  }) => {
     const { account } = await createAccount({ status: 'SUSPENDED' })
 
     const response = await client.post('/auth/login').json({
       email: account.email,
-      password: 'Current-password-123',
+      password: 'Wrong-password',
     })
 
     response.assertStatus(401)
+    assert.deepEqual(response.body(), {
+      code: 'E_INVALID_CREDENTIALS',
+      message: 'Invalid email or password.',
+    })
 
-    const event = await AccessEvent.findByOrFail('eventType', 'LOGIN_REJECTED_ACCOUNT_STATUS')
-    assert.equal(event.targetId, account.id)
+    const failed = await AccessEvent.findByOrFail('eventType', 'LOGIN_FAILED')
+    assert.isNull(failed.targetId)
+    assert.isNull(await AccessEvent.findBy('eventType', 'LOGIN_REJECTED_ACCOUNT_STATUS'))
   })
 
   test('rate limits repeated login attempts for one normalized identity', async ({ client }) => {

@@ -14,10 +14,17 @@ export default class PasswordSetupsController {
       requestId: request.id(),
     })
 
-    if (!set) {
+    if (set.kind === 'INVALID') {
       return response.unprocessableEntity({
         code: 'E_INVALID_PASSWORD_SETUP',
         message: 'This password-setting link is invalid or has expired.',
+      })
+    }
+
+    if (set.kind === 'ACCOUNT_SIGN_IN_UNAVAILABLE') {
+      return response.conflict({
+        code: 'E_ACCOUNT_SIGN_IN_UNAVAILABLE',
+        message: 'This account cannot currently sign in. Contact administrator.',
       })
     }
 
