@@ -1,11 +1,11 @@
-# MaTTI Stock Web
+# MaTTI Stock API
 
-The SvelteKit application for MaTTI Stock.
+The AdonisJS API application for MaTTI Stock.
 
 Run workspace commands from the monorepo root:
 
 ```sh
-pnpm dev:web
+pnpm dev:api
 ```
 
 Implementation decisions and production notes live in [`docs/`](./docs/). When using an agent, you may give it framework specific docs placed at the root of this app. The naming convention is `.<agent-name/` for example `./codex/` when using codex or `./claude/` for claude etc.
