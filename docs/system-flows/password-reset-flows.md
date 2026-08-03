@@ -177,29 +177,29 @@ deactivated accounts. The API check remains authoritative for direct requests
 and pages made stale by a concurrent lifecycle change. The administrator never
 supplies, receives, or learns the account holder's password or recovery token.
 
-## Status and outcome matrix
+## Status and outcome
 
-| Account state | Sign in with correct password | Anonymous recovery request | Administrative recovery | Redeem current challenge |
-| --- | --- | --- | --- | --- |
-| `INVITED` | Allowed; activates account | Issues setup or reset challenge according to email verification | Allowed | Allowed |
-| `ACTIVE` | Allowed | Issues reset challenge | Allowed | Allowed |
-| `SUSPENDED` | Shared account-unavailable message | Neutral response; no challenge | Rejected | Shared account-unavailable message |
-| `DEACTIVATED` | Shared account-unavailable message | Neutral response; no challenge | Rejected | Shared account-unavailable message |
-| Unknown email | Invalid credentials | Neutral response; no challenge | Not applicable | Not applicable |
+| Account state | Sign in with correct password      | Anonymous recovery request                                      | Administrative recovery | Redeem current challenge           |
+| ------------- | ---------------------------------- | --------------------------------------------------------------- | ----------------------- | ---------------------------------- |
+| `INVITED`     | Allowed; activates account         | Issues setup or reset challenge according to email verification | Allowed                 | Allowed                            |
+| `ACTIVE`      | Allowed                            | Issues reset challenge                                          | Allowed                 | Allowed                            |
+| `SUSPENDED`   | Shared account-unavailable message | Neutral response; no challenge                                  | Rejected                | Shared account-unavailable message |
+| `DEACTIVATED` | Shared account-unavailable message | Neutral response; no challenge                                  | Rejected                | Shared account-unavailable message |
+| Unknown email | Invalid credentials                | Neutral response; no challenge                                  | Not applicable          | Not applicable                     |
 
 ## Deriving simplified user flows
 
 Onboarding and demonstration flows may collapse implementation participants but
 must preserve the following user-visible behavior:
 
-| Developer flow | Simplified user-flow step | Details that may remain internal |
-| --- | --- | --- |
-| Forgot-password request | Enter official email and submit | Account lookup, neutral branching, audit event type, and challenge version |
-| Queued delivery | Check official email and open the link within one hour | Queue payload, token creation timing, and delivery skip checks |
-| Reset redemption | Choose a new password, then sign in | Transaction locks, redemption record, credential versions, and audit metadata |
-| Initial setup | Set the first password, then sign in | Shared redemption service and `INVITED` to `ACTIVE` activation timing |
-| Blocked account | Contact administrator | Exact suspended/deactivated status remains internal in public authentication flows |
-| Administrative recovery | Administrator requests a holder-controlled link | Root-authority locking, challenge purpose selection, and queue dispatch |
+| Developer flow          | Simplified user-flow step                              | Details that may remain internal                                                   |
+| ----------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Forgot-password request | Enter official email and submit                        | Account lookup, neutral branching, audit event type, and challenge version         |
+| Queued delivery         | Check official email and open the link within one hour | Queue payload, token creation timing, and delivery skip checks                     |
+| Reset redemption        | Choose a new password, then sign in                    | Transaction locks, redemption record, credential versions, and audit metadata      |
+| Initial setup           | Set the first password, then sign in                   | Shared redemption service and `INVITED` to `ACTIVE` activation timing              |
+| Blocked account         | Contact administrator                                  | Exact suspended/deactivated status remains internal in public authentication flows |
+| Administrative recovery | Administrator requests a holder-controlled link        | Root-authority locking, challenge purpose selection, and queue dispatch            |
 
 Do not simplify the neutral forgot-password response into confirmation that an
 account exists or that an email was sent. Do not portray an administrator as

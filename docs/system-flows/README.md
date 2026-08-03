@@ -5,11 +5,6 @@ Each feature owns one focused Markdown file that traces its interfaces, API
 controllers, services, background work, state decisions, and user-visible
 outcomes.
 
-These documents complement rather than replace accepted requirements in
-`planning/` or implementation decisions in each application's `docs/`
-directory. Update the applicable flow file whenever a feature changes its
-material participants, sequencing, branches, state rules, or public outcomes.
-
 ## Conventions
 
 - Use Mermaid for version-controlled diagrams that render in common repository
