@@ -1,5 +1,6 @@
 <script lang="ts">
 	import DateTime from '$lib/components/date-time.svelte';
+	import DelegationParticipants from '$lib/components/delegation-participants.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
 	import { delegatedItemCountLabel } from '$lib/helpers/delegation-presentation';
 	import type { DelegationSummary as DelegationSummaryType } from '$lib/types/delegation';
@@ -20,16 +21,11 @@
 
 <div class="space-y-3">
 	<div class="flex flex-wrap items-start justify-between gap-3">
-		<div class="min-w-0">
+		<div class="min-w-0 flex-1">
 			<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 				{relationship}
 			</p>
-			<p class="truncate font-medium">
-				{delegation.delegator.displayName} → {delegation.delegate.displayName}
-			</p>
-			<p class="truncate text-xs text-muted-foreground">
-				{delegation.delegator.email} → {delegation.delegate.email}
-			</p>
+			<DelegationParticipants delegator={delegation.delegator} delegate={delegation.delegate} />
 		</div>
 		<StatusBadge status={delegation.status} />
 	</div>

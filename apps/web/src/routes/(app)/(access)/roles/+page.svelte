@@ -124,7 +124,7 @@
 						<StatusBadge status={role.archivedAt ? 'ARCHIVED' : 'ACTIVE'} />
 					</div>
 					<div class="mt-4 flex flex-wrap gap-2">
-						<Badge variant="outline">
+						<Badge variant={role.systemManaged ? 'secondary' : 'outline'}>
 							<IconShield />{role.systemManaged ? 'System-managed' : 'Configurable'}
 						</Badge>
 						<Badge variant="secondary">
@@ -166,7 +166,7 @@
 								<p class="mt-1 font-mono text-xs break-all text-muted-foreground">{role.key}</p>
 							</Table.Cell>
 							<Table.Cell>
-								<Badge variant="outline">
+								<Badge variant={role.systemManaged ? 'secondary' : 'outline'}>
 									{role.systemManaged ? 'System-managed' : 'Configurable'}
 								</Badge>
 							</Table.Cell>

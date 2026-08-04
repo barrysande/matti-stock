@@ -4,6 +4,7 @@
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 	import { reasonSchema } from '$lib/schemas/account';
 	import DateTime from '$lib/components/date-time.svelte';
+	import DelegationParticipants from '$lib/components/delegation-participants.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
@@ -99,12 +100,15 @@
 						{#each [...data.account.delegations.incoming, ...data.account.delegations.outgoing] as delegation (delegation.id)}
 							<a
 								href={resolve(`/delegations/${delegation.id}`)}
-								class="block rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
+								class="group/participants block rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
 							>
 								<div class="flex items-start justify-between gap-3">
-									<p class="font-medium">
-										{delegation.delegator.displayName} → {delegation.delegate.displayName}
-									</p>
+									<div class="min-w-0 flex-1">
+										<DelegationParticipants
+											delegator={delegation.delegator}
+											delegate={delegation.delegate}
+										/>
+									</div>
 									<StatusBadge status={delegation.status} />
 								</div>
 							</a>

@@ -526,3 +526,29 @@ Restricting rendered API messages to the explicit status contract prevents
 unexpected server details from reaching authentication pages. Matching action
 visibility to account status avoids inviting an operation that the domain
 correctly rejects without treating the interface as an authorization boundary.
+
+## D26 — Shared controls and records use semantic visual cues
+
+**Decision.** Editable date-time controls retain the shared input background
+token instead of overriding it with the page background, so their affordance is
+visible in both color modes. Enabled controls and actions that respond to a
+click use a pointer cursor and a hover state appropriate to their design-system
+variant; disabled controls retain their disabled cursor and interaction
+semantics. Role directories distinguish configurable roles with an outlined
+badge and system-managed roles with a subdued secondary badge; the record
+itself remains fully readable and navigable.
+
+Delegation relationship summaries use one shared participant-flow component.
+It aligns each participant's name and official email around a chevron icon,
+constrains both sides with CSS ellipsis, and includes a textual separator for
+assistive technology. The same component is used in directory, detail, and
+account contexts. The inset application header uses the same top corner radius
+as its containing shell.
+
+**Why.** Theme-aware tokens preserve editability cues without introducing
+mode-specific colors. Muting only the system-managed badge communicates that
+its configuration is unavailable without implying that the record is disabled.
+A consistent directional layout reduces the effort required to compare
+delegation participants, while CSS truncation protects responsive layouts and
+keeps the complete values in the document. Matching shell radii preserves the
+intended inset silhouette without clipping the sticky header.

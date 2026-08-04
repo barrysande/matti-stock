@@ -127,7 +127,7 @@
 		aria-required={required}
 		{required}
 		disabled={disabled || !selectedDate}
-		class="appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+		class="cursor-pointer appearance-none hover:bg-muted hover:text-foreground dark:hover:bg-input/30 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
 	/>
 </div>
 

@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import DateTime from '$lib/components/date-time.svelte';
+	import DelegationParticipants from '$lib/components/delegation-participants.svelte';
 	import DelegationSummary from '$lib/components/delegation-summary.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
@@ -88,38 +89,42 @@
 	{#if data.directory.data.length}
 		<div class="grid gap-3 md:hidden">
 			{#each data.directory.data as delegation (delegation.id)}
-				<a href={resolve(`/delegations/${delegation.id}`)} class="rounded-xl border bg-card p-4">
+				<a
+					href={resolve(`/delegations/${delegation.id}`)}
+					class="group/participants rounded-xl border bg-card p-4"
+				>
 					<DelegationSummary {delegation} currentAccountId={data.currentAccountId} />
 				</a>
 			{/each}
 		</div>
 
 		<div class="hidden overflow-hidden rounded-xl border md:block">
-			<Table.Root>
+			<Table.Root class="table-fixed">
 				<Table.Header>
 					<Table.Row>
-						<Table.Head>People</Table.Head>
-						<Table.Head>Assignments</Table.Head>
-						<Table.Head>When it applies (EAT)</Table.Head>
-						<Table.Head>Status</Table.Head>
+						<Table.Head class="w-[38%]">People</Table.Head>
+						<Table.Head class="w-[24%]">Assignments</Table.Head>
+						<Table.Head class="w-[26%]">When it applies (EAT)</Table.Head>
+						<Table.Head class="w-[12%]">Status</Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
 					{#each data.directory.data as delegation (delegation.id)}
+						{@const roleNames = delegation.assignments.map(({ role }) => role.name).join(', ')}
 						<Table.Row>
-							<Table.Cell>
+							<Table.Cell class="whitespace-normal">
 								<a
 									href={resolve(`/delegations/${delegation.id}`)}
-									class="font-medium hover:underline"
+									class="group/participants block min-w-0"
 								>
-									{delegation.delegator.displayName} → {delegation.delegate.displayName}
+									<DelegationParticipants
+										delegator={delegation.delegator}
+										delegate={delegation.delegate}
+									/>
 								</a>
-								<p class="text-xs text-muted-foreground">
-									{delegation.delegator.email} → {delegation.delegate.email}
-								</p>
 							</Table.Cell>
-							<Table.Cell>
-								<p>{delegation.assignments.map(({ role }) => role.name).join(', ')}</p>
+							<Table.Cell class="whitespace-normal">
+								<p class="truncate" title={roleNames}>{roleNames}</p>
 								<p class="text-xs text-muted-foreground">
 									{delegatedItemCountLabel(
 										delegation.effectiveItemCount,

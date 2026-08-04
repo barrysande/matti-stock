@@ -4,11 +4,13 @@
 	let {
 		eyebrow,
 		title,
+		titleContent,
 		description,
 		actions
 	}: {
 		eyebrow?: string;
 		title: string;
+		titleContent?: Snippet;
 		description?: string;
 		actions?: Snippet;
 	} = $props();
@@ -21,7 +23,16 @@
 				{eyebrow}
 			</p>
 		{/if}
-		<h1 class="mt-1 font-heading text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+		<h1
+			class="mt-1 font-heading text-2xl font-semibold tracking-tight sm:text-3xl"
+			aria-label={titleContent ? title : undefined}
+		>
+			{#if titleContent}
+				{@render titleContent()}
+			{:else}
+				{title}
+			{/if}
+		</h1>
 		{#if description}
 			<p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{description}</p>
 		{/if}

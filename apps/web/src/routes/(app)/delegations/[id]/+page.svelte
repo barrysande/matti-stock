@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import DateTime from '$lib/components/date-time.svelte';
 	import DelegationAssignmentSummary from '$lib/components/delegation-assignment-summary.svelte';
+	import DelegationParticipants from '$lib/components/delegation-participants.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -118,9 +119,17 @@
 <div class="space-y-6 pb-8">
 	<PageHeader
 		eyebrow="Delegation record"
-		title={`${data.delegation.delegator.displayName} → ${data.delegation.delegate.displayName}`}
+		title={`${data.delegation.delegator.displayName} to ${data.delegation.delegate.displayName}`}
 		description="Review the people, assignments, dates, response, and current effectiveness."
 	>
+		{#snippet titleContent()}
+			<DelegationParticipants
+				delegator={data.delegation.delegator}
+				delegate={data.delegation.delegate}
+				showEmails={false}
+				heading
+			/>
+		{/snippet}
 		{#snippet actions()}
 			<Button variant="outline" href={resolve('/delegations')}>
 				<IconArrowLeft />Back to delegations
