@@ -679,4 +679,160 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/delegations_controller').default['terminate']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'catalogue_categories.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/catalogue-categories'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/catalogue_category').indexCatalogueCategoriesValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_categories.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/catalogue-categories/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['show']>>>
+    }
+  }
+  'catalogue_categories.store': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').createCatalogueCategoryValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').createCatalogueCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_categories.update_details': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories/:id/details'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').updateCatalogueCategoryDetailsValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').updateCatalogueCategoryDetailsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['updateDetails']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['updateDetails']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_categories.reparent': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories/:id/reparent'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').reparentCatalogueCategoryValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').reparentCatalogueCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['reparent']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['reparent']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_categories.archive': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories/:id/archive'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').administerCatalogueCategoryValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').administerCatalogueCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_categories.restore': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories/:id/restore'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').administerCatalogueCategoryValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').administerCatalogueCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'base_units.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/base-units'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/base_unit').indexBaseUnitsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'base_units.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/base-units/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['show']>>>
+    }
+  }
+  'base_units.store': {
+    methods: ["POST"]
+    pattern: '/base-units'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/base_unit').createBaseUnitValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/base_unit').createBaseUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'base_units.update_details': {
+    methods: ["POST"]
+    pattern: '/base-units/:id/details'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/base_unit').updateBaseUnitDetailsValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/base_unit').updateBaseUnitDetailsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['updateDetails']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['updateDetails']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'base_units.archive': {
+    methods: ["POST"]
+    pattern: '/base-units/:id/archive'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/base_unit').administerBaseUnitValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/base_unit').administerBaseUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'base_units.restore': {
+    methods: ["POST"]
+    pattern: '/base-units/:id/restore'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/base_unit').administerBaseUnitValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/base_unit').administerBaseUnitValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

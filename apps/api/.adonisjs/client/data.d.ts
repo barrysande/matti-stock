@@ -7,6 +7,10 @@
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
 import type AccessEventTransformer from '#transformers/access_event_transformer'
 import type AccountTransformer from '#transformers/account_transformer'
+import type BaseUnitTransformer from '#transformers/base_unit_transformer'
+import type BaseUnitVersionTransformer from '#transformers/base_unit_version_transformer'
+import type CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
+import type CatalogueCategoryVersionTransformer from '#transformers/catalogue_category_version_transformer'
 import type CurrentAccountTransformer from '#transformers/current_account_transformer'
 import type DelegationProposalOptionsTransformer from '#transformers/delegation_proposal_options_transformer'
 import type DelegationTransformer from '#transformers/delegation_transformer'
@@ -27,6 +31,22 @@ export namespace Data {
   export type Account = InferData<AccountTransformer>
   export namespace Account {
     export type Variants = InferVariants<AccountTransformer>
+  }
+  export type BaseUnit = InferData<BaseUnitTransformer>
+  export namespace BaseUnit {
+    export type Variants = InferVariants<BaseUnitTransformer>
+  }
+  export type BaseUnitVersion = InferData<BaseUnitVersionTransformer>
+  export namespace BaseUnitVersion {
+    export type Variants = InferVariants<BaseUnitVersionTransformer>
+  }
+  export type CatalogueCategory = InferData<CatalogueCategoryTransformer>
+  export namespace CatalogueCategory {
+    export type Variants = InferVariants<CatalogueCategoryTransformer>
+  }
+  export type CatalogueCategoryVersion = InferData<CatalogueCategoryVersionTransformer>
+  export namespace CatalogueCategoryVersion {
+    export type Variants = InferVariants<CatalogueCategoryVersionTransformer>
   }
   export type CurrentAccount = InferData<CurrentAccountTransformer>
   export namespace CurrentAccount {

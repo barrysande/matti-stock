@@ -6,6 +6,8 @@
 export const controllers = {
   AccountAccessEvents: () => import('#controllers/account_access_events_controller'),
   Accounts: () => import('#controllers/accounts_controller'),
+  BaseUnits: () => import('#controllers/base_units_controller'),
+  CatalogueCategories: () => import('#controllers/catalogue_categories_controller'),
   Delegations: () => import('#controllers/delegations_controller'),
   HealthChecks: () => import('#controllers/health_checks_controller'),
   OrganizationalUnits: () => import('#controllers/organizational_units_controller'),

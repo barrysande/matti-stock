@@ -120,3 +120,28 @@ router
   })
   .prefix('/delegations')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.CatalogueCategories, 'index'])
+    router.get('/:id', [controllers.CatalogueCategories, 'show'])
+    router.post('/', [controllers.CatalogueCategories, 'store'])
+    router.post('/:id/details', [controllers.CatalogueCategories, 'updateDetails'])
+    router.post('/:id/reparent', [controllers.CatalogueCategories, 'reparent'])
+    router.post('/:id/archive', [controllers.CatalogueCategories, 'archive'])
+    router.post('/:id/restore', [controllers.CatalogueCategories, 'restore'])
+  })
+  .prefix('/catalogue-categories')
+  .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.BaseUnits, 'index'])
+    router.get('/:id', [controllers.BaseUnits, 'show'])
+    router.post('/', [controllers.BaseUnits, 'store'])
+    router.post('/:id/details', [controllers.BaseUnits, 'updateDetails'])
+    router.post('/:id/archive', [controllers.BaseUnits, 'archive'])
+    router.post('/:id/restore', [controllers.BaseUnits, 'restore'])
+  })
+  .prefix('/base-units')
+  .use(middleware.auth({ guards: ['web'] }))

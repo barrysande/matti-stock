@@ -82,4 +82,21 @@ export interface ApiDefinition {
     relinquish: typeof routes['delegations.relinquish']
     terminate: typeof routes['delegations.terminate']
   }
+  catalogueCategories: {
+    index: typeof routes['catalogue_categories.index']
+    show: typeof routes['catalogue_categories.show']
+    store: typeof routes['catalogue_categories.store']
+    updateDetails: typeof routes['catalogue_categories.update_details']
+    reparent: typeof routes['catalogue_categories.reparent']
+    archive: typeof routes['catalogue_categories.archive']
+    restore: typeof routes['catalogue_categories.restore']
+  }
+  baseUnits: {
+    index: typeof routes['base_units.index']
+    show: typeof routes['base_units.show']
+    store: typeof routes['base_units.store']
+    updateDetails: typeof routes['base_units.update_details']
+    archive: typeof routes['base_units.archive']
+    restore: typeof routes['base_units.restore']
+  }
 }

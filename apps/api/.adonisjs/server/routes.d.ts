@@ -60,6 +60,19 @@ export type ScannedRoutes = {
     'delegations.revoke': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.relinquish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.index': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.store': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.reparent': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.index': { paramsTuple?: []; params?: {} }
+    'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.store': { paramsTuple?: []; params?: {} }
+    'base_units.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -80,6 +93,10 @@ export type ScannedRoutes = {
     'delegations.index': { paramsTuple?: []; params?: {} }
     'delegations.proposal_options': { paramsTuple?: []; params?: {} }
     'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.index': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.index': { paramsTuple?: []; params?: {} }
+    'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -100,6 +117,10 @@ export type ScannedRoutes = {
     'delegations.index': { paramsTuple?: []; params?: {} }
     'delegations.proposal_options': { paramsTuple?: []; params?: {} }
     'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.index': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.index': { paramsTuple?: []; params?: {} }
+    'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'sessions.login': { paramsTuple?: []; params?: {} }
@@ -139,6 +160,15 @@ export type ScannedRoutes = {
     'delegations.revoke': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.relinquish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.store': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.reparent': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.store': { paramsTuple?: []; params?: {} }
+    'base_units.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'base_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }

@@ -959,3 +959,48 @@ before a status transition. Neutral anonymous requests prevent account-status
 enumeration, and a shared public message gives a holder with verified
 credentials or a valid challenge a useful next step without exposing the
 internal lifecycle distinction.
+
+## D34 — Catalogue classifications use current projections with authorized effective history
+
+**Decision.** Catalogue categories and base units use small current-state tables
+for ordinary reads plus append-only, effective-dated version tables for their
+complete administrative history. A category version snapshots its name,
+required description, parent, archive state, change kind, reason, actor, and
+exact catalogue authorization. A base-unit version snapshots its name, symbol,
+countable/measured kind, precision, archive state, change kind, reason, actor,
+and the same authorization evidence. The authorization snapshot retains the
+source role assignment, optional delegation, `catalogue.manage`, and resolved
+institute organizational unit through restricted foreign keys rather than a
+polymorphic metadata-only event.
+
+Authenticated accounts may read active or explicitly requested archived
+definitions and their history. Mutation requires `catalogue.manage` resolved
+at the active institute root; technical `access.root` and lower organizational
+scopes do not qualify. Policies reject unauthorized requests before payload or
+resource validation. Each write transaction then locks the actor and the
+direct or delegated authority evidence, re-resolves the grant, and rejects a
+changed grant before modifying domain state.
+
+The category hierarchy is limited to three levels. Structural writes lock its
+small institution-wide row set in stable order, then revalidate active parents,
+cycles, descendant depth, and archive/restore ordering. PostgreSQL partial
+indexes remain the final concurrent guard for active sibling names. Base units
+use corresponding active-only, case-insensitive name and symbol indexes plus
+database checks requiring precision zero for countable units and precision one
+through three for measured units. An omitted measured precision resolves to
+three in the domain service. Active-only uniqueness allows a replacement unit
+to reuse an archived label while making restoration conflict explicitly.
+
+Category descriptions own both inclusion guidance and optional examples; no
+separate examples column is created. Unit kind and precision may still be
+edited during Slice 2 because catalogue items do not yet exist. The catalogue-
+item slice must add the accepted used-unit guard before a unit can be referenced
+and must then prevent ordinary semantic changes after use.
+
+**Why.** Current projections keep shared lookup lists direct, while relational
+versions preserve why each definition changed and the exact authority that
+allowed it. Transactional revalidation closes authority and hierarchy races,
+and database constraints protect invariants under concurrent requests. Keeping
+examples inside the required description and delaying the used-unit check until
+the referencing model exists avoids duplicate fields and placeholder domain
+relationships.
