@@ -287,9 +287,8 @@ Deliver:
 - base-unit definitions and countable/measured precision rules;
 - catalogue-item creation based on interchangeability;
 - system-generated permanent catalogue codes;
-- optional unique institute asset numbers and optional manufacturer serials;
 - controlled category attributes and catalogue/inventory-unit scopes;
-- canonical catalogue and inventory routes;
+- the canonical catalogue route and the reserved inventory-route contract;
 - catalogue keyword/code lookup foundation; and
 - responsive creation, list, detail, and history screens.
 
@@ -309,6 +308,8 @@ Deliver:
 
 - individual inventory units and quantity balances;
 - human-readable inventory-unit codes;
+- optional unique institute asset numbers and optional manufacturer serials;
+- the canonical `/inventory-units/:inventoryCode` resource;
 - opening, acquisition, donation/grant, external-transfer, and other
   provenance;
 - Central Store custody/location defaults from explicit intake context;

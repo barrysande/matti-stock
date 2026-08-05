@@ -79,8 +79,8 @@ during implementation shall be added explicitly rather than inferred.
 3. Does the institute agree that countable units must use whole numbers while
    measured units may use decimals?
 
-4. How many decimal places are required for measured quantities such as litres,
-   kilograms, and metres?
+4. **Confirmed for V1:** measured base units select one to three decimal places
+   and default to three; countable base units use zero decimal places.
 
 ## Independent Inventory Components
 
@@ -91,7 +91,6 @@ during implementation shall be added explicitly rather than inferred.
 2. Does the institute agree that selecting independent units in one batch
    operation provides convenience only and does not create a persistent
    relationship?
-
 
 ## Category-Specific Attributes
 
@@ -129,7 +128,10 @@ during implementation shall be added explicitly rather than inferred.
 5. Does the institute agree that the identifier should be visible and
    human-readable?
 
-6. What human-readable identifier format should the institute use?
+6. **Confirmed for V1:** inventory-unit identifiers use `INV-` plus a
+   zero-padded six-digit PostgreSQL sequence, for example `INV-000001`.
+   Sequence gaps are permitted, identifiers have no check digit, and issued
+   values are never reused. Implementation belongs to Week 4 intake.
 
 ## Organization, Locations, and Custody
 
@@ -214,7 +216,11 @@ during implementation shall be added explicitly rather than inferred.
 5. Does the institute agree that every catalogue item should receive a
    permanent, human-readable, system-generated catalogue code?
 
-6. What catalogue-code format should the institute use?
+6. **Confirmed for V1:** catalogue codes use `ITEM-` plus a zero-padded
+   six-digit PostgreSQL sequence, for example `ITEM-000001`. Inventory-unit
+   codes reserve the corresponding distinct `INV-000001` format for Week 4.
+   Sequence gaps are permitted, codes have no check digit, and issued values
+   are never reused.
 
 7. Which categories or intake workflows require a manufacturer serial number?
 

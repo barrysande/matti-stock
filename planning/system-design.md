@@ -186,7 +186,8 @@ following rules:
 4. Ordinary inventory users may select existing categories, but only authorized
    inventory administrators may create, rename, merge, or archive categories.
 5. Each category shall have a name and a short description explaining what
-   belongs in it. Examples may also be recorded.
+   belongs in it. Examples may be included in that description; V1 shall not
+   add a separate category-examples field.
 6. Category creation shall check for similar existing categories and warn about
    likely duplicates.
 7. A category that has been used shall not be permanently deleted. It may be
@@ -196,6 +197,20 @@ following rules:
    reporting.
 9. The system shall identify uncategorized items for review rather than rely on
    a permanent catch-all `Other` category.
+
+Within V1, normalized active category names shall be unique among siblings;
+the same name may appear beneath different parents when the resulting paths
+represent different classifications. Categories support create, rename,
+reparent, archive, restore, and controlled merge, but never permanent deletion.
+Archived categories remain visible on existing records and are excluded from
+new catalogue-item selection.
+
+Merge is a controlled migration rather than an ordinary edit. It shall preview
+affected catalogue items and attribute conflicts, reject self-merge, cycles,
+and archived targets, atomically reclassify affected current catalogue items,
+record their change history, archive the source category, record its merge
+target, and preserve the source's history. Attribute conflicts shall require an
+explicit resolution and shall never be silently discarded or coerced.
 
 Examples of valid hierarchies include:
 
@@ -222,7 +237,16 @@ The system shall distinguish between:
   or quantity held by the institute.
 
 A catalogue item shall hold shared descriptive and behavioural information,
-including its name, category, stock type, and tracking method.
+including its permanent code, required name, optional description, optional
+search keywords, primary category, stock type, tracking method, base unit, and
+applicable catalogue-scoped attribute values.
+
+The catalogue shall use one optional description rather than a second general
+specifications field. Its interface guidance shall invite shared brand, model,
+specification, compatibility, size, RAM, storage, purpose, or other
+distinguishing detail. It shall also explain that serial number, condition,
+location, custody, holder, and other facts belonging to one physical unit must
+not be entered there.
 
 One catalogue item may be referenced by multiple inventory holdings:
 
@@ -275,6 +299,22 @@ Examples:
 When an imported historical record lacks enough detail, a clearly marked
 placeholder catalogue item such as `Laptop — model unknown` may be used. It
 shall remain identifiable for later data review and correction.
+
+Before inventory holdings exist, classification fields may be corrected through
+a reasoned, versioned change. After holdings exist, stock type, tracking method,
+and base unit shall not be changed through ordinary catalogue editing; their
+controlled correction or conversion workflows must preserve existing stock
+semantics and history. The permanent code is never editable. Compatible name,
+description, keyword, category, and catalogue-attribute corrections remain
+versioned. Archiving a catalogue item prevents new intake without hiding or
+disabling its existing holdings.
+
+Before creating a catalogue item, the system shall show non-blocking similar
+active candidates using normalized name, keyword, category, prefix, or
+substring matching. Creation may continue only after explicit confirmation
+that the proposed definition is not interchangeable with those candidates.
+V1 shall not add a separate search dependency or PostgreSQL search extension
+for this guidance.
 
 ##### Reason
 
@@ -356,7 +396,12 @@ should normally use the package contents as its base unit. For example, if
 individual units are issued from a box, the base unit should be the individual
 unit rather than permitting a balance of `0.5 box`.
 
-The permitted decimal precision for measured units remains to be confirmed.
+Base units shall be institution-wide, user-managed definitions containing a
+name, symbol, kind, and precision. Countable units shall have precision zero.
+Measured units shall select a precision from one to three decimal places and
+shall default to three. V1 shall not define packaging or measurement-conversion
+tables. A unit's kind and precision shall be immutable after use, and a used
+unit shall be archived rather than deleted.
 
 ##### Reason
 
@@ -426,9 +471,23 @@ exceptional context, but it shall not be the primary mechanism for routinely
 required category data.
 
 Deleting or materially changing an attribute definition that has already been
-used shall not destroy its historical values. Detailed rules for editing,
-archiving, and migrating attribute definitions will be decided during data
-governance and technical design.
+used shall not destroy its historical values. V1 editing and archival follow
+the rules below; any later semantic migration requires its own data-governance
+and technical-design decision.
+
+In V1 an attribute definition applies only to its exact category; child
+categories do not inherit it. Once affected catalogue items or inventory units
+exist, the definition's type, category, requiredness, scope, and removal of a
+used predefined choice shall require a separately authorized controlled
+migration. Labels and guidance may receive versioned edits, new predefined
+choices may be added, and the definition may be archived while its historical
+values remain readable.
+
+Controlled attributes are appropriate when a value must be structured,
+required, validated, filtered, or reported consistently. Unpredictable shared
+detail that does not require those controls may remain in the catalogue item's
+optional description; a second free-form specifications field shall not be
+introduced.
 
 ##### Reason
 
@@ -602,7 +661,11 @@ Institute asset numbers and manufacturer serial numbers may be recorded as
 separate identifiers when available. Their absence shall not prevent the unit
 from being entered or reliably tracked.
 
-The exact human-readable format remains to be decided.
+The inventory-unit identifier shall use the reserved exact format
+`INV-000001`: the uppercase `INV-` prefix followed by a zero-padded six-digit
+PostgreSQL sequence. Sequence gaps are permitted, identifiers have no check
+digit, and issued values are never reused. This contract is recorded during
+Week 3 and implemented with inventory-unit intake in Week 4.
 
 ##### Reason
 
@@ -1188,8 +1251,10 @@ This code applies to both individually tracked and quantity-tracked catalogue
 items. For quantity-tracked stock, it provides stable identification even
 though no separately identified physical unit exists.
 
-`ITEM-000142` illustrates the intended readability but is not an accepted final
-format. The exact code format remains to be decided.
+Catalogue codes shall use the exact format `ITEM-000001`: the uppercase
+`ITEM-` prefix followed by a zero-padded six-digit PostgreSQL sequence. Sequence
+gaps are permitted, codes have no check digit, and issued values are never
+reused.
 
 ##### Reason
 
@@ -1276,10 +1341,10 @@ System-generated domain identifiers shall use simple, human-readable,
 non-semantic codes.
 
 The inventory-unit and catalogue-item code namespaces shall be distinguishable.
-Illustrative formats are:
+Their accepted formats are:
 
-- `INV-000123` for an individually tracked inventory unit; and
-- `ITEM-000142` for a catalogue item.
+- `INV-000001` for an individually tracked inventory unit; and
+- `ITEM-000001` for a catalogue item.
 
 The code shall not embed mutable or organizational business information,
 including:
@@ -1295,9 +1360,10 @@ Those facts shall remain separate, reportable fields with their own history.
 Meaningful legacy institute asset numbers may still be retained as external
 identifiers without controlling the format of the permanent system code.
 
-The exact prefixes, numeric width, sequence strategy, and any check-digit rule
-will be decided during interface and technical design without changing this
-non-semantic identity principle.
+Both formats use an uppercase prefix and a zero-padded six-digit PostgreSQL
+sequence. Sequence gaps are permitted, neither format has a check digit, and
+issued codes are never reused. The inventory-unit format is reserved during
+Week 3 and implemented with inventory-unit intake in Week 4.
 
 ##### Reason
 
@@ -5168,6 +5234,35 @@ Store Supervisor to both create and independently erase its current effect
 would weaken that control. A second Store Supervisor confirms the correction
 while append-only proposal, decision, and compensating events preserve the
 original mistake and every action taken to correct it.
+
+#### DEC-018: Keep institution-wide catalogue mutation separate from access root
+
+- **Status:** Accepted
+- **Area:** People, roles, permissions, and approvals
+- **Builds on:** Area 1 / DEC-003, Area 10 / DEC-002,
+  Area 10 / DEC-003, Area 10 / DEC-008, Area 10 / DEC-010
+
+Active catalogue items, categories, base units, and category-attribute
+definitions shall be readable by authenticated application users. Mutation of
+those institution-wide definitions shall require effective `catalogue.manage`
+authority resolved at the institute root organizational unit. A grant scoped
+only to a department or sub-department shall not change definitions used by the
+whole institute.
+
+Technical `access.root` authority shall not imply `catalogue.manage` authority.
+The Master Admin may receive catalogue authority only through a separate
+effective business-role assignment, like any other person. Successful catalogue
+mutations shall retain the exact effective permission and resolved
+organizational authorization context established by Area 10 / DEC-003.
+
+##### Reason
+
+Catalogue definitions are shared institutional facts rather than departmental
+configuration, so lower-scoped mutation would affect users outside the actor's
+authority. Authenticated read access lets ordinary inventory users select and
+understand the shared definitions, while the separate business permission
+preserves the accepted boundary between technical access administration and
+stock authority.
 
 ### Area 11 — Reporting, Search, Audit Output, and Exporting
 
