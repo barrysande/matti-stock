@@ -3,9 +3,9 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import DuplicateException from '#exceptions/duplicate_exception'
 import BaseUnit from '#models/base_unit'
-import BaseUnitDetailsService from '#services/base_unit_details_service'
 import BaseUnitHistoryService from '#services/base_unit_history_service'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
+import { resolveBaseUnitDetails } from '#utils/baseunit'
 import type { createBaseUnitValidator } from '#validators/base_unit'
 import type { Infer } from '@vinejs/vine/types'
 
@@ -21,7 +21,6 @@ type CreateData = Infer<typeof createBaseUnitValidator>
 export default class BaseUnitProvisioningService {
   constructor(
     private authority: CatalogueAuthorityService,
-    private details: BaseUnitDetailsService,
     private history: BaseUnitHistoryService
   ) {}
 
@@ -31,7 +30,7 @@ export default class BaseUnitProvisioningService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
-        const details = this.details.resolve(data.name, data.symbol, data.kind, data.precision)
+        const details = resolveBaseUnitDetails(data.name, data.symbol, data.kind, data.precision)
         const unit = await BaseUnit.create({ ...details, archivedAt: null }, { client: trx })
         await this.history.createInitialVersion(
           unit,

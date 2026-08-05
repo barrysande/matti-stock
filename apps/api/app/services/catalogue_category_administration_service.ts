@@ -7,7 +7,7 @@ import CatalogueCategory from '#models/catalogue_category'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
 import CatalogueCategoryHierarchyService from '#services/catalogue_category_hierarchy_service'
 import CatalogueCategoryHistoryService from '#services/catalogue_category_history_service'
-import CatalogueCategoryNameService from '#services/catalogue_category_name_service'
+import { normalizeCategoryName } from '#utils/category'
 import type {
   administerCatalogueCategoryValidator,
   reparentCatalogueCategoryValidator,
@@ -32,8 +32,7 @@ export default class CatalogueCategoryAdministrationService {
   constructor(
     private authority: CatalogueAuthorityService,
     private hierarchy: CatalogueCategoryHierarchyService,
-    private history: CatalogueCategoryHistoryService,
-    private names: CatalogueCategoryNameService
+    private history: CatalogueCategoryHistoryService
   ) {}
 
   private invalid(message: string): never {
@@ -61,7 +60,7 @@ export default class CatalogueCategoryAdministrationService {
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
         const category = await this.lockCategory(trx, categoryId)
         this.assertActive(category)
-        const name = this.names.normalize(data.name)
+        const name = normalizeCategoryName(data.name)
 
         if (category.name === name && category.description === data.description) {
           this.invalid('The catalogue category already has these details.')
@@ -90,6 +89,7 @@ export default class CatalogueCategoryAdministrationService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
         const categories = await this.hierarchy.lock(trx)
         const category = categories.find((candidate) => candidate.id === categoryId)
         if (!category) {
@@ -125,6 +125,7 @@ export default class CatalogueCategoryAdministrationService {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
       const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
       const categories = await this.hierarchy.lock(trx)
       const category = categories.find((candidate) => candidate.id === categoryId)
       if (!category) return this.lockCategory(trx, categoryId)
@@ -132,6 +133,7 @@ export default class CatalogueCategoryAdministrationService {
       this.hierarchy.assertNoActiveChildren(category, categories)
 
       await category.merge({ archivedAt: now }).save()
+
       await this.history.appendVersion(
         category,
         'ARCHIVED',
@@ -151,6 +153,7 @@ export default class CatalogueCategoryAdministrationService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
         const categories = await this.hierarchy.lock(trx)
         const category = categories.find((candidate) => candidate.id === categoryId)
         if (!category) return this.lockCategory(trx, categoryId)
@@ -161,6 +164,7 @@ export default class CatalogueCategoryAdministrationService {
         this.hierarchy.assertRestorableParent(category, categories)
 
         await category.merge({ archivedAt: null }).save()
+
         await this.history.appendVersion(
           category,
           'RESTORED',

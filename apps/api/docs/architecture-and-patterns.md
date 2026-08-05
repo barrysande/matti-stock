@@ -1004,3 +1004,22 @@ and database constraints protect invariants under concurrent requests. Keeping
 examples inside the required description and delaying the used-unit check until
 the referencing model exists avoids duplicate fields and placeholder domain
 relationships.
+
+## D35 — Keep stateless value transformations as domain helpers
+
+**Decision.** Small deterministic transformations that neither coordinate a
+workflow nor depend on application state are exported as named functions from
+domain-specific modules under `app/utils/`. Category-name normalization and
+base-unit normalization and detail resolution therefore use `category.ts` and
+`baseunit.ts` helpers rather than injectable single-method service classes.
+
+Services remain the boundary for substantive application responsibilities such
+as persistence workflows, transactions, authorization, history, hierarchy
+coordination, and directory queries. A rule may still live in a helper when it
+only validates and resolves supplied values without coordinating those concerns.
+
+**Why.** Function helpers expose the actual stateless dependency directly and
+avoid constructor injection, allocation, and mocking seams that provide no
+benefit. Domain-specific modules retain clear ownership without prematurely
+forcing differently evolving names, symbols, keywords, or other values through
+one generic normalizer.

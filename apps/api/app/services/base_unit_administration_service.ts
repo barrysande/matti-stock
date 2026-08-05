@@ -4,9 +4,9 @@ import { DateTime } from 'luxon'
 import DuplicateException from '#exceptions/duplicate_exception'
 import InvalidBaseUnitChangeException from '#exceptions/invalid_base_unit_change_exception'
 import BaseUnit from '#models/base_unit'
-import BaseUnitDetailsService from '#services/base_unit_details_service'
 import BaseUnitHistoryService from '#services/base_unit_history_service'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
+import { resolveBaseUnitDetails } from '#utils/baseunit'
 import type {
   administerBaseUnitValidator,
   updateBaseUnitDetailsValidator,
@@ -27,7 +27,6 @@ type AdministerData = Infer<typeof administerBaseUnitValidator>
 export default class BaseUnitAdministrationService {
   constructor(
     private authority: CatalogueAuthorityService,
-    private details: BaseUnitDetailsService,
     private history: BaseUnitHistoryService
   ) {}
 
@@ -53,7 +52,7 @@ export default class BaseUnitAdministrationService {
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
         const unit = await this.lockUnit(trx, unitId)
         this.assertActive(unit)
-        const details = this.details.resolve(data.name, data.symbol, data.kind, data.precision)
+        const details = resolveBaseUnitDetails(data.name, data.symbol, data.kind, data.precision)
 
         if (
           unit.name === details.name &&

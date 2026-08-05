@@ -6,7 +6,7 @@ import CatalogueCategory from '#models/catalogue_category'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
 import CatalogueCategoryHierarchyService from '#services/catalogue_category_hierarchy_service'
 import CatalogueCategoryHistoryService from '#services/catalogue_category_history_service'
-import CatalogueCategoryNameService from '#services/catalogue_category_name_service'
+import { normalizeCategoryName } from '#utils/category'
 import type { createCatalogueCategoryValidator } from '#validators/catalogue_category'
 import type { Infer } from '@vinejs/vine/types'
 
@@ -24,8 +24,7 @@ export default class CatalogueCategoryProvisioningService {
   constructor(
     private authority: CatalogueAuthorityService,
     private hierarchy: CatalogueCategoryHierarchyService,
-    private history: CatalogueCategoryHistoryService,
-    private names: CatalogueCategoryNameService
+    private history: CatalogueCategoryHistoryService
   ) {}
 
   /** Creates a category atomically with its first effective and authorized history snapshot. */
@@ -40,7 +39,7 @@ export default class CatalogueCategoryProvisioningService {
 
         const category = await CatalogueCategory.create(
           {
-            name: this.names.normalize(data.name),
+            name: normalizeCategoryName(data.name),
             description: data.description,
             parentId,
             archivedAt: null,
