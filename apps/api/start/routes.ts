@@ -167,3 +167,26 @@ router
   })
   .prefix('/category-attributes')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.CatalogueItems, 'index'])
+    router.get('/lookup', [controllers.CatalogueItems, 'lookup'])
+    router.post('/creation-review', [controllers.CatalogueItems, 'creationReview'])
+    router.post('/', [controllers.CatalogueItems, 'store'])
+    router.post('/:catalogueCode/change-review', [controllers.CatalogueItems, 'changeReview'])
+    router.post('/:catalogueCode/details', [controllers.CatalogueItems, 'updateDetails'])
+    router.post('/:catalogueCode/classification', [
+      controllers.CatalogueItems,
+      'updateClassification',
+    ])
+    router.post('/:catalogueCode/attribute-values', [
+      controllers.CatalogueItems,
+      'updateAttributeValues',
+    ])
+    router.get('/:catalogueCode', [controllers.CatalogueItems, 'show'])
+    router.post('/:catalogueCode/archive', [controllers.CatalogueItems, 'archive'])
+    router.post('/:catalogueCode/restore', [controllers.CatalogueItems, 'restore'])
+  })
+  .prefix('/catalogue-items')
+  .use(middleware.auth({ guards: ['web'] }))

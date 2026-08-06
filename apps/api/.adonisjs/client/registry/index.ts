@@ -492,6 +492,72 @@ const routes = {
     tokens: [{"old":"/category-attributes/:id/restore","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/restore","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/restore","type":0,"val":"restore","end":""}],
     types: placeholder as Registry['category_attributes.restore']['types'],
   },
+  'catalogue_items.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/catalogue-items',
+    tokens: [{"old":"/catalogue-items","type":0,"val":"catalogue-items","end":""}],
+    types: placeholder as Registry['catalogue_items.index']['types'],
+  },
+  'catalogue_items.lookup': {
+    methods: ["GET","HEAD"],
+    pattern: '/catalogue-items/lookup',
+    tokens: [{"old":"/catalogue-items/lookup","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/lookup","type":0,"val":"lookup","end":""}],
+    types: placeholder as Registry['catalogue_items.lookup']['types'],
+  },
+  'catalogue_items.creation_review': {
+    methods: ["POST"],
+    pattern: '/catalogue-items/creation-review',
+    tokens: [{"old":"/catalogue-items/creation-review","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/creation-review","type":0,"val":"creation-review","end":""}],
+    types: placeholder as Registry['catalogue_items.creation_review']['types'],
+  },
+  'catalogue_items.store': {
+    methods: ["POST"],
+    pattern: '/catalogue-items',
+    tokens: [{"old":"/catalogue-items","type":0,"val":"catalogue-items","end":""}],
+    types: placeholder as Registry['catalogue_items.store']['types'],
+  },
+  'catalogue_items.change_review': {
+    methods: ["POST"],
+    pattern: '/catalogue-items/:catalogueCode/change-review',
+    tokens: [{"old":"/catalogue-items/:catalogueCode/change-review","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/change-review","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/change-review","type":0,"val":"change-review","end":""}],
+    types: placeholder as Registry['catalogue_items.change_review']['types'],
+  },
+  'catalogue_items.update_details': {
+    methods: ["POST"],
+    pattern: '/catalogue-items/:catalogueCode/details',
+    tokens: [{"old":"/catalogue-items/:catalogueCode/details","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/details","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/details","type":0,"val":"details","end":""}],
+    types: placeholder as Registry['catalogue_items.update_details']['types'],
+  },
+  'catalogue_items.update_classification': {
+    methods: ["POST"],
+    pattern: '/catalogue-items/:catalogueCode/classification',
+    tokens: [{"old":"/catalogue-items/:catalogueCode/classification","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/classification","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/classification","type":0,"val":"classification","end":""}],
+    types: placeholder as Registry['catalogue_items.update_classification']['types'],
+  },
+  'catalogue_items.update_attribute_values': {
+    methods: ["POST"],
+    pattern: '/catalogue-items/:catalogueCode/attribute-values',
+    tokens: [{"old":"/catalogue-items/:catalogueCode/attribute-values","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/attribute-values","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/attribute-values","type":0,"val":"attribute-values","end":""}],
+    types: placeholder as Registry['catalogue_items.update_attribute_values']['types'],
+  },
+  'catalogue_items.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/catalogue-items/:catalogueCode',
+    tokens: [{"old":"/catalogue-items/:catalogueCode","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode","type":1,"val":"catalogueCode","end":""}],
+    types: placeholder as Registry['catalogue_items.show']['types'],
+  },
+  'catalogue_items.archive': {
+    methods: ["POST"],
+    pattern: '/catalogue-items/:catalogueCode/archive',
+    tokens: [{"old":"/catalogue-items/:catalogueCode/archive","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/archive","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/archive","type":0,"val":"archive","end":""}],
+    types: placeholder as Registry['catalogue_items.archive']['types'],
+  },
+  'catalogue_items.restore': {
+    methods: ["POST"],
+    pattern: '/catalogue-items/:catalogueCode/restore',
+    tokens: [{"old":"/catalogue-items/:catalogueCode/restore","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/restore","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/restore","type":0,"val":"restore","end":""}],
+    types: placeholder as Registry['catalogue_items.restore']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

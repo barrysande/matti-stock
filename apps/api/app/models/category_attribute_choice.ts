@@ -3,6 +3,7 @@ import { beforeCreate, belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import { CategoryAttributeChoiceSchema } from '#database/schema'
 import CategoryAttribute from '#models/category_attribute'
 import CategoryAttributeChoiceVersion from '#models/category_attribute_choice_version'
+import CatalogueItemAttributeValue from '#models/catalogue_item_attribute_value'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 
 export default class CategoryAttributeChoice extends CategoryAttributeChoiceSchema {
@@ -16,4 +17,7 @@ export default class CategoryAttributeChoice extends CategoryAttributeChoiceSche
 
   @hasMany(() => CategoryAttributeChoiceVersion)
   declare versions: HasMany<typeof CategoryAttributeChoiceVersion>
+
+  @hasMany(() => CatalogueItemAttributeValue, { foreignKey: 'choiceId' })
+  declare catalogueItemValues: HasMany<typeof CatalogueItemAttributeValue>
 }

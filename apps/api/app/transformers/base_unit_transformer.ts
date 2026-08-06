@@ -10,6 +10,7 @@ export default class BaseUnitTransformer extends BaseTransformer<BaseUnit> {
       symbol: this.resource.symbol,
       kind: this.resource.kind,
       precision: Number(this.resource.precision),
+      firstUsedAt: this.resource.firstUsedAt,
       archivedAt: this.resource.archivedAt,
       createdAt: this.resource.createdAt,
       updatedAt: this.resource.updatedAt,

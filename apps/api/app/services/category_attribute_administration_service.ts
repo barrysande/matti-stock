@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import DuplicateException from '#exceptions/duplicate_exception'
 import InvalidCategoryAttributeChangeException from '#exceptions/invalid_category_attribute_change_exception'
 import CatalogueCategory from '#models/catalogue_category'
+import CatalogueItem from '#models/catalogue_item'
 import CategoryAttribute from '#models/category_attribute'
 import CategoryAttributeChoice from '#models/category_attribute_choice'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
@@ -67,8 +68,10 @@ export default class CategoryAttributeAdministrationService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
         const attribute = await this.lockAttribute(trx, attributeId)
         this.assertActive(attribute)
+
         const name = normalizeCategoryAttributeName(data.name)
         const description = resolveCategoryAttributeDescription(data.description)
 
@@ -77,6 +80,7 @@ export default class CategoryAttributeAdministrationService {
         }
 
         await attribute.merge({ name, description }).save()
+
         await this.attributeHistory.appendVersion(
           attribute,
           'DETAILS_UPDATED',
@@ -86,6 +90,7 @@ export default class CategoryAttributeAdministrationService {
           trx,
           now
         )
+
         return attribute
       })
     } catch (error) {
@@ -101,9 +106,12 @@ export default class CategoryAttributeAdministrationService {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
       const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
       const attribute = await this.lockAttribute(trx, attributeId)
       this.assertActive(attribute)
+
       await attribute.merge({ archivedAt: now }).save()
+
       await this.attributeHistory.appendVersion(
         attribute,
         'ARCHIVED',
@@ -113,6 +121,7 @@ export default class CategoryAttributeAdministrationService {
         trx,
         now
       )
+
       return attribute
     })
   }
@@ -122,8 +131,12 @@ export default class CategoryAttributeAdministrationService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
         const attribute = await this.lockAttribute(trx, attributeId)
-        if (!attribute.archivedAt) this.invalid('The category attribute is not archived.')
+        if (!attribute.archivedAt) {
+          this.invalid('The category attribute is not archived.')
+        }
+
         await this.assertActiveCategory(trx, attribute.catalogueCategoryId)
 
         if (attribute.dataType === 'PREDEFINED_CHOICE') {
@@ -133,7 +146,34 @@ export default class CategoryAttributeAdministrationService {
           }
         }
 
-        await attribute.merge({ archivedAt: null }).save()
+        const affectedItemExists = Boolean(
+          await CatalogueItem.query({ client: trx })
+            .where('catalogue_category_id', attribute.catalogueCategoryId)
+            .first()
+        )
+
+        if (attribute.isRequired) {
+          const itemMissingValue = await CatalogueItem.query({ client: trx })
+            .where('catalogue_category_id', attribute.catalogueCategoryId)
+            .whereDoesntHave('attributeValues', (valueQuery) => {
+              valueQuery.where('category_attribute_id', attribute.id)
+            })
+            .first()
+
+          if (itemMissingValue) {
+            this.invalid(
+              'A required catalogue attribute cannot be restored while an affected catalogue item lacks a value.'
+            )
+          }
+        }
+
+        await attribute
+          .merge({
+            archivedAt: null,
+            semanticsLockedAt: attribute.semanticsLockedAt ?? (affectedItemExists ? now : null),
+          })
+          .save()
+
         await this.attributeHistory.appendVersion(
           attribute,
           'RESTORED',
@@ -143,6 +183,7 @@ export default class CategoryAttributeAdministrationService {
           trx,
           now
         )
+
         return attribute
       })
     } catch (error) {

@@ -63,6 +63,15 @@ export default class BaseUnitAdministrationService {
           this.invalid('The base unit already has these details.')
         }
 
+        if (
+          unit.firstUsedAt &&
+          (unit.kind !== details.kind || Number(unit.precision) !== details.precision)
+        ) {
+          this.invalid(
+            'A used base unit may have its name or symbol corrected, but its kind and precision require a controlled conversion.'
+          )
+        }
+
         await unit.merge(details).save()
         await this.history.appendVersion(
           unit,

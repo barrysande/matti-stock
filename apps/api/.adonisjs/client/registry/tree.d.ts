@@ -115,4 +115,17 @@ export interface ApiDefinition {
     archive: typeof routes['category_attribute_choices.archive']
     restore: typeof routes['category_attribute_choices.restore']
   }
+  catalogueItems: {
+    index: typeof routes['catalogue_items.index']
+    lookup: typeof routes['catalogue_items.lookup']
+    creationReview: typeof routes['catalogue_items.creation_review']
+    store: typeof routes['catalogue_items.store']
+    changeReview: typeof routes['catalogue_items.change_review']
+    updateDetails: typeof routes['catalogue_items.update_details']
+    updateClassification: typeof routes['catalogue_items.update_classification']
+    updateAttributeValues: typeof routes['catalogue_items.update_attribute_values']
+    show: typeof routes['catalogue_items.show']
+    archive: typeof routes['catalogue_items.archive']
+    restore: typeof routes['catalogue_items.restore']
+  }
 }

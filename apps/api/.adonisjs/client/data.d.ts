@@ -11,6 +11,10 @@ import type BaseUnitTransformer from '#transformers/base_unit_transformer'
 import type BaseUnitVersionTransformer from '#transformers/base_unit_version_transformer'
 import type CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
 import type CatalogueCategoryVersionTransformer from '#transformers/catalogue_category_version_transformer'
+import type CatalogueItemAttributeValueTransformer from '#transformers/catalogue_item_attribute_value_transformer'
+import type CatalogueItemReviewTransformer from '#transformers/catalogue_item_review_transformer'
+import type CatalogueItemTransformer from '#transformers/catalogue_item_transformer'
+import type CatalogueItemVersionTransformer from '#transformers/catalogue_item_version_transformer'
 import type CategoryAttributeChoiceTransformer from '#transformers/category_attribute_choice_transformer'
 import type CategoryAttributeChoiceVersionTransformer from '#transformers/category_attribute_choice_version_transformer'
 import type CategoryAttributeTransformer from '#transformers/category_attribute_transformer'
@@ -51,6 +55,22 @@ export namespace Data {
   export type CatalogueCategoryVersion = InferData<CatalogueCategoryVersionTransformer>
   export namespace CatalogueCategoryVersion {
     export type Variants = InferVariants<CatalogueCategoryVersionTransformer>
+  }
+  export type CatalogueItemAttributeValue = InferData<CatalogueItemAttributeValueTransformer>
+  export namespace CatalogueItemAttributeValue {
+    export type Variants = InferVariants<CatalogueItemAttributeValueTransformer>
+  }
+  export type CatalogueItemReview = InferData<CatalogueItemReviewTransformer>
+  export namespace CatalogueItemReview {
+    export type Variants = InferVariants<CatalogueItemReviewTransformer>
+  }
+  export type CatalogueItem = InferData<CatalogueItemTransformer>
+  export namespace CatalogueItem {
+    export type Variants = InferVariants<CatalogueItemTransformer>
+  }
+  export type CatalogueItemVersion = InferData<CatalogueItemVersionTransformer>
+  export namespace CatalogueItemVersion {
+    export type Variants = InferVariants<CatalogueItemVersionTransformer>
   }
   export type CategoryAttributeChoice = InferData<CategoryAttributeChoiceTransformer>
   export namespace CategoryAttributeChoice {

@@ -979,4 +979,136 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'catalogue_items.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/catalogue-items'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/catalogue_item').indexCatalogueItemsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.lookup': {
+    methods: ["GET","HEAD"]
+    pattern: '/catalogue-items/lookup'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/catalogue_item').lookupCatalogueItemsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['lookup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['lookup']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.creation_review': {
+    methods: ["POST"]
+    pattern: '/catalogue-items/creation-review'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').reviewCatalogueItemCreationValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').reviewCatalogueItemCreationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['creationReview']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['creationReview']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.store': {
+    methods: ["POST"]
+    pattern: '/catalogue-items'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').createCatalogueItemValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').createCatalogueItemValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.change_review': {
+    methods: ["POST"]
+    pattern: '/catalogue-items/:catalogueCode/change-review'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').reviewCatalogueItemChangeValidator)>>
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').reviewCatalogueItemChangeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['changeReview']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['changeReview']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.update_details': {
+    methods: ["POST"]
+    pattern: '/catalogue-items/:catalogueCode/details'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemDetailsValidator)>>
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemDetailsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateDetails']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateDetails']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.update_classification': {
+    methods: ["POST"]
+    pattern: '/catalogue-items/:catalogueCode/classification'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemClassificationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemClassificationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateClassification']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateClassification']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.update_attribute_values': {
+    methods: ["POST"]
+    pattern: '/catalogue-items/:catalogueCode/attribute-values'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemAttributeValuesValidator)>>
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemAttributeValuesValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateAttributeValues']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateAttributeValues']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/catalogue-items/:catalogueCode'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['show']>>>
+    }
+  }
+  'catalogue_items.archive': {
+    methods: ["POST"]
+    pattern: '/catalogue-items/:catalogueCode/archive'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').administerCatalogueItemValidator)>>
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').administerCatalogueItemValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.restore': {
+    methods: ["POST"]
+    pattern: '/catalogue-items/:catalogueCode/restore'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').restoreCatalogueItemValidator)>>
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').restoreCatalogueItemValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

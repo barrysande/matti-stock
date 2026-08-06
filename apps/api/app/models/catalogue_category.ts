@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { beforeCreate, belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import { CatalogueCategorySchema } from '#database/schema'
 import CatalogueCategoryVersion from '#models/catalogue_category_version'
+import CatalogueItem from '#models/catalogue_item'
 import CategoryAttribute from '#models/category_attribute'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 
@@ -22,4 +23,7 @@ export default class CatalogueCategory extends CatalogueCategorySchema {
 
   @hasMany(() => CategoryAttribute)
   declare attributes: HasMany<typeof CategoryAttribute>
+
+  @hasMany(() => CatalogueItem)
+  declare catalogueItems: HasMany<typeof CatalogueItem>
 }

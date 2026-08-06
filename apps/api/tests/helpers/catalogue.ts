@@ -13,6 +13,10 @@ import RoleAssignment from '#models/role_assignment'
 import RoleVersion from '#models/role_version'
 import RoleVersionPermission from '#models/role_version_permission'
 import UserAccount from '#models/user_account'
+import BaseUnit from '#models/base_unit'
+import CatalogueCategory from '#models/catalogue_category'
+import CatalogueItem from '#models/catalogue_item'
+import { catalogueItemNameKey } from '#utils/catalogue_item'
 
 export function cleanupCatalogueTables() {
   return testUtils.db().truncate()
@@ -149,4 +153,65 @@ export async function createDelegatedCatalogueActor() {
     reason: null,
   })
   return { assignment, delegate, delegation, holder, ...organization }
+}
+
+export async function createCatalogueClassification(label: string) {
+  const category = await CatalogueCategory.create({
+    name: `${label} category`,
+    description: `${label} catalogue classification.`,
+    parentId: null,
+    archivedAt: null,
+  })
+  const baseUnit = await BaseUnit.create({
+    name: `${label} piece`,
+    symbol: `${label.slice(0, 4).toLowerCase()}-pc`,
+    kind: 'COUNTABLE',
+    precision: 0,
+    firstUsedAt: null,
+    archivedAt: null,
+  })
+  return { category, baseUnit }
+}
+
+export async function createCatalogueItem(
+  client: { post(path: string): ApiRequest },
+  account: UserAccount,
+  category: CatalogueCategory,
+  baseUnit: BaseUnit,
+  overrides: Record<string, unknown> = {}
+) {
+  const proposal = {
+    name: 'Wooden Chair — Armless',
+    keywords: ['wooden chair', 'armless'],
+    catalogueCategoryId: category.id,
+    stockType: 'FIXED_NON_CONSUMABLE',
+    ...overrides,
+  }
+  const review = await authenticatedCatalogueRequest(
+    client.post('/catalogue-items/creation-review').json(proposal),
+    account
+  )
+  review.assertStatus(200)
+  const reviewBody = review.body().data as { fingerprint: string; candidates: unknown[] }
+  const response = await authenticatedCatalogueRequest(
+    client.post('/catalogue-items').json({
+      ...proposal,
+      description: 'A shared catalogue definition for interchangeable wooden chairs.',
+      trackingMethod: 'QUANTITY',
+      trackingMethodConfirmed: true,
+      baseUnitId: baseUnit.id,
+      identificationStatus: 'CONFIRMED',
+      attributeValues: [],
+      reviewFingerprint: reviewBody.fingerprint,
+      confirmedNotInterchangeable: reviewBody.candidates.length ? true : undefined,
+      similarityReason: reviewBody.candidates.length
+        ? 'The reviewed item has a materially different specification.'
+        : undefined,
+      reason: 'Create catalogue definition',
+      ...overrides,
+    }),
+    account
+  )
+  response.assertStatus(201)
+  return CatalogueItem.findByOrFail('normalizedName', catalogueItemNameKey(String(proposal.name)))
 }

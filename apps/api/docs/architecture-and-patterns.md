@@ -1096,3 +1096,64 @@ direction: show one resource, find its detailed data, and serialize its detailed
 view. Keeping Adonis's resourceful `show` action while making the collaborating
 method names explicit removes mental translation without coupling directory
 queries to HTTP action names or changing response contracts.
+
+## D38 — Catalogue items combine strict identity with reviewable similarity and typed history
+
+**Decision.** Catalogue items use a small current projection identified publicly
+by a PostgreSQL-sequence-generated `ITEM-000001` code. The database owns the
+bounded, non-cycling sequence, exact format and uniqueness constraints, and a
+trigger that rejects code updates. Database UUIDs remain internal. A separate
+normalized name is permanently unique across active and archived items; exact
+duplicates are conflicts, while near matches use a reasoned similarity review.
+
+Similarity review uses normalized current names and relational keywords with
+exact, keyword, prefix, and substring matching. Exact-category agreement raises
+ranking but is not itself a candidate. Creation and identity-affecting changes
+recompute the reviewed candidates beneath one PostgreSQL-backed atomic lock. A
+SHA-256 fingerprint over the proposal and candidate codes, match kinds, and
+current update times makes a stale review fail closed. Reviewed candidates and
+the confirmation reason attach to the resulting catalogue-item version.
+
+Catalogue keywords are ordered current projections with a normalized unique
+key per item. Catalogue values use one generic relational projection with
+mutually exclusive text, exact numeric, date, yes/no, and predefined-choice
+columns. Database checks enforce the active type shape, and a composite foreign
+key proves that a selected choice belongs to its attribute. Complete keyword
+and value snapshots attach relationally to each effective-dated item version;
+the current child projections may therefore be replaced without losing domain
+history.
+
+Catalogue-item transactions lock and revalidate exact institute-root
+`catalogue.manage` evidence, the affected item when present, applicable
+catalogue-scoped attributes in UUID order, selected choices, the category, the
+base unit, and current child projections. Attribute applicability is reread
+after the category lock so a concurrent definition change aborts rather than
+silently changing required input. The transaction marks every active exact-
+category catalogue definition as semantically used even when an optional value
+is omitted, marks selected choices on first use, and marks a base unit on its
+first catalogue reference.
+
+`inventory_semantics_locked_at` is deliberately specific: it does not freeze
+the catalogue item. Week 4's first holding transaction will set the monotonic
+projection while holding the same item row lock. Name, description, keywords,
+identification status, category, and compatible attribute corrections remain
+reasoned and versioned. Only stock type, tracking method, and base unit leave
+ordinary editing after first holding use and require a workflow that reconciles
+affected holdings. Slice 4 creates no placeholder holding model or mutation
+that sets this future marker.
+
+Catalogue capture is description-first. No attributes are seeded or inferred;
+an exact category may have none. A new optional definition introduced after
+items exist locks immediately. A required definition cannot be introduced or
+restored over incomplete existing items without controlled backfill. This keeps
+the generic typed capability available without turning initial catalogue entry
+into technical product-data collection.
+
+**Why.** Permanent codes and strict normalized names prevent the same
+interchangeable definition from fragmenting routine counts, while review catches
+near duplicates that a unique index cannot recognize. Relational typed values
+provide constraints only where the institute deliberately defines a field, and
+complete snapshots preserve corrections without JSON interpretation. The
+shared lock order and monotonic use markers protect meaning under concurrent
+catalogue administration and future intake without prematurely implementing
+Week 4 records.
