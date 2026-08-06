@@ -44,8 +44,8 @@ export default class BaseUnitsController {
 
   async show({ params, serialize, bouncer }: HttpContext) {
     await bouncer.with(BaseUnitPolicy).authorize('view')
-    const unit = await this.directory.overview(params.id)
-    return serialize(BaseUnitTransformer.transform(unit).useVariant('forOverview'))
+    const unit = await this.directory.findDetails(params.id)
+    return serialize(BaseUnitTransformer.transform(unit).useVariant('forDetailedView'))
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

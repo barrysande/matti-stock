@@ -81,7 +81,7 @@ export default class OrganizationalUnitDirectoryService {
   }
 
   /** Loads one unit together with its complete effective-dated structural history. */
-  async overview(unitId: string) {
+  async findDetails(unitId: string) {
     const [unit, allUnits] = await Promise.all([
       this.detailQuery().where('id', unitId).firstOrFail(),
       this.summaryQuery().orderBy('id', 'asc'),

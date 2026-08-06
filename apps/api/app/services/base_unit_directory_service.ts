@@ -32,7 +32,7 @@ export default class BaseUnitDirectoryService {
   }
 
   /** Loads one active or archived unit with complete effective-dated history. */
-  overview(unitId: string) {
+  findDetails(unitId: string) {
     return this.detailQuery().where('id', unitId).firstOrFail()
   }
 }

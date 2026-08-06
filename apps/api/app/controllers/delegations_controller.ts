@@ -46,8 +46,8 @@ export default class DelegationsController {
 
   async show({ params, serialize, auth }: HttpContext) {
     const actor = auth.getUserOrFail()
-    const delegation = await this.directory.overview(params.id, actor.id)
-    return serialize(DelegationTransformer.transform(delegation).useVariant('forOverview'))
+    const delegation = await this.directory.findDetails(params.id, actor.id)
+    return serialize(DelegationTransformer.transform(delegation).useVariant('forDetailedView'))
   }
 
   async proposalOptions({ request, serialize, auth }: HttpContext) {

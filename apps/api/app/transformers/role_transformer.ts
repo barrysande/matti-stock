@@ -35,7 +35,7 @@ export default class RoleTransformer extends BaseTransformer<Role> {
     }
   }
 
-  forOverview() {
+  forDetailedView() {
     return {
       ...this.toObject(),
       versions: RoleVersionTransformer.transform(this.resource.versions),

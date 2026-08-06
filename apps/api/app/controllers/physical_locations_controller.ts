@@ -72,8 +72,8 @@ export default class PhysicalLocationsController {
   async show({ params, serialize, bouncer }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('view')
 
-    const location = await this.directory.overview(params.id)
-    return serialize(PhysicalLocationTransformer.transform(location).useVariant('forOverview'))
+    const location = await this.directory.findDetails(params.id)
+    return serialize(PhysicalLocationTransformer.transform(location).useVariant('forDetailedView'))
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

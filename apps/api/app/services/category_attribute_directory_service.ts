@@ -53,7 +53,7 @@ export default class CategoryAttributeDirectoryService {
     return query
   }
 
-  overview(attributeId: string) {
+  findDetails(attributeId: string) {
     return this.detailQuery().where('id', attributeId).firstOrFail()
   }
 }

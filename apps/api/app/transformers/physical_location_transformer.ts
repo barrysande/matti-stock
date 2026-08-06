@@ -15,7 +15,7 @@ export default class PhysicalLocationTransformer extends BaseTransformer<Physica
     }
   }
 
-  forOverview() {
+  forDetailedView() {
     return {
       ...this.toObject(),
       versions: PhysicalLocationVersionTransformer.transform(

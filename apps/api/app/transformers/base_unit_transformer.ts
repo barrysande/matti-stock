@@ -16,7 +16,7 @@ export default class BaseUnitTransformer extends BaseTransformer<BaseUnit> {
     }
   }
 
-  forOverview() {
+  forDetailedView() {
     return {
       ...this.toObject(),
       versions: BaseUnitVersionTransformer.transform(this.whenLoaded(this.resource.versions)),

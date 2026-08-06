@@ -360,7 +360,7 @@ the focused resolver keeps policy and transaction semantics from drifting.
 Post-commit delivery keeps email availability outside the database
 transaction and preserves a committed reactivation when queue dispatch fails.
 
-## D19 — Account reads use a safe directory and current-access overview
+## D19 — Account reads use a safe directory and detailed current access
 
 **Decision.** Authenticated account reads are exposed through `GET /accounts`
 and `GET /accounts/:id`. The controller authorizes `AccessPolicy.list` or
@@ -374,7 +374,7 @@ filters. Setup status is derived from official-email verification, matching the
 password-setup convention established for account writes.
 
 Account Transformers expose only the person and account fields required by the
-directory. The overview adds role assignments whose time range is current and
+directory. The detail response adds role assignments whose time range is current and
 whose role and organizational scope are not archived. Each assignment includes
 its versioned role identity, scope, dates, and reason. Account credentials,
 credential versions, password-challenge data, and request audit context are not
@@ -1078,3 +1078,21 @@ on the first affected target protects optional definitions whose value was
 omitted as well as definitions with recorded values. Deferring concrete value
 integration to its real consumers avoids speculative models while leaving an
 explicit database and lock-order contract for Slice 4 and Week 4.
+
+## D37 — Detail-read names follow the responsibility of each layer
+
+**Decision.** A conventional resource detail request uses the resourceful
+controller action `show`, a directory-service method named `findDetails`, and a
+transformer variant named `forDetailedView`. This naming applies consistently
+to accounts, organizational units, physical locations, roles, role assignments,
+delegations, catalogue categories, base units, and category attributes.
+
+The word “overview” remains valid only when it names an actual summarized
+domain concept, such as an account's nested access overview. It is not used as
+a generic substitute for a resource detail query or representation.
+
+**Why.** The controller, service, and transformer now read in the same natural
+direction: show one resource, find its detailed data, and serialize its detailed
+view. Keeping Adonis's resourceful `show` action while making the collaborating
+method names explicit removes mental translation without coupling directory
+queries to HTTP action names or changing response contracts.

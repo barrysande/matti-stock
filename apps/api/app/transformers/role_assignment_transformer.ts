@@ -76,7 +76,7 @@ export default class RoleAssignmentTransformer extends BaseTransformer<RoleAssig
     return roleAssignmentSummary(this.resource)
   }
 
-  forOverview() {
+  forDetailedView() {
     return roleAssignmentOverview(this.resource)
   }
 }

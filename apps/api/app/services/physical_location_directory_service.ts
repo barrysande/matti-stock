@@ -76,7 +76,7 @@ export default class PhysicalLocationDirectoryService {
   }
 
   /** Loads one physical location with its complete effective-dated structural history. */
-  async overview(locationId: string) {
+  async findDetails(locationId: string) {
     const [location, hierarchy] = await Promise.all([
       this.detailQuery().where('id', locationId).firstOrFail(),
       this.summaryQuery().orderBy('id', 'asc'),

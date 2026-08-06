@@ -104,7 +104,7 @@ export default class DelegationTransformer extends BaseTransformer<Delegation> {
     return delegationSummary(this.resource)
   }
 
-  forOverview() {
+  forDetailedView() {
     return delegationOverview(this.resource)
   }
 }

@@ -237,7 +237,7 @@ export default class DelegationDirectoryService {
   }
 
   /** Loads one delegation only for its participants or effective access.root oversight. */
-  async overview(delegationId: string, actorAccountId: string, now: DateTime = DateTime.now()) {
+  async findDetails(delegationId: string, actorAccountId: string, now: DateTime = DateTime.now()) {
     const root = await this.rootAuthority.isEffective(actorAccountId, undefined, now)
     const query = this.detailQuery().where('id', delegationId)
     if (!root) this.participantScope(query, actorAccountId)

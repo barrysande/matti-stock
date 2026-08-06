@@ -21,7 +21,7 @@ export default class AccountTransformer extends BaseTransformer<UserAccount> {
     }
   }
 
-  forOverview() {
+  forDetailedView() {
     const delegations = this.resource.$extras.delegations as
       { incoming: Delegation[]; outgoing: Delegation[] } | undefined
     return {

@@ -55,8 +55,10 @@ export default class CategoryAttributesController {
 
   async show({ params, serialize, bouncer }: HttpContext) {
     await bouncer.with(CategoryAttributePolicy).authorize('view')
-    const attribute = await this.directory.overview(params.id)
-    return serialize(CategoryAttributeTransformer.transform(attribute).useVariant('forOverview'))
+    const attribute = await this.directory.findDetails(params.id)
+    return serialize(
+      CategoryAttributeTransformer.transform(attribute).useVariant('forDetailedView')
+    )
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

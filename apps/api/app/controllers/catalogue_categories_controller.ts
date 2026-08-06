@@ -53,8 +53,8 @@ export default class CatalogueCategoriesController {
 
   async show({ params, serialize, bouncer }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('view')
-    const category = await this.directory.overview(params.id)
-    return serialize(CatalogueCategoryTransformer.transform(category).useVariant('forOverview'))
+    const category = await this.directory.findDetails(params.id)
+    return serialize(CatalogueCategoryTransformer.transform(category).useVariant('forDetailedView'))
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

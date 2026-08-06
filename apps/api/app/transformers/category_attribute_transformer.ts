@@ -24,7 +24,7 @@ export default class CategoryAttributeTransformer extends BaseTransformer<Catego
     }
   }
 
-  forOverview() {
+  forDetailedView() {
     return {
       ...this.toObject(),
       choices: CategoryAttributeChoiceTransformer.transform(

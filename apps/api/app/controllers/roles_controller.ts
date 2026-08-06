@@ -71,8 +71,8 @@ export default class RolesController {
   async show({ params, serialize, bouncer }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('view')
 
-    const role = await this.directory.overview(params.id)
-    return serialize(RoleTransformer.transform(role).useVariant('forOverview'))
+    const role = await this.directory.findDetails(params.id)
+    return serialize(RoleTransformer.transform(role).useVariant('forDetailedView'))
   }
 
   async archive({ params, request, response, auth, bouncer }: HttpContext) {

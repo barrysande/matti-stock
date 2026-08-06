@@ -103,30 +103,30 @@ function authenticatedRequest(request: ApiRequest, account: UserAccount) {
     .withSession({ 'auth.credentialVersion': Number(account.credentialVersion) })
 }
 
-test.group('Accounts directory and access overview', (group) => {
+test.group('Accounts directory and details', (group) => {
   group.each.setup(cleanupAccessTables)
 
-  test('rejects anonymous directory and overview requests', async ({ client }) => {
+  test('rejects anonymous directory and detail requests', async ({ client }) => {
     const accountId = randomUUID()
 
     const directory = await client.get('/accounts')
-    const overview = await client.get(`/accounts/${accountId}`)
+    const details = await client.get(`/accounts/${accountId}`)
 
     directory.assertStatus(401)
-    overview.assertStatus(401)
+    details.assertStatus(401)
   })
 
-  test('denies directory and overview access without access.root', async ({ client }) => {
+  test('denies directory and detail access without access.root', async ({ client }) => {
     const { account } = await createAccount({
       displayName: 'Ordinary Account',
       email: 'ordinary@example.com',
     })
 
     const directory = await authenticatedRequest(client.get('/accounts'), account)
-    const overview = await authenticatedRequest(client.get(`/accounts/${account.id}`), account)
+    const details = await authenticatedRequest(client.get(`/accounts/${account.id}`), account)
 
     directory.assertStatus(403)
-    overview.assertStatus(403)
+    details.assertStatus(403)
   })
 
   test('returns a safe, alphabetically ordered paginated directory', async ({ client, assert }) => {
@@ -219,7 +219,7 @@ test.group('Accounts directory and access overview', (group) => {
     response.assertStatus(422)
   })
 
-  test('returns current role assignments and scopes in the account overview', async ({
+  test('returns current role assignments and scopes in the account details', async ({
     client,
     assert,
   }) => {
@@ -302,11 +302,11 @@ test.group('Accounts directory and access overview', (group) => {
     const response = await authenticatedRequest(client.get(`/accounts/${target.id}`), actor)
 
     response.assertStatus(200)
-    const overview = response.body().data
-    assert.equal(overview.id, target.id)
-    assert.equal(overview.setupStatus, 'COMPLETE')
-    assert.lengthOf(overview.roleAssignments, 4)
-    const current = overview.roleAssignments.find(
+    const details = response.body().data
+    assert.equal(details.id, target.id)
+    assert.equal(details.setupStatus, 'COMPLETE')
+    assert.lengthOf(details.roleAssignments, 4)
+    const current = details.roleAssignments.find(
       ({ id }: { id: string }) => id === currentAssignment.id
     )
     assert.deepInclude(current, {
@@ -331,26 +331,26 @@ test.group('Accounts directory and access overview', (group) => {
       status: 'ACTIVE',
       effectiveNow: true,
     })
-    const future = overview.roleAssignments.find(
+    const future = details.roleAssignments.find(
       ({ reason }: { reason: string }) => reason === 'Future assignment'
     )
     assert.equal(future.status, 'UPCOMING')
     assert.include(future.ineffectiveReasons, 'NOT_STARTED')
-    const archivedRoleGrant = overview.roleAssignments.find(
+    const archivedRoleGrant = details.roleAssignments.find(
       ({ reason }: { reason: string }) => reason === 'Archived role assignment'
     )
     assert.include(archivedRoleGrant.ineffectiveReasons, 'ROLE_ARCHIVED')
-    const archivedScopeGrant = overview.roleAssignments.find(
+    const archivedScopeGrant = details.roleAssignments.find(
       ({ reason }: { reason: string }) => reason === 'Archived scope assignment'
     )
     assert.include(archivedScopeGrant.ineffectiveReasons, 'SCOPE_ARCHIVED')
-    assert.notProperty(overview, 'password')
-    assert.notProperty(overview, 'credentialVersion')
-    assert.notProperty(overview, 'passwordResetVersion')
-    assert.deepEqual(overview.delegations, { incoming: [], outgoing: [] })
+    assert.notProperty(details, 'password')
+    assert.notProperty(details, 'credentialVersion')
+    assert.notProperty(details, 'passwordResetVersion')
+    assert.deepEqual(details.delegations, { incoming: [], outgoing: [] })
   })
 
-  test('returns not found for an unknown account overview', async ({ client }) => {
+  test('returns not found for unknown account details', async ({ client }) => {
     const { account: actor } = await createRootActor()
     const response = await authenticatedRequest(client.get(`/accounts/${randomUUID()}`), actor)
 

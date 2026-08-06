@@ -17,7 +17,7 @@ export default class CatalogueCategoryTransformer extends BaseTransformer<Catalo
     }
   }
 
-  forOverview() {
+  forDetailedView() {
     return {
       ...this.toObject(),
       versions: CatalogueCategoryVersionTransformer.transform(

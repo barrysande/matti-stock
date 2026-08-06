@@ -53,7 +53,7 @@ export default class RoleDirectoryService {
   }
 
   /** Loads one role with complete permission-version history and assignment usage counts. */
-  overview(roleId: string) {
+  findDetails(roleId: string) {
     return this.detailQuery().where('id', roleId).firstOrFail()
   }
 }

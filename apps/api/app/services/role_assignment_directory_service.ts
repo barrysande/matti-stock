@@ -128,7 +128,7 @@ export default class RoleAssignmentDirectoryService {
   }
 
   /** Loads one assignment with its immutable role, scope, grant, and termination context. */
-  async overview(assignmentId: string, now: DateTime = DateTime.now()) {
+  async findDetails(assignmentId: string, now: DateTime = DateTime.now()) {
     const assignment = await this.detailQuery().where('id', assignmentId).firstOrFail()
     await this.decorateDetail([assignment], now)
     return assignment

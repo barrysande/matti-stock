@@ -16,7 +16,7 @@ export default class OrganizationalUnitTransformer extends BaseTransformer<Organ
     }
   }
 
-  forOverview() {
+  forDetailedView() {
     return {
       ...this.toObject(),
       versions: OrganizationalUnitVersionTransformer.transform(

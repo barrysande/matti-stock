@@ -106,28 +106,28 @@ function authenticatedRequest(request: ApiRequest, account: UserAccount) {
 test.group('Organizational units directory', (group) => {
   group.each.setup(cleanupAccessTables)
 
-  test('rejects anonymous directory and overview requests', async ({ client }) => {
+  test('rejects anonymous directory and detail requests', async ({ client }) => {
     const unitId = randomUUID()
 
     const directory = await client.get('/organizational-units')
-    const overview = await client.get(`/organizational-units/${unitId}`)
+    const details = await client.get(`/organizational-units/${unitId}`)
 
     directory.assertStatus(401)
-    overview.assertStatus(401)
+    details.assertStatus(401)
   })
 
-  test('denies directory and overview access without access.root', async ({ client }) => {
+  test('denies directory and detail access without access.root', async ({ client }) => {
     const account = await createAccount('ordinary.directory@example.com', 'Ordinary Directory')
     const unitId = randomUUID()
 
     const directory = await authenticatedRequest(client.get('/organizational-units'), account)
-    const overview = await authenticatedRequest(
+    const details = await authenticatedRequest(
       client.get(`/organizational-units/${unitId}`),
       account
     )
 
     directory.assertStatus(403)
-    overview.assertStatus(403)
+    details.assertStatus(403)
   })
 
   test('returns safe path-ordered active hierarchy data and supports filters', async ({
@@ -203,7 +203,7 @@ test.group('Organizational units directory', (group) => {
     )
   })
 
-  test('returns effective-dated structural history in the unit overview', async ({
+  test('returns effective-dated structural history in the unit details', async ({
     client,
     assert,
   }) => {

@@ -69,7 +69,7 @@ export default class CatalogueCategoryDirectoryService {
   }
 
   /** Loads one active or archived category with complete effective-dated history. */
-  async overview(categoryId: string) {
+  async findDetails(categoryId: string) {
     const [category, hierarchy] = await Promise.all([
       this.detailQuery().where('id', categoryId).firstOrFail(),
       this.summaryQuery().orderBy('id', 'asc'),

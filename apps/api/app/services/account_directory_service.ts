@@ -92,7 +92,7 @@ export default class AccountDirectoryService {
   }
 
   /** Loads one account with its active and upcoming assignment access overview. */
-  async overview(accountId: string, now: DateTime = DateTime.now()) {
+  async findDetails(accountId: string, now: DateTime = DateTime.now()) {
     const account = await this.detailQuery().where('id', accountId).firstOrFail()
 
     const openAssignments = account.roleAssignments.filter((assignment) =>

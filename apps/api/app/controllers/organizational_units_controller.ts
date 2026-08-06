@@ -75,8 +75,8 @@ export default class OrganizationalUnitsController {
   async show({ params, serialize, bouncer }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('view')
 
-    const unit = await this.directory.overview(params.id)
-    return serialize(OrganizationalUnitTransformer.transform(unit).useVariant('forOverview'))
+    const unit = await this.directory.findDetails(params.id)
+    return serialize(OrganizationalUnitTransformer.transform(unit).useVariant('forDetailedView'))
   }
 
   async accessImpact({ params, request, bouncer }: HttpContext) {

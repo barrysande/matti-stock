@@ -97,9 +97,9 @@ export default class AccountsController {
   async show({ params, serialize, bouncer }: HttpContext) {
     await bouncer.with(AccessPolicy).authorize('view')
 
-    const account = await this.accountDirectory.overview(params.id)
+    const account = await this.accountDirectory.findDetails(params.id)
 
-    return serialize(AccountTransformer.transform(account).useVariant('forOverview'))
+    return serialize(AccountTransformer.transform(account).useVariant('forDetailedView'))
   }
 
   async suspend({ params, request, response, auth, bouncer }: HttpContext) {
