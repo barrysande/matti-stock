@@ -9,6 +9,7 @@ import type { Infer } from '@vinejs/vine/types'
 
 const ITEMS_PER_PAGE = 25
 const LOOKUP_LIMIT = 20
+
 type ListData = Infer<typeof indexCatalogueItemsValidator>
 type LookupData = Infer<typeof lookupCatalogueItemsValidator>
 

@@ -42,6 +42,7 @@ export default class AuthenticationService {
         identifierFingerprint: this.accessEvents.fingerprintIdentifier(data.email),
         request,
       })
+
       return { kind: 'INVALID_CREDENTIALS' }
     }
 
@@ -54,6 +55,7 @@ export default class AuthenticationService {
         request,
         metadata: { status: verifiedAccount.status },
       })
+
       return { kind: 'ACCOUNT_SIGN_IN_UNAVAILABLE' }
     }
 
@@ -76,6 +78,7 @@ export default class AuthenticationService {
           },
           trx
         )
+
         return { kind: 'ACCOUNT_SIGN_IN_UNAVAILABLE' }
       }
 
@@ -135,6 +138,7 @@ export default class AuthenticationService {
           },
           trx
         )
+
         return false
       }
 
@@ -171,6 +175,7 @@ export default class AuthenticationService {
   async currentAccount(account: UserAccount) {
     await account.load('person')
     const grants = await this.effectiveAccess.grantsAcrossScopesForAccount(account.id)
+
     return { account, person: account.person, grants }
   }
 }

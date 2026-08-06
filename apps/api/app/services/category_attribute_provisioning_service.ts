@@ -48,8 +48,10 @@ export default class CategoryAttributeProvisioningService {
     if (data.dataType !== 'PREDEFINED_CHOICE') {
       if (data.choices)
         this.invalid('Choices may only be supplied for a predefined-choice attribute.')
+
       return []
     }
+
     if (!data.choices?.length) {
       this.invalid('A predefined-choice attribute requires at least one active choice.')
     }
@@ -57,6 +59,7 @@ export default class CategoryAttributeProvisioningService {
     const labels = data.choices.map((choice) => normalizeCategoryAttributeChoiceLabel(choice.label))
 
     const keys = labels.map((label) => label.toLowerCase())
+
     if (new Set(keys).size !== keys.length) {
       this.invalidChoice('Predefined-choice labels must be unique within the attribute.')
     }
@@ -152,6 +155,7 @@ export default class CategoryAttributeProvisioningService {
           'An active category attribute with this name already exists in the selected category.'
         )
       }
+
       DuplicateException.throwIf(
         error,
         'An active predefined choice already uses this label or position.',

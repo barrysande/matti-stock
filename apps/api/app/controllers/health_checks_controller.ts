@@ -14,6 +14,7 @@ export default class HealthChecksController {
    */
   async ready({ response }: HttpContext) {
     const report = await healthChecks.run()
+
     if (report.isHealthy) {
       return response.ok(report)
     }

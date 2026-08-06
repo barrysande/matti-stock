@@ -43,12 +43,15 @@ export default class CategoryAttributeChoiceAdministrationService {
       .where('id', attributeId)
       .forUpdate()
       .firstOrFail()
+
     if (attribute.archivedAt) {
       this.invalid('An archived category attribute must be restored before its choices can change.')
     }
+
     if (attribute.dataType !== 'PREDEFINED_CHOICE') {
       this.invalid('Only a predefined-choice attribute may own choices.')
     }
+
     return attribute
   }
 
@@ -61,7 +64,9 @@ export default class CategoryAttributeChoiceAdministrationService {
 
   private choiceFrom(choices: CategoryAttributeChoice[], choiceId: string) {
     const choice = choices.find((candidate) => candidate.id === choiceId)
+
     if (!choice) this.invalid('The choice does not belong to the selected category attribute.')
+
     return choice
   }
 
@@ -78,6 +83,7 @@ export default class CategoryAttributeChoiceAdministrationService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
         await this.lockAttribute(trx, attributeId)
         const choices = await this.lockChoices(trx, attributeId)
         const displayOrder = Math.max(0, ...choices.map((choice) => choice.displayOrder ?? 0)) + 1
@@ -91,6 +97,7 @@ export default class CategoryAttributeChoiceAdministrationService {
           },
           { client: trx }
         )
+
         await this.history.createInitialVersion(
           choice,
           data.reason,
@@ -99,6 +106,7 @@ export default class CategoryAttributeChoiceAdministrationService {
           trx,
           now
         )
+
         return choice
       })
     } catch (error) {
@@ -116,12 +124,15 @@ export default class CategoryAttributeChoiceAdministrationService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
         await this.lockAttribute(trx, attributeId)
         const choice = this.choiceFrom(await this.lockChoices(trx, attributeId), choiceId)
+
         if (choice.archivedAt)
           this.invalid('An archived choice must be restored before it can change.')
         if (choice.firstUsedAt) this.invalid('A used choice label requires a controlled migration.')
         const label = normalizeCategoryAttributeChoiceLabel(data.label)
+
         if (choice.label === label) this.invalid('The predefined choice already has this label.')
 
         await choice.merge({ label }).save()
@@ -134,6 +145,7 @@ export default class CategoryAttributeChoiceAdministrationService {
           trx,
           now
         )
+
         return choice
       })
     } catch (error) {
@@ -145,10 +157,12 @@ export default class CategoryAttributeChoiceAdministrationService {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
       const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
       await this.lockAttribute(trx, attributeId)
       const choices = await this.lockChoices(trx, attributeId)
       const active = choices.filter((choice) => !choice.archivedAt)
       const submitted = new Set(data.choiceIds)
+
       if (
         submitted.size !== data.choiceIds.length ||
         active.length !== data.choiceIds.length ||
@@ -161,15 +175,19 @@ export default class CategoryAttributeChoiceAdministrationService {
         .slice()
         .sort((left, right) => Number(left.displayOrder) - Number(right.displayOrder))
         .every((choice, index) => choice.id === data.choiceIds[index])
+
       if (alreadyOrdered) this.invalid('The predefined choices already use this order.')
 
       const offset =
         Math.max(0, ...active.map((choice) => Number(choice.displayOrder))) + active.length
+
       for (const choice of active) {
         await choice.merge({ displayOrder: Number(choice.displayOrder) + offset }).save()
       }
+
       for (const [index, choiceId] of data.choiceIds.entries()) {
         const choice = this.choiceFrom(active, choiceId)
+
         await choice.merge({ displayOrder: index + 1 }).save()
         await this.history.appendVersion(
           choice,
@@ -181,6 +199,7 @@ export default class CategoryAttributeChoiceAdministrationService {
           now
         )
       }
+
       return active
     })
   }
@@ -194,12 +213,15 @@ export default class CategoryAttributeChoiceAdministrationService {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
       const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
       await this.lockAttribute(trx, attributeId)
       const choices = await this.lockChoices(trx, attributeId)
       const choice = this.choiceFrom(choices, choiceId)
+
       if (choice.archivedAt) this.invalid('The predefined choice is already archived.')
       if (choice.firstUsedAt)
         this.invalid('A used predefined choice requires a controlled migration.')
+
       if (choices.filter((candidate) => !candidate.archivedAt).length === 1) {
         this.invalid('An active predefined-choice attribute requires at least one active choice.')
       }
@@ -214,6 +236,7 @@ export default class CategoryAttributeChoiceAdministrationService {
         trx,
         now
       )
+
       return choice
     })
   }
@@ -228,9 +251,11 @@ export default class CategoryAttributeChoiceAdministrationService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
+
         await this.lockAttribute(trx, attributeId)
         const choices = await this.lockChoices(trx, attributeId)
         const choice = this.choiceFrom(choices, choiceId)
+
         if (!choice.archivedAt) this.invalid('The predefined choice is not archived.')
         const displayOrder =
           Math.max(0, ...choices.map((candidate) => candidate.displayOrder ?? 0)) + 1
@@ -245,6 +270,7 @@ export default class CategoryAttributeChoiceAdministrationService {
           trx,
           now
         )
+
         return choice
       })
     } catch (error) {

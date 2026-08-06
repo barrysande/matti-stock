@@ -21,11 +21,13 @@ export default class PhysicalLocationsController {
     private provisioning: PhysicalLocationProvisioningService
   ) {}
 
-  async store({ request, response, auth, bouncer }: HttpContext) {
+  async store({ auth, bouncer, request, response }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('create')
 
     const payload = await request.validateUsing(createPhysicalLocationValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.provisioning.create(payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -34,11 +36,13 @@ export default class PhysicalLocationsController {
     return response.created({ message: 'Physical location created.' })
   }
 
-  async rename({ params, request, response, auth, bouncer }: HttpContext) {
+  async rename({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('rename')
 
     const payload = await request.validateUsing(renamePhysicalLocationValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.rename(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -47,11 +51,13 @@ export default class PhysicalLocationsController {
     return response.ok({ message: 'Physical location renamed.' })
   }
 
-  async reparent({ params, request, response, auth, bouncer }: HttpContext) {
+  async reparent({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('reparent')
 
     const payload = await request.validateUsing(reparentPhysicalLocationValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.reparent(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -60,27 +66,31 @@ export default class PhysicalLocationsController {
     return response.ok({ message: 'Physical location moved.' })
   }
 
-  async index({ request, serialize, bouncer }: HttpContext) {
+  async index({ bouncer, request, serialize }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('list')
 
     const filters = await request.validateUsing(indexPhysicalLocationsValidator)
+
     const locations = await this.directory.list(filters)
 
     return serialize(PhysicalLocationTransformer.transform(locations))
   }
 
-  async show({ params, serialize, bouncer }: HttpContext) {
+  async show({ bouncer, params, serialize }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('view')
 
     const location = await this.directory.findDetails(params.id)
+
     return serialize(PhysicalLocationTransformer.transform(location).useVariant('forDetailedView'))
   }
 
-  async archive({ params, request, response, auth, bouncer }: HttpContext) {
+  async archive({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('archive')
 
     const payload = await request.validateUsing(administerPhysicalLocationValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.archive(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -89,11 +99,13 @@ export default class PhysicalLocationsController {
     return response.ok({ message: 'Physical location archived.' })
   }
 
-  async restore({ params, request, response, auth, bouncer }: HttpContext) {
+  async restore({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(PhysicalLocationPolicy).authorize('restore')
 
     const payload = await request.validateUsing(administerPhysicalLocationValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.restore(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),

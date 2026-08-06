@@ -125,9 +125,11 @@ export default class RoleAssignmentAdministrationService {
       const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
       const authority = await this.rootAuthority.assertEffectiveActor(actor, trx, now)
       const assignment = await this.lockAssignment(trx, assignmentId)
+
       this.assertOpen(assignment)
 
       const state = this.assignmentLifecycle.state(assignment, now)
+
       if (state.status !== expectedStatus) {
         this.invalid(
           expectedStatus === 'ACTIVE'
@@ -144,6 +146,7 @@ export default class RoleAssignmentAdministrationService {
         data.reason,
         trx
       )
+
       await this.rootAuthority.assertContinuousCoverage(trx, now)
       await this.recordTermination(
         assignment,
@@ -155,6 +158,7 @@ export default class RoleAssignmentAdministrationService {
         request,
         trx
       )
+
       return termination
     })
   }
@@ -171,9 +175,11 @@ export default class RoleAssignmentAdministrationService {
       const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
       const authority = await this.rootAuthority.assertEffectiveActor(actor, trx, now)
       const assignment = await this.lockAssignment(trx, assignmentId)
+
       this.assertOpen(assignment)
 
       const state = this.assignmentLifecycle.state(assignment, now)
+
       if (!['ACTIVE', 'UPCOMING'].includes(state.status)) {
         this.invalid('Only an active or upcoming assignment may be replaced.')
       }
@@ -186,6 +192,7 @@ export default class RoleAssignmentAdministrationService {
         request,
         { excludedAssignmentId: assignment.id, recordEvent: false }
       )
+
       if (assignment.expiresAt && replacement.startsAt >= assignment.expiresAt) {
         this.invalid('A replacement must start before the assignment it replaces expires.')
       }

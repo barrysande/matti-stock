@@ -12,8 +12,9 @@ export default class SessionsController {
     private accessEvents: AccessEventService
   ) {}
 
-  async login({ request, response, auth, session }: HttpContext) {
+  async login({ auth, request, response, session }: HttpContext) {
     const payload = await request.validateUsing(loginValidator)
+
     const verification = await this.authentication.verifyCredentials(payload, {
       ip: request.ip(),
       requestId: request.id(),
@@ -34,15 +35,18 @@ export default class SessionsController {
     }
 
     const account = verification.account
+
     await auth.use('web').login(account)
     session.put('auth.credentialVersion', Number(account.credentialVersion))
 
     return response.ok({ message: 'Login successful.' })
   }
 
-  async changePassword({ request, response, auth }: HttpContext) {
+  async changePassword({ auth, request, response }: HttpContext) {
     const payload = await request.validateUsing(changePasswordValidator)
+
     const account = auth.getUserOrFail()
+
     const changed = await this.authentication.changePassword(account.id, payload, {
       ip: request.ip(),
       requestId: request.id(),
@@ -56,6 +60,7 @@ export default class SessionsController {
     }
 
     await auth.use('web').logout()
+
     return response.ok({
       message: 'Password changed. Sign in again with the new password.',
     })
@@ -63,11 +68,13 @@ export default class SessionsController {
 
   async me({ auth, serialize }: HttpContext) {
     const resource = await this.authentication.currentAccount(auth.getUserOrFail())
+
     return serialize(CurrentAccountTransformer.transform(resource))
   }
 
-  async logout({ request, response, auth }: HttpContext) {
+  async logout({ auth, request, response }: HttpContext) {
     const account = auth.getUserOrFail()
+
     await auth.use('web').logout()
     await this.accessEvents.record({
       eventType: 'LOGOUT_COMPLETED',

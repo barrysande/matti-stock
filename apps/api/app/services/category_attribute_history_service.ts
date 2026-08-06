@@ -75,6 +75,7 @@ export default class CategoryAttributeHistoryService {
   ) {
     const current = await this.lockCurrentVersion(trx, attribute.id)
     const effectiveFrom = this.nextEffectiveTime(current, proposedNow)
+
     await current.merge({ effectiveTo: effectiveFrom }).save()
 
     return CategoryAttributeVersion.create(

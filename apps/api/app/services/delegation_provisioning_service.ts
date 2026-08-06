@@ -35,25 +35,31 @@ export default class DelegationProvisioningService {
     if (data.startMode === 'NOW' && data.startsAt) {
       this.invalid('A startsAt value cannot be supplied when a delegation starts now.')
     }
+
     if (data.startMode === 'SCHEDULED' && !data.startsAt) {
       this.invalid('An exact startsAt value is required for a scheduled delegation.')
     }
 
     const startsAt = data.startMode === 'NOW' ? now : data.startsAt!
+
     if (data.startMode === 'SCHEDULED' && startsAt <= now) {
       this.invalid('A scheduled delegation must start in the future.')
     }
+
     if (data.expiresAt <= startsAt) {
       this.invalid('The delegation expiry must be later than its start time.')
     }
+
     return { startsAt, expiresAt: data.expiresAt }
   }
 
   private distinctAssignmentIds(assignmentIds: string[]) {
     const distinct = [...new Set(assignmentIds)].sort()
+
     if (distinct.length !== assignmentIds.length) {
       this.invalid('A source assignment may appear only once in a delegation proposal.')
     }
+
     return distinct
   }
 
@@ -78,15 +84,18 @@ export default class DelegationProvisioningService {
       const grantsRoot = assignment.roleVersion.permissions.some(
         ({ permissionKey }) => permissionKey === 'access.root'
       )
+
       if (grantsRoot || assignment.roleVersion.role.key === 'MASTER_ADMIN') {
         this.invalid('MASTER_ADMIN and access.root authority cannot be delegated.')
       }
 
       const effectiveEnd = this.assignmentLifecycle.effectiveEnd(assignment)
+
       if (effectiveEnd && expiresAt > effectiveEnd) {
         this.invalid('A delegation cannot expire after the known end of a source assignment.')
       }
     }
+
     return assignments
   }
 
@@ -103,10 +112,12 @@ export default class DelegationProvisioningService {
 
     const overlap = links.some(({ delegation }) => {
       const open = delegation.response?.kind !== 'REJECTED' && !delegation.termination
+
       return (
         open && delegation.startsAt < interval.expiresAt && interval.startsAt < delegation.expiresAt
       )
     })
+
     if (overlap) {
       this.invalid('A source assignment already has an overlapping pending or accepted delegation.')
     }
@@ -127,9 +138,11 @@ export default class DelegationProvisioningService {
       if (actor.id === delegate.id) {
         this.invalid('An account cannot delegate authority to itself.')
       }
+
       if (actor.status !== 'ACTIVE') {
         this.invalid('Only an active account may propose a delegation.')
       }
+
       if (delegate.status !== 'ACTIVE') {
         this.invalid('Authority may be delegated only to an active account.')
       }
@@ -148,11 +161,13 @@ export default class DelegationProvisioningService {
         trx,
         now
       )
+
       if (compatibleSources.length !== assignments.length) {
         this.invalid(
           'Every source must share an organizational branch with a direct delegate assignment that remains open through the delegation expiry.'
         )
       }
+
       await this.assertNoOverlap(assignmentIds, interval, trx)
 
       const delegation = await Delegation.create(
@@ -165,6 +180,7 @@ export default class DelegationProvisioningService {
         },
         { client: trx }
       )
+
       await DelegationAssignment.createMany(
         assignments.map((assignment) => ({
           delegationId: delegation.id,
@@ -191,6 +207,7 @@ export default class DelegationProvisioningService {
         },
         trx
       )
+
       return delegation
     })
   }

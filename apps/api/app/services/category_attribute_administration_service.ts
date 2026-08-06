@@ -21,6 +21,7 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
 
 const ATTRIBUTE_DUPLICATE_CONSTRAINTS = ['category_attributes_active_category_name_unique'] as const
+
 type DetailsData = Infer<typeof updateCategoryAttributeDetailsValidator>
 type AdministerData = Infer<typeof administerCategoryAttributeValidator>
 
@@ -54,6 +55,7 @@ export default class CategoryAttributeAdministrationService {
       .where('id', categoryId)
       .forUpdate()
       .firstOrFail()
+
     if (category.archivedAt) this.invalid('The selected catalogue category is archived.')
   }
 
@@ -70,6 +72,7 @@ export default class CategoryAttributeAdministrationService {
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
 
         const attribute = await this.lockAttribute(trx, attributeId)
+
         this.assertActive(attribute)
 
         const name = normalizeCategoryAttributeName(data.name)
@@ -108,6 +111,7 @@ export default class CategoryAttributeAdministrationService {
       const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
 
       const attribute = await this.lockAttribute(trx, attributeId)
+
       this.assertActive(attribute)
 
       await attribute.merge({ archivedAt: now }).save()
@@ -133,6 +137,7 @@ export default class CategoryAttributeAdministrationService {
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
 
         const attribute = await this.lockAttribute(trx, attributeId)
+
         if (!attribute.archivedAt) {
           this.invalid('The category attribute is not archived.')
         }
@@ -141,6 +146,7 @@ export default class CategoryAttributeAdministrationService {
 
         if (attribute.dataType === 'PREDEFINED_CHOICE') {
           const choices = await this.lockChoices(trx, attribute.id)
+
           if (!choices.some((choice) => !choice.archivedAt)) {
             this.invalid('A predefined-choice attribute requires at least one active choice.')
           }

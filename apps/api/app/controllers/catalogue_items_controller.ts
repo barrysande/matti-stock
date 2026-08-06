@@ -33,10 +33,11 @@ export default class CatalogueItemsController {
     private similarity: CatalogueItemSimilarityService
   ) {}
 
-  async store({ request, response, auth, bouncer }: HttpContext) {
+  async store({ auth, bouncer, request, response }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('create')
 
     const payload = await request.validateUsing(createCatalogueItemValidator)
+
     const actor = auth.getUserOrFail()
 
     await this.provisioning.create(payload, actor.id)
@@ -44,7 +45,7 @@ export default class CatalogueItemsController {
     return response.created({ message: 'Catalogue item created.' })
   }
 
-  async creationReview({ request, serialize, bouncer }: HttpContext) {
+  async creationReview({ bouncer, request, serialize }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('review')
 
     const payload = await request.validateUsing(reviewCatalogueItemCreationValidator)
@@ -54,7 +55,7 @@ export default class CatalogueItemsController {
     )
   }
 
-  async changeReview({ params, request, serialize, bouncer }: HttpContext) {
+  async changeReview({ bouncer, params, request, serialize }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('review')
 
     const payload = await request.validateUsing(reviewCatalogueItemChangeValidator)
@@ -66,10 +67,11 @@ export default class CatalogueItemsController {
     )
   }
 
-  async updateDetails({ params, request, response, auth, bouncer }: HttpContext) {
+  async updateDetails({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('updateDetails')
 
     const payload = await request.validateUsing(updateCatalogueItemDetailsValidator)
+
     const actor = auth.getUserOrFail()
 
     await this.administration.updateDetails(params.catalogueCode, payload, actor.id)
@@ -77,10 +79,11 @@ export default class CatalogueItemsController {
     return response.ok({ message: 'Catalogue item details updated.' })
   }
 
-  async updateClassification({ params, request, response, auth, bouncer }: HttpContext) {
+  async updateClassification({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('updateClassification')
 
     const payload = await request.validateUsing(updateCatalogueItemClassificationValidator)
+
     const actor = auth.getUserOrFail()
 
     await this.classification.update(params.catalogueCode, payload, actor.id)
@@ -88,10 +91,11 @@ export default class CatalogueItemsController {
     return response.ok({ message: 'Catalogue item classification updated.' })
   }
 
-  async updateAttributeValues({ params, request, response, auth, bouncer }: HttpContext) {
+  async updateAttributeValues({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('updateAttributeValues')
 
     const payload = await request.validateUsing(updateCatalogueItemAttributeValuesValidator)
+
     const actor = auth.getUserOrFail()
 
     await this.attributeAdministration.update(params.catalogueCode, payload, actor.id)
@@ -99,19 +103,21 @@ export default class CatalogueItemsController {
     return response.ok({ message: 'Catalogue item attributes updated.' })
   }
 
-  async index({ request, serialize, bouncer }: HttpContext) {
+  async index({ bouncer, request, serialize }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('list')
 
     const filters = await request.validateUsing(indexCatalogueItemsValidator)
+
     const items = await this.directory.list(filters)
 
     return serialize(CatalogueItemTransformer.paginate(items.all(), items.getMeta()))
   }
 
-  async lookup({ request, serialize, bouncer }: HttpContext) {
+  async lookup({ bouncer, request, serialize }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('list')
 
     const filters = await request.validateUsing(lookupCatalogueItemsValidator)
+
     const results = await this.directory.lookup(filters)
 
     for (const result of results) {
@@ -123,7 +129,7 @@ export default class CatalogueItemsController {
     )
   }
 
-  async show({ params, serialize, bouncer }: HttpContext) {
+  async show({ bouncer, params, serialize }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('view')
 
     const item = await this.directory.findDetails(params.catalogueCode)
@@ -131,10 +137,11 @@ export default class CatalogueItemsController {
     return serialize(CatalogueItemTransformer.transform(item).useVariant('forDetailedView'))
   }
 
-  async archive({ params, request, response, auth, bouncer }: HttpContext) {
+  async archive({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('archive')
 
     const payload = await request.validateUsing(administerCatalogueItemValidator)
+
     const actor = auth.getUserOrFail()
 
     await this.administration.archive(params.catalogueCode, payload, actor.id)
@@ -142,10 +149,11 @@ export default class CatalogueItemsController {
     return response.ok({ message: 'Catalogue item archived.' })
   }
 
-  async restore({ params, request, response, auth, bouncer }: HttpContext) {
+  async restore({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueItemPolicy).authorize('restore')
 
     const payload = await request.validateUsing(restoreCatalogueItemValidator)
+
     const actor = auth.getUserOrFail()
 
     await this.administration.restore(params.catalogueCode, payload, actor.id)

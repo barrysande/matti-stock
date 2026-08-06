@@ -9,6 +9,7 @@ export default class PasswordSetupsController {
 
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(setPasswordValidator)
+
     const set = await this.passwordCredentials.setup(payload, {
       ip: request.ip(),
       requestId: request.id(),

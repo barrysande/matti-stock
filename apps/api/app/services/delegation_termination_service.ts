@@ -39,9 +39,11 @@ export default class DelegationTerminationService {
     if (delegation.termination) {
       this.invalid('This delegation has already been terminated.')
     }
+
     if (delegation.response?.kind === 'REJECTED') {
       this.invalid('A rejected delegation cannot be terminated.')
     }
+
     if (now >= delegation.expiresAt) {
       this.invalid('An expired delegation cannot be terminated early.')
     }
@@ -57,27 +59,34 @@ export default class DelegationTerminationService {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
       const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
       if (actor.status !== 'ACTIVE') {
         this.invalid('Only an active account may terminate a delegation.')
       }
 
       const delegation = await this.lockDelegation(trx, delegationId)
+
       this.assertOpen(delegation, now)
 
       let authorityAssignmentId: string | null = null
+
       if (kind === 'REVOKED' && delegation.delegatorAccountId !== actor.id) {
         this.invalid('Only the delegator may revoke this delegation.')
       }
+
       if (kind === 'RELINQUISHED') {
         if (delegation.delegateAccountId !== actor.id) {
           this.invalid('Only the delegate may relinquish this delegation.')
         }
+
         if (delegation.response?.kind !== 'ACCEPTED') {
           this.invalid('Only an accepted delegation may be relinquished.')
         }
       }
+
       if (kind === 'ADMINISTRATIVELY_TERMINATED') {
         const authority = await this.rootAuthority.assertEffectiveActor(actor, trx, now)
+
         authorityAssignmentId = authority.id
       }
 
@@ -91,6 +100,7 @@ export default class DelegationTerminationService {
         },
         { client: trx }
       )
+
       await this.accessEvents.record(
         {
           eventType:
@@ -117,6 +127,7 @@ export default class DelegationTerminationService {
         },
         trx
       )
+
       return termination
     })
   }

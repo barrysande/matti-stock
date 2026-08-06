@@ -17,11 +17,13 @@ export default class OrganizationalScopeService {
     }
 
     const parent = units.get(unit.parentId)
+
     if (!parent) {
       return unit.name
     }
 
     visited.add(unit.id)
+
     return `${this.pathFor(parent, units, visited)} / ${unit.name}`
   }
 
@@ -45,6 +47,7 @@ export default class OrganizationalScopeService {
   async ancestorIds(unitId: string, client?: TransactionClientContract) {
     const { unitMap } = await this.hierarchy(client)
     const target = unitMap.get(unitId)
+
     if (!target) {
       return null
     }

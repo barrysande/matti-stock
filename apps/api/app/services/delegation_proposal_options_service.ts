@@ -9,6 +9,7 @@ import type { delegationProposalOptionsValidator } from '#validators/delegation'
 import type { Infer } from '@vinejs/vine/types'
 
 const CANDIDATES_PER_PAGE = 20
+
 type OptionsData = Infer<typeof delegationProposalOptionsValidator>
 
 @inject()
@@ -52,6 +53,7 @@ export default class DelegationProposalOptionsService {
 
     const candidateIds = [...compatibleByCandidate.keys()]
     const query = this.candidateQuery(candidateIds)
+
     if (data.search) {
       query.where((builder) => {
         builder
@@ -59,6 +61,7 @@ export default class DelegationProposalOptionsService {
           .orWhereILike('user_accounts.email', `%${data.search}%`)
       })
     }
+
     const page = await query.paginate(data.page ?? 1, CANDIDATES_PER_PAGE)
 
     const selectedDelegate =
@@ -69,6 +72,7 @@ export default class DelegationProposalOptionsService {
       ? (compatibleByCandidate.get(data.delegateAccountId) ?? [])
       : sources
     const { unitMap } = await this.organizationalScopes.hierarchy()
+
     for (const source of sourceAssignments) {
       source.scopeOrgUnit.$extras.path =
         unitMap.get(source.scopeOrgUnitId)?.$extras.path ?? source.scopeOrgUnit.name

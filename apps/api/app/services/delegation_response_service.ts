@@ -44,12 +44,15 @@ export default class DelegationResponseService {
     if (delegation.delegateAccountId !== actorAccountId) {
       this.invalid('Only the proposed delegate may respond to this delegation.')
     }
+
     if (delegation.response) {
       this.invalid('This delegation proposal has already received a response.')
     }
+
     if (delegation.termination) {
       this.invalid('This delegation proposal has already been terminated.')
     }
+
     if (now >= delegation.expiresAt) {
       this.invalid('An expired delegation proposal can no longer receive a response.')
     }
@@ -69,6 +72,7 @@ export default class DelegationResponseService {
     if (effectiveSources.length !== sourceIds.length) {
       this.invalid('The delegation cannot be accepted because a source is no longer effective.')
     }
+
     return effectiveSources
   }
 
@@ -82,12 +86,15 @@ export default class DelegationResponseService {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
       const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
       if (actor.status !== 'ACTIVE') {
         this.invalid('Only an active account may respond to a delegation.')
       }
 
       const delegation = await this.lockDelegation(trx, delegationId)
+
       this.assertRespondable(delegation, actor.id, now)
+
       if (kind === 'ACCEPTED') {
         const sources = await this.assertSourcesRemainEffective(delegation, now, trx)
         const compatibleSources = await this.scopeCompatibility.compatibleSources(
@@ -97,6 +104,7 @@ export default class DelegationResponseService {
           trx,
           now
         )
+
         if (compatibleSources.length !== sources.length) {
           this.invalid(
             'The delegation cannot be accepted because the delegate no longer has compatible direct organizational authority through its expiry.'
@@ -113,6 +121,7 @@ export default class DelegationResponseService {
         },
         { client: trx }
       )
+
       await this.accessEvents.record(
         {
           eventType: kind === 'ACCEPTED' ? 'DELEGATION_ACCEPTED' : 'DELEGATION_REJECTED',
@@ -133,6 +142,7 @@ export default class DelegationResponseService {
         },
         trx
       )
+
       return response
     })
   }

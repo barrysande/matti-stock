@@ -24,11 +24,13 @@ export default class OrganizationalUnitsController {
     private provisioning: OrganizationalUnitProvisioningService
   ) {}
 
-  async store({ request, response, auth, bouncer }: HttpContext) {
+  async store({ auth, bouncer, request, response }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('create')
 
     const payload = await request.validateUsing(createOrganizationalUnitValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.provisioning.create(payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -37,11 +39,13 @@ export default class OrganizationalUnitsController {
     return response.created({ message: 'Organizational unit created.' })
   }
 
-  async rename({ params, request, response, auth, bouncer }: HttpContext) {
+  async rename({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('rename')
 
     const payload = await request.validateUsing(renameOrganizationalUnitValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.rename(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -50,11 +54,13 @@ export default class OrganizationalUnitsController {
     return response.ok({ message: 'Organizational unit renamed.' })
   }
 
-  async reparent({ params, request, response, auth, bouncer }: HttpContext) {
+  async reparent({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('reparent')
 
     const payload = await request.validateUsing(reparentOrganizationalUnitValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.reparent(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -63,26 +69,29 @@ export default class OrganizationalUnitsController {
     return response.ok({ message: 'Organizational unit moved.' })
   }
 
-  async index({ request, serialize, bouncer }: HttpContext) {
+  async index({ bouncer, request, serialize }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('list')
 
     const filters = await request.validateUsing(indexOrganizationalUnitsValidator)
+
     const units = await this.directory.list(filters)
 
     return serialize(OrganizationalUnitTransformer.transform(units))
   }
 
-  async show({ params, serialize, bouncer }: HttpContext) {
+  async show({ bouncer, params, serialize }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('view')
 
     const unit = await this.directory.findDetails(params.id)
+
     return serialize(OrganizationalUnitTransformer.transform(unit).useVariant('forDetailedView'))
   }
 
-  async accessImpact({ params, request, bouncer }: HttpContext) {
+  async accessImpact({ bouncer, params, request }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('previewAccessImpact')
 
     const payload = await request.validateUsing(previewOrganizationalAccessImpactValidator)
+
     return this.accessImpactService.preview({
       operation: payload.operation,
       targetUnitId: params.id,
@@ -91,11 +100,13 @@ export default class OrganizationalUnitsController {
     })
   }
 
-  async archive({ params, request, response, auth, bouncer }: HttpContext) {
+  async archive({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('archive')
 
     const payload = await request.validateUsing(administerOrganizationalUnitValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.archive(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -104,11 +115,13 @@ export default class OrganizationalUnitsController {
     return response.ok({ message: 'Organizational unit archived.' })
   }
 
-  async restore({ params, request, response, auth, bouncer }: HttpContext) {
+  async restore({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(OrganizationalUnitPolicy).authorize('restore')
 
     const payload = await request.validateUsing(administerOrganizationalUnitValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.restore(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),

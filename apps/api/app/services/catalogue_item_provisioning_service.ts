@@ -22,6 +22,7 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
 
 const NAME_DUPLICATE_CONSTRAINTS = ['catalogue_items_normalized_name_unique'] as const
+
 type CreateData = Infer<typeof createCatalogueItemValidator>
 
 @inject()
@@ -43,7 +44,9 @@ export default class CatalogueItemProvisioningService {
       .where('id', categoryId)
       .forUpdate()
       .firstOrFail()
+
     if (category.archivedAt) this.invalid('The selected catalogue category is archived.')
+
     return category
   }
 
@@ -52,7 +55,9 @@ export default class CatalogueItemProvisioningService {
       .where('id', baseUnitId)
       .forUpdate()
       .firstOrFail()
+
     if (unit.archivedAt) this.invalid('The selected base unit is archived.')
+
     return unit
   }
 
@@ -83,6 +88,7 @@ export default class CatalogueItemProvisioningService {
           trx,
           now
         )
+
         await this.lockActiveCategory(data.catalogueCategoryId, trx)
         await this.attributeValues.assertApplicableSetUnchanged(
           data.catalogueCategoryId,

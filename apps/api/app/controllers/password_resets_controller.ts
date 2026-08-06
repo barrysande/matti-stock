@@ -12,8 +12,9 @@ export default class PasswordResetsController {
     private passwordCredentials: PasswordCredentialService
   ) {}
 
-  async request({ request, response, logger }: HttpContext) {
+  async request({ logger, request, response }: HttpContext) {
     const payload = await request.validateUsing(forgotPasswordValidator)
+
     const challenge = await this.passwordChallenges.request(payload, {
       ip: request.ip(),
       requestId: request.id(),
@@ -37,6 +38,7 @@ export default class PasswordResetsController {
 
   async reset({ request, response }: HttpContext) {
     const payload = await request.validateUsing(resetPasswordValidator)
+
     const reset = await this.passwordCredentials.reset(payload, {
       ip: request.ip(),
       requestId: request.id(),

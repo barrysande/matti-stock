@@ -34,11 +34,13 @@ export default class OrganizationalUnitDirectoryService {
     }
 
     const parent = units.get(unit.parentId)
+
     if (!parent) {
       return unit.name
     }
 
     visited.add(unit.id)
+
     return `${this.pathFor(parent, units, visited)} / ${unit.name}`
   }
 
@@ -72,10 +74,12 @@ export default class OrganizationalUnitDirectoryService {
       query,
       this.summaryQuery().orderBy('id', 'asc'),
     ])
+
     this.assignPaths(units, hierarchyUnits)
 
     return units.sort((left, right) => {
       const pathOrder = String(left.$extras.path).localeCompare(String(right.$extras.path))
+
       return pathOrder || left.id.localeCompare(right.id)
     })
   }
@@ -88,6 +92,7 @@ export default class OrganizationalUnitDirectoryService {
     ])
 
     this.assignPaths([...allUnits, unit])
+
     return unit
   }
 }

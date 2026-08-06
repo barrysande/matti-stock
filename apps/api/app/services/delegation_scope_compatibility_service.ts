@@ -26,23 +26,28 @@ export default class DelegationScopeCompatibilityService {
 
   private branchId(unitId: string, unitMap: Map<string, OrganizationalUnit>) {
     let unit = unitMap.get(unitId)
+
     if (!unit) return null
     if (unit.unitType === 'INSTITUTE') return unit.id
 
     const visited = new Set<string>()
+
     while (unit.parentId) {
       if (visited.has(unit.id)) {
         throw new Error(
           'Circular organizational hierarchy detected while checking delegation scope'
         )
       }
+
       visited.add(unit.id)
 
       const parent = unitMap.get(unit.parentId)
+
       if (!parent) return unit.id
       if (parent.unitType === 'INSTITUTE') return unit.id
       unit = parent
     }
+
     return unit.id
   }
 
@@ -54,6 +59,7 @@ export default class DelegationScopeCompatibilityService {
     const assignments = await this.effectiveAccess
       .effectiveAssignments(client, now)
       .where('account_id', accountId)
+
     return assignments.filter((assignment) => !this.grantsProtectedRoot(assignment))
   }
 
@@ -82,6 +88,7 @@ export default class DelegationScopeCompatibilityService {
       if (this.grantsProtectedRoot(assignment)) return false
       if (!expiresAt) return true
       const effectiveEnd = this.assignmentLifecycle.effectiveEnd(assignment)
+
       return !effectiveEnd || effectiveEnd >= expiresAt
     })
 
@@ -90,10 +97,13 @@ export default class DelegationScopeCompatibilityService {
       sources.map((source) => [source.id, this.branchId(source.scopeOrgUnitId, unitMap)])
     )
     const affiliationBranches = new Map<string, Set<string>>()
+
     for (const assignment of eligibleAffiliations) {
       const branchId = this.branchId(assignment.scopeOrgUnitId, unitMap)
+
       if (!branchId) continue
       const branches = affiliationBranches.get(assignment.accountId) ?? new Set<string>()
+
       branches.add(branchId)
       affiliationBranches.set(assignment.accountId, branches)
     }
@@ -101,10 +111,12 @@ export default class DelegationScopeCompatibilityService {
     return new Map(
       delegateAccountIds.map((accountId) => {
         const branches = affiliationBranches.get(accountId) ?? new Set<string>()
+
         return [
           accountId,
           sources.filter((source) => {
             const branchId = sourceBranches.get(source.id)
+
             return branchId ? branches.has(branchId) : false
           }),
         ] as const
@@ -126,6 +138,7 @@ export default class DelegationScopeCompatibilityService {
       client,
       now
     )
+
     return compatible.get(delegateAccountId) ?? []
   }
 }

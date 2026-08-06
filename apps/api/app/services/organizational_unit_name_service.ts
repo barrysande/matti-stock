@@ -10,6 +10,7 @@ export default class OrganizationalUnitNameService {
     }
 
     let normalized = name.replace(/\s+/g, ' ').trim()
+
     while (DESCENDANT_SUFFIX.test(normalized)) {
       normalized = normalized.replace(DESCENDANT_SUFFIX, '$1').trim()
     }

@@ -58,6 +58,7 @@ export default class CategoryAttributeSemanticAdministrationService {
       .where('id', categoryId)
       .forUpdate()
       .firstOrFail()
+
     if (category.archivedAt) this.invalid('The selected catalogue category is archived.')
   }
 
@@ -65,22 +66,28 @@ export default class CategoryAttributeSemanticAdministrationService {
     if (data.dataType !== 'PREDEFINED_CHOICE') {
       if (data.choices)
         this.invalid('Choices may only be supplied for a predefined-choice attribute.')
+
       return []
     }
+
     if (currentType === 'PREDEFINED_CHOICE') {
       if (data.choices)
         this.invalid('Use the choice administration routes to change existing choices.')
+
       return []
     }
+
     if (!data.choices?.length) {
       this.invalid('Changing to predefined choice requires at least one active choice.')
     }
 
     const labels = data.choices.map((choice) => normalizeCategoryAttributeChoiceLabel(choice.label))
     const keys = labels.map((label) => label.toLowerCase())
+
     if (new Set(keys).size !== keys.length) {
       this.invalidChoice('Predefined-choice labels must be unique within the attribute.')
     }
+
     return labels
   }
 
@@ -90,14 +97,17 @@ export default class CategoryAttributeSemanticAdministrationService {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
         const attribute = await this.lockAttribute(trx, attributeId)
+
         if (attribute.archivedAt) {
           this.invalid('An archived category attribute must be restored before it can be changed.')
         }
+
         if (attribute.semanticsLockedAt) {
           this.invalid(
             'The attribute category, type, requiredness, and scope require a controlled migration after use.'
           )
         }
+
         await this.assertActiveCategory(trx, data.catalogueCategoryId)
         const labels = this.normalizeTransitionChoices(data, attribute.dataType)
 
@@ -111,12 +121,14 @@ export default class CategoryAttributeSemanticAdministrationService {
         }
 
         const choices = await this.lockChoices(trx, attribute.id)
+
         if (attribute.dataType === 'PREDEFINED_CHOICE' && data.dataType !== 'PREDEFINED_CHOICE') {
           if (choices.some((choice) => choice.firstUsedAt)) {
             this.invalid(
               'A predefined-choice attribute with used choices requires a controlled migration.'
             )
           }
+
           for (const choice of choices.filter((candidate) => !candidate.archivedAt)) {
             await choice.merge({ displayOrder: null, archivedAt: now }).save()
             await this.choiceHistory.appendVersion(
@@ -151,6 +163,7 @@ export default class CategoryAttributeSemanticAdministrationService {
             },
             { client: trx }
           )
+
           await this.choiceHistory.createInitialVersion(
             choice,
             data.reason,
@@ -170,6 +183,7 @@ export default class CategoryAttributeSemanticAdministrationService {
           trx,
           now
         )
+
         return attribute
       })
     } catch (error) {
@@ -178,6 +192,7 @@ export default class CategoryAttributeSemanticAdministrationService {
           'An active category attribute with this name already exists in the selected category.'
         )
       }
+
       DuplicateException.throwIf(
         error,
         'An active predefined choice already uses this label or position.',

@@ -21,55 +21,79 @@ export default class CatalogueCategoriesController {
     private provisioning: CatalogueCategoryProvisioningService
   ) {}
 
-  async store({ request, response, auth, bouncer }: HttpContext) {
+  async store({ auth, bouncer, request, response }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('create')
+
     const payload = await request.validateUsing(createCatalogueCategoryValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.provisioning.create(payload, actor.id)
+
     return response.created({ message: 'Catalogue category created.' })
   }
 
-  async updateDetails({ params, request, response, auth, bouncer }: HttpContext) {
+  async updateDetails({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('updateDetails')
+
     const payload = await request.validateUsing(updateCatalogueCategoryDetailsValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.updateDetails(params.id, payload, actor.id)
+
     return response.ok({ message: 'Catalogue category details updated.' })
   }
 
-  async reparent({ params, request, response, auth, bouncer }: HttpContext) {
+  async reparent({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('reparent')
+
     const payload = await request.validateUsing(reparentCatalogueCategoryValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.reparent(params.id, payload, actor.id)
+
     return response.ok({ message: 'Catalogue category moved.' })
   }
 
-  async index({ request, serialize, bouncer }: HttpContext) {
+  async index({ bouncer, request, serialize }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('list')
+
     const filters = await request.validateUsing(indexCatalogueCategoriesValidator)
+
     return serialize(CatalogueCategoryTransformer.transform(await this.directory.list(filters)))
   }
 
-  async show({ params, serialize, bouncer }: HttpContext) {
+  async show({ bouncer, params, serialize }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('view')
+
     const category = await this.directory.findDetails(params.id)
+
     return serialize(CatalogueCategoryTransformer.transform(category).useVariant('forDetailedView'))
   }
 
-  async archive({ params, request, response, auth, bouncer }: HttpContext) {
+  async archive({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('archive')
+
     const payload = await request.validateUsing(administerCatalogueCategoryValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.archive(params.id, payload, actor.id)
+
     return response.ok({ message: 'Catalogue category archived.' })
   }
 
-  async restore({ params, request, response, auth, bouncer }: HttpContext) {
+  async restore({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(CatalogueCategoryPolicy).authorize('restore')
+
     const payload = await request.validateUsing(administerCatalogueCategoryValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.restore(params.id, payload, actor.id)
+
     return response.ok({ message: 'Catalogue category restored.' })
   }
 }

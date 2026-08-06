@@ -35,9 +35,11 @@ export default class PhysicalLocationProvisioningService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
         await this.rootAuthority.assertEffectiveActor(actor, trx, now)
 
         const parentId = data.parentId ?? null
+
         if (parentId) {
           const parent = await PhysicalLocation.query({ client: trx })
             .where('id', parentId)

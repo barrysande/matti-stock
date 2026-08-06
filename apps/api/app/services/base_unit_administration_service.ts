@@ -51,6 +51,7 @@ export default class BaseUnitAdministrationService {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
         const unit = await this.lockUnit(trx, unitId)
+
         this.assertActive(unit)
         const details = resolveBaseUnitDetails(data.name, data.symbol, data.kind, data.precision)
 
@@ -82,6 +83,7 @@ export default class BaseUnitAdministrationService {
           trx,
           now
         )
+
         return unit
       })
     } catch (error) {
@@ -95,6 +97,7 @@ export default class BaseUnitAdministrationService {
       const now = DateTime.now()
       const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
       const unit = await this.lockUnit(trx, unitId)
+
       this.assertActive(unit)
 
       await unit.merge({ archivedAt: now }).save()
@@ -107,6 +110,7 @@ export default class BaseUnitAdministrationService {
         trx,
         now
       )
+
       return unit
     })
   }
@@ -133,6 +137,7 @@ export default class BaseUnitAdministrationService {
           trx,
           now
         )
+
         return unit
       })
     } catch (error) {

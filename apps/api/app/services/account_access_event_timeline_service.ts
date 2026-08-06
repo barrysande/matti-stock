@@ -11,6 +11,7 @@ import type { indexAccountAccessEventsValidator } from '#validators/access_event
 import type { Infer } from '@vinejs/vine/types'
 
 const EVENTS_PER_PAGE = 20
+
 type ListData = Infer<typeof indexAccountAccessEventsValidator>
 
 export default class AccountAccessEventTimelineService {
@@ -101,6 +102,7 @@ export default class AccountAccessEventTimelineService {
           .map(({ targetId }) => targetId!)
       ),
     ]
+
     if (targetIds.length === 0) return
 
     const assignments = await RoleAssignment.query()
@@ -112,6 +114,7 @@ export default class AccountAccessEventTimelineService {
     const contexts = new Map(
       assignments.map((assignment) => [assignment.id, this.roleAssignmentContext(assignment)])
     )
+
     for (const event of events) {
       if (event.targetType === 'ROLE_ASSIGNMENT' && event.targetId) {
         event.$extras.timelineTarget = contexts.get(event.targetId)
@@ -127,6 +130,7 @@ export default class AccountAccessEventTimelineService {
           .map(({ targetId }) => targetId!)
       ),
     ]
+
     if (targetIds.length === 0) return
 
     const delegations = await Delegation.query()
@@ -140,6 +144,7 @@ export default class AccountAccessEventTimelineService {
     const contexts = new Map(
       delegations.map((delegation) => [delegation.id, this.delegationContext(delegation)])
     )
+
     for (const event of events) {
       if (event.targetType === 'DELEGATION' && event.targetId) {
         event.$extras.timelineTarget = contexts.get(event.targetId)
@@ -160,9 +165,11 @@ export default class AccountAccessEventTimelineService {
   ) {
     if (data.category) {
       const eventTypes = accountAccessEventTypesForCategory(data.category)
+
       if (eventTypes) query.whereIn('access_events.event_type', [...eventTypes])
       else query.whereNotIn('access_events.event_type', KNOWN_ACCOUNT_ACCESS_EVENT_TYPES)
     }
+
     if (data.eventType) query.where('access_events.event_type', data.eventType)
   }
 
@@ -171,12 +178,15 @@ export default class AccountAccessEventTimelineService {
     await UserAccount.query().where('id', accountId).select('id').firstOrFail()
 
     const query = this.timelineQuery(accountId)
+
     this.applyFilters(query, data)
     const events = await query
       .orderBy('access_events.created_at', 'desc')
       .orderBy('access_events.id', 'desc')
       .paginate(data.page ?? 1, EVENTS_PER_PAGE)
+
     await this.decorateTargets(events.all())
+
     return events
   }
 }

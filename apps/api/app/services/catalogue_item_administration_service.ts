@@ -28,6 +28,7 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
 
 const NAME_DUPLICATE_CONSTRAINTS = ['catalogue_items_normalized_name_unique'] as const
+
 type DetailsData = Infer<typeof updateCatalogueItemDetailsValidator>
 type AdministerData = Infer<typeof administerCatalogueItemValidator>
 type RestoreData = Infer<typeof restoreCatalogueItemValidator>

@@ -33,16 +33,19 @@ export default class RoleAssignmentProvisioningService {
     if (data.startMode === 'NOW' && data.startsAt) {
       this.invalid('A startsAt value cannot be supplied when an assignment starts now.')
     }
+
     if (data.startMode === 'SCHEDULED' && !data.startsAt) {
       this.invalid('An exact startsAt value is required for a scheduled assignment.')
     }
 
     const startsAt = data.startMode === 'NOW' ? now : data.startsAt!
+
     if (data.startMode === 'SCHEDULED' && startsAt <= now) {
       this.invalid('A scheduled assignment must start in the future.')
     }
 
     const expiresAt = data.expiresAt ?? null
+
     if (expiresAt && expiresAt <= startsAt) {
       this.invalid('The assignment expiry must be later than its start time.')
     }
@@ -66,6 +69,7 @@ export default class RoleAssignmentProvisioningService {
     if (!['INVITED', 'ACTIVE'].includes(account.status)) {
       this.invalid('Roles may be assigned only to invited or active accounts.')
     }
+
     return account
   }
 
@@ -74,6 +78,7 @@ export default class RoleAssignmentProvisioningService {
       .where('id', data.roleId)
       .forUpdate()
       .firstOrFail()
+
     if (role.archivedAt) {
       this.invalid('An archived role cannot receive new assignments.')
     }
@@ -84,6 +89,7 @@ export default class RoleAssignmentProvisioningService {
       .orderBy('version', 'desc')
       .forUpdate()
       .firstOrFail()
+
     return { role, roleVersion }
   }
 
@@ -92,9 +98,11 @@ export default class RoleAssignmentProvisioningService {
       .where('id', data.scopeOrganizationalUnitId)
       .forUpdate()
       .firstOrFail()
+
     if (scope.archivedAt) {
       this.invalid('An archived organizational unit cannot receive new assignments.')
     }
+
     return scope
   }
 
@@ -107,6 +115,7 @@ export default class RoleAssignmentProvisioningService {
     const grantsRoot = roleVersion.permissions.some(
       (membership) => membership.permissionKey === 'access.root'
     )
+
     if (!grantsRoot) {
       return
     }
@@ -179,6 +188,7 @@ export default class RoleAssignmentProvisioningService {
     const account = await this.lockTargetAccount(data, actor, trx)
     const { role, roleVersion } = await this.lockRoleVersion(data, trx)
     const scope = await this.lockScope(data, trx)
+
     this.assertRootScope(role, roleVersion, scope, data)
     await this.assertNoOverlap(
       data,
@@ -240,7 +250,9 @@ export default class RoleAssignmentProvisioningService {
       const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
       const authority = await this.rootAuthority.assertEffectiveActor(actor, trx, now)
       const assignment = await this.createWithinTransaction(data, actor, authority.id, trx, request)
+
       await this.rootAuthority.assertContinuousCoverage(trx, now)
+
       return assignment
     })
   }

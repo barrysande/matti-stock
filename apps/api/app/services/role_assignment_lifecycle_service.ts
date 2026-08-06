@@ -15,12 +15,14 @@ export default class RoleAssignmentLifecycleService {
     ) {
       return assignment.termination.effectiveAt
     }
+
     return assignment.expiresAt
   }
 
   /** Determines whether an assignment remains active or upcoming rather than historically closed. */
   isOpen(assignment: RoleAssignment, now: DateTime = DateTime.now()) {
     const endsAt = this.effectiveEnd(assignment)
+
     return !endsAt || endsAt > now
   }
 
@@ -39,11 +41,13 @@ export default class RoleAssignmentLifecycleService {
     }
 
     const ineffectiveReasons: RoleAssignmentIneffectiveReason[] = []
+
     if (assignment.account.status !== 'ACTIVE') ineffectiveReasons.push('ACCOUNT_NOT_ACTIVE')
     if (assignment.roleVersion.role.archivedAt) ineffectiveReasons.push('ROLE_ARCHIVED')
     if (assignment.scopeOrgUnit.archivedAt) ineffectiveReasons.push('SCOPE_ARCHIVED')
     if (status === 'UPCOMING') ineffectiveReasons.push('NOT_STARTED')
     if (status === 'EXPIRED') ineffectiveReasons.push('EXPIRED')
+
     if (['ENDED', 'CANCELLED', 'REPLACED'].includes(status)) {
       ineffectiveReasons.push('TERMINATED')
     }

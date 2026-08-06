@@ -21,11 +21,13 @@ export default class RolesController {
     private provisioning: RoleProvisioningService
   ) {}
 
-  async store({ request, response, auth, bouncer }: HttpContext) {
+  async store({ auth, bouncer, request, response }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('create')
 
     const payload = await request.validateUsing(createRoleValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.provisioning.create(payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -34,11 +36,13 @@ export default class RolesController {
     return response.created({ message: 'Role created.' })
   }
 
-  async rename({ params, request, response, auth, bouncer }: HttpContext) {
+  async rename({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('rename')
 
     const payload = await request.validateUsing(renameRoleValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.rename(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -47,11 +51,13 @@ export default class RolesController {
     return response.ok({ message: 'Role renamed.' })
   }
 
-  async replacePermissions({ params, request, response, auth, bouncer }: HttpContext) {
+  async replacePermissions({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('replacePermissions')
 
     const payload = await request.validateUsing(replaceRolePermissionsValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.replacePermissions(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -60,26 +66,31 @@ export default class RolesController {
     return response.ok({ message: 'A new role permission version was created.' })
   }
 
-  async index({ request, serialize, bouncer }: HttpContext) {
+  async index({ bouncer, request, serialize }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('list')
 
     const filters = await request.validateUsing(indexRolesValidator)
+
     const roles = await this.directory.list(filters)
+
     return serialize(RoleTransformer.transform(roles))
   }
 
-  async show({ params, serialize, bouncer }: HttpContext) {
+  async show({ bouncer, params, serialize }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('view')
 
     const role = await this.directory.findDetails(params.id)
+
     return serialize(RoleTransformer.transform(role).useVariant('forDetailedView'))
   }
 
-  async archive({ params, request, response, auth, bouncer }: HttpContext) {
+  async archive({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('archive')
 
     const payload = await request.validateUsing(administerRoleValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.archive(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
@@ -88,11 +99,13 @@ export default class RolesController {
     return response.ok({ message: 'Role archived.' })
   }
 
-  async restore({ params, request, response, auth, bouncer }: HttpContext) {
+  async restore({ auth, bouncer, params, request, response }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('restore')
 
     const payload = await request.validateUsing(administerRoleValidator)
+
     const actor = auth.getUserOrFail()
+
     await this.administration.restore(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),

@@ -21,13 +21,16 @@ export default class BaseUnitDirectoryService {
   /** Lists the small shared unit registry with optional active-state and kind filters. */
   list(data: ListData) {
     const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
+
     if (!data.includeArchived) query.whereNull('archived_at')
     if (data.kind) query.where('kind', data.kind)
+
     if (data.search) {
       query.where((builder) => {
         builder.whereILike('name', `%${data.search}%`).orWhereILike('symbol', `%${data.search}%`)
       })
     }
+
     return query
   }
 

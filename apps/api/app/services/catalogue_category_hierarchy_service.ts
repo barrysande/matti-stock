@@ -15,14 +15,17 @@ export default class CatalogueCategoryHierarchyService {
     if (visited.has(category.id)) {
       this.invalid('The catalogue-category hierarchy contains a circular parent relationship.')
     }
+
     if (!category.parentId) return 0
 
     const parent = categories.get(category.parentId)
+
     if (!parent) {
       this.invalid('The catalogue-category hierarchy contains an unavailable parent.')
     }
 
     visited.add(category.id)
+
     return this.depth(parent, categories, visited) + 1
   }
 
@@ -37,6 +40,7 @@ export default class CatalogueCategoryHierarchyService {
 
     const nextVisited = new Set(visited).add(categoryId)
     const children = categories.filter((category) => category.parentId === categoryId)
+
     return children.reduce(
       (height, child) =>
         Math.max(height, this.subtreeHeight(child.id, categories, nextVisited) + 1),
@@ -55,9 +59,11 @@ export default class CatalogueCategoryHierarchyService {
 
     const categoryMap = new Map(categories.map((category) => [category.id, category]))
     const parent = categoryMap.get(parentId)
+
     if (!parent || parent.archivedAt) {
       this.invalid('The selected catalogue-category parent is unavailable.')
     }
+
     if (this.depth(parent, categoryMap) >= 2) {
       this.invalid('A catalogue category cannot be nested deeper than three levels.')
     }
@@ -75,24 +81,29 @@ export default class CatalogueCategoryHierarchyService {
 
     const categoryMap = new Map(categories.map((candidate) => [candidate.id, candidate]))
     const parent = parentId ? categoryMap.get(parentId) : null
+
     if (parentId && (!parent || parent.archivedAt)) {
       this.invalid('The selected catalogue-category parent is unavailable.')
     }
 
     let cursor = parent
     const visited = new Set<string>()
+
     while (cursor) {
       if (cursor.id === category.id) {
         this.invalid('A catalogue category cannot be moved beneath one of its descendants.')
       }
+
       if (visited.has(cursor.id)) {
         this.invalid('The catalogue-category hierarchy contains a circular parent relationship.')
       }
+
       visited.add(cursor.id)
       cursor = cursor.parentId ? categoryMap.get(cursor.parentId) : undefined
     }
 
     const proposedDepth = parent ? this.depth(parent, categoryMap) + 1 : 0
+
     if (proposedDepth + this.subtreeHeight(category.id, categories) > 2) {
       this.invalid('Moving this category would make the hierarchy deeper than three levels.')
     }
@@ -110,6 +121,7 @@ export default class CatalogueCategoryHierarchyService {
     if (!category.parentId) return
 
     const parent = categories.find((candidate) => candidate.id === category.parentId)
+
     if (!parent || parent.archivedAt) {
       this.invalid('Restore the parent category before restoring this category.')
     }

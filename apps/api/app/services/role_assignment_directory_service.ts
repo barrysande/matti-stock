@@ -7,6 +7,7 @@ import type { indexRoleAssignmentsValidator } from '#validators/role_assignment'
 import type { Infer } from '@vinejs/vine/types'
 
 const ASSIGNMENTS_PER_PAGE = 20
+
 type ListData = Infer<typeof indexRoleAssignmentsValidator>
 
 @inject()
@@ -64,6 +65,7 @@ export default class RoleAssignmentDirectoryService {
 
     for (const assignment of assignments) {
       const scope = unitMap.get(assignment.scopeOrgUnitId)
+
       assignment.scopeOrgUnit.$extras.path = scope?.$extras.path ?? assignment.scopeOrgUnit.name
       assignment.$extras.assignmentState = this.assignmentLifecycle.state(assignment, now)
     }
@@ -73,6 +75,7 @@ export default class RoleAssignmentDirectoryService {
 
   private async decorateDetail(assignments: RoleAssignment[], now: DateTime) {
     await this.decorateSummary(assignments, now)
+
     for (const assignment of assignments) {
       assignment.$extras.isLatestRoleVersion =
         assignment.roleVersion.role.versions[0]?.id === assignment.roleVersionId
@@ -91,14 +94,17 @@ export default class RoleAssignmentDirectoryService {
     const query = this.summaryQuery().orderBy('starts_at', 'desc').orderBy('id', 'asc')
 
     if (data.accountId) query.where('account_id', data.accountId)
+
     if (data.scopeOrganizationalUnitId) {
       query.where('scope_org_unit_id', data.scopeOrganizationalUnitId)
     }
+
     if (data.roleId) {
       query.whereHas('roleVersion', (builder) => {
         builder.where('role_id', data.roleId!)
       })
     }
+
     if (data.status === 'UPCOMING') {
       query.where('starts_at', '>', now.toJSDate()).whereDoesntHave('termination', (builder) => {
         builder.where('effective_at', '<=', now.toJSDate())
@@ -123,14 +129,18 @@ export default class RoleAssignmentDirectoryService {
     }
 
     const assignments = await query.paginate(data.page ?? 1, ASSIGNMENTS_PER_PAGE)
+
     await this.decorateSummary(assignments.all(), now)
+
     return assignments
   }
 
   /** Loads one assignment with its immutable role, scope, grant, and termination context. */
   async findDetails(assignmentId: string, now: DateTime = DateTime.now()) {
     const assignment = await this.detailQuery().where('id', assignmentId).firstOrFail()
+
     await this.decorateDetail([assignment], now)
+
     return assignment
   }
 }

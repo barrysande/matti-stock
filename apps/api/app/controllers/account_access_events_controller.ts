@@ -9,10 +9,11 @@ import { indexAccountAccessEventsValidator } from '#validators/access_event'
 export default class AccountAccessEventsController {
   constructor(private timeline: AccountAccessEventTimelineService) {}
 
-  async index({ params, request, serialize, bouncer }: HttpContext) {
+  async index({ bouncer, params, request, serialize }: HttpContext) {
     await bouncer.with(AccessPolicy).authorize('viewTimeline')
 
     const filters = await request.validateUsing(indexAccountAccessEventsValidator)
+
     const events = await this.timeline.list(params.id, filters)
 
     return serialize(AccessEventTransformer.paginate(events.all(), events.getMeta()))

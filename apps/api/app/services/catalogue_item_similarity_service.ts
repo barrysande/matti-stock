@@ -50,6 +50,7 @@ export default class CatalogueItemSimilarityService {
     const candidateTerms = [candidateName, ...candidateKeywords]
 
     if (candidateName === proposedName) return 'EXACT_NAME'
+
     if (proposedTerms.some((term) => candidateTerms.includes(term))) {
       return 'KEYWORD'
     }
@@ -64,6 +65,7 @@ export default class CatalogueItemSimilarityService {
     ) {
       return 'PREFIX'
     }
+
     if (
       proposedTerms.some((proposed) =>
         candidateTerms.some(
@@ -73,6 +75,7 @@ export default class CatalogueItemSimilarityService {
     ) {
       return 'SUBSTRING'
     }
+
     return null
   }
 
@@ -89,11 +92,13 @@ export default class CatalogueItemSimilarityService {
       .whereNull('archived_at')
       .preload('catalogueCategory')
       .preload('keywords', (keywordQuery) => keywordQuery.orderBy('display_order', 'asc'))
+
     if (excludeCatalogueCode) query.whereNot('catalogue_code', excludeCatalogueCode)
 
     const items = await query
     const candidates = items.flatMap((item) => {
       const primaryMatchKind = this.matchKind(proposedName, proposedKeywords, item)
+
       return primaryMatchKind ? [{ item, primaryMatchKind }] : []
     })
 
@@ -107,6 +112,7 @@ export default class CatalogueItemSimilarityService {
     return candidates
       .sort((left, right) => {
         const kindDifference = priority[left.primaryMatchKind] - priority[right.primaryMatchKind]
+
         if (kindDifference) {
           return kindDifference
         }
@@ -138,6 +144,7 @@ export default class CatalogueItemSimilarityService {
     }
 
     const category = await CatalogueCategory.findOrFail(data.catalogueCategoryId)
+
     if (category.archivedAt) this.invalid('The selected catalogue category is archived.')
 
     const candidates = await this.activeCandidates(data, excludeCatalogueCode)
@@ -190,11 +197,13 @@ export default class CatalogueItemSimilarityService {
   async runMutation<T>(callback: () => Promise<T>) {
     const lock = lockManager.createLock('catalogue-items:similarity-mutations', '15s')
     const [acquired, result] = await lock.runImmediately(callback)
+
     if (!acquired) {
       throw new CatalogueItemMutationBusyException(
         'Another catalogue-item identity change is in progress. Review and try again.'
       )
     }
+
     return result as T
   }
 

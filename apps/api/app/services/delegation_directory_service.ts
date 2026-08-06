@@ -9,6 +9,7 @@ import type { indexDelegationsValidator } from '#validators/delegation'
 import type { Infer } from '@vinejs/vine/types'
 
 const DELEGATIONS_PER_PAGE = 20
+
 type ListData = Infer<typeof indexDelegationsValidator>
 
 @inject()
@@ -124,14 +125,17 @@ export default class DelegationDirectoryService {
       query.whereHas('termination', (builder) => {
         builder.where('kind', status)
       })
+
       return
     }
+
     if (status === 'REJECTED') {
       query
         .whereDoesntHave('termination', () => {})
         .whereHas('response', (builder) => {
           builder.where('kind', 'REJECTED')
         })
+
       return
     }
 
@@ -145,6 +149,7 @@ export default class DelegationDirectoryService {
       query.where('expires_at', '<=', now.toJSDate())
     } else {
       query.where('expires_at', '>', now.toJSDate())
+
       if (status === 'PENDING') {
         query.whereDoesntHave('response', () => {})
       } else {
@@ -159,6 +164,7 @@ export default class DelegationDirectoryService {
 
   private state(delegation: Delegation, now: DateTime): DelegationState {
     let status: DelegationState['status']
+
     if (delegation.termination) {
       status = delegation.termination.kind as DelegationState['status']
     } else if (delegation.response?.kind === 'REJECTED') {
@@ -172,15 +178,19 @@ export default class DelegationDirectoryService {
     } else {
       status = 'ACTIVE'
     }
+
     const delegationEffective = status === 'ACTIVE' && delegation.delegate.status === 'ACTIVE'
     let effectiveItemCount = 0
+
     for (const assignment of delegation.assignments) {
       const sourceState = assignment.sourceAssignment.$extras.assignmentState as
         { effectiveNow: boolean } | undefined
       const effectiveNow = delegationEffective && Boolean(sourceState?.effectiveNow)
+
       assignment.$extras.effectiveNow = effectiveNow
       if (effectiveNow) effectiveItemCount += 1
     }
+
     return {
       status,
       effectiveNow: effectiveItemCount > 0,
@@ -193,6 +203,7 @@ export default class DelegationDirectoryService {
     for (const delegation of delegations) {
       delegation.$extras.delegationState = this.state(delegation, now)
     }
+
     return delegations
   }
 
@@ -202,6 +213,7 @@ export default class DelegationDirectoryService {
     )) {
       source.$extras.assignmentState = this.assignmentLifecycle.state(source, now)
     }
+
     return this.decorateState(delegations, now)
   }
 
@@ -209,7 +221,9 @@ export default class DelegationDirectoryService {
     const sources = delegations.flatMap((delegation) =>
       delegation.assignments.map(({ sourceAssignment }) => sourceAssignment)
     )
+
     await this.roleAssignments.prepare(sources, now)
+
     return this.decorateState(delegations, now)
   }
 
@@ -217,9 +231,11 @@ export default class DelegationDirectoryService {
   async list(data: ListData, actorAccountId: string, now: DateTime = DateTime.now()) {
     const root = await this.rootAuthority.isEffective(actorAccountId, undefined, now)
     const query = this.summaryQuery().orderBy('created_at', 'desc').orderBy('id', 'asc')
+
     if (!root) this.participantScope(query, actorAccountId)
 
     const accountId = data.accountId ?? (root ? undefined : actorAccountId)
+
     if (accountId) {
       if (data.direction === 'INCOMING') query.where('delegate_account_id', accountId)
       else if (data.direction === 'OUTGOING') query.where('delegator_account_id', accountId)
@@ -229,10 +245,13 @@ export default class DelegationDirectoryService {
         })
       }
     }
+
     if (data.status) this.applyStatus(query, data.status, now)
 
     const delegations = await query.paginate(data.page ?? 1, DELEGATIONS_PER_PAGE)
+
     this.decorateSummary(delegations.all(), now)
+
     return delegations
   }
 
@@ -240,9 +259,12 @@ export default class DelegationDirectoryService {
   async findDetails(delegationId: string, actorAccountId: string, now: DateTime = DateTime.now()) {
     const root = await this.rootAuthority.isEffective(actorAccountId, undefined, now)
     const query = this.detailQuery().where('id', delegationId)
+
     if (!root) this.participantScope(query, actorAccountId)
     const delegation = await query.firstOrFail()
+
     await this.decorateDetail([delegation], now)
+
     return delegation
   }
 
@@ -256,9 +278,12 @@ export default class DelegationDirectoryService {
       })
       .orderBy('starts_at', 'asc')
       .orderBy('id', 'asc')
+
     this.participantScope(query, accountId)
     const delegations = await query
+
     this.decorateSummary(delegations, now)
+
     return {
       incoming: delegations.filter(({ delegateAccountId }) => delegateAccountId === accountId),
       outgoing: delegations.filter(({ delegatorAccountId }) => delegatorAccountId === accountId),

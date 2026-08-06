@@ -36,6 +36,7 @@ export default class OrganizationalUnitProvisioningService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
         await this.rootAuthority.assertEffectiveActor(actor, trx, now)
 
         const impact = await this.accessImpact.preview(
@@ -47,6 +48,7 @@ export default class OrganizationalUnitProvisioningService {
           trx,
           now
         )
+
         if (impact.fingerprint !== data.impactFingerprint) {
           throw new StaleOrganizationalAccessImpactException()
         }

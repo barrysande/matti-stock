@@ -47,6 +47,7 @@ export default class OrganizationalAccessImpactService {
     }
 
     const expectedParentType = childType === 'DEPARTMENT' ? 'INSTITUTE' : 'DEPARTMENT'
+
     if (parent.unitType !== expectedParentType) {
       this.invalid(
         childType === 'DEPARTMENT'
@@ -80,11 +81,13 @@ export default class OrganizationalAccessImpactService {
       if (!target || target.archivedAt || target.unitType !== 'SUB_DEPARTMENT') {
         this.invalid('Only an active sub-department may be moved to another department.')
       }
+
       if (!request.parentId || request.parentId === target.parentId) {
         this.invalid('Select a different parent department.')
       }
 
       const parent = unitMap.get(request.parentId)
+
       this.assertActiveParent(parent, 'SUB_DEPARTMENT')
 
       const previousAncestors = new Set(
@@ -101,8 +104,10 @@ export default class OrganizationalAccessImpactService {
       }
 
       relevantUnits.set(target.id, target)
+
       for (const id of new Set([...previousAncestors, ...nextAncestors])) {
         const unit = unitMap.get(id)
+
         if (unit) {
           relevantUnits.set(id, unit)
         }
@@ -118,6 +123,7 @@ export default class OrganizationalAccessImpactService {
         }
 
         const activeChild = units.find((unit) => unit.parentId === target.id && !unit.archivedAt)
+
         if (activeChild) {
           this.invalid('Archive or move active child units before archiving this unit.')
         }
@@ -127,6 +133,7 @@ export default class OrganizationalAccessImpactService {
 
       if (request.operation === 'RESTORE') {
         const parent = target.parentId ? unitMap.get(target.parentId) : undefined
+
         this.assertActiveParent(
           parent,
           target.unitType as Exclude<OrganizationalUnitType, 'INSTITUTE'>

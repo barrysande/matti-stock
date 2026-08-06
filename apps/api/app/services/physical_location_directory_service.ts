@@ -34,11 +34,13 @@ export default class PhysicalLocationDirectoryService {
     }
 
     const parent = locations.get(location.parentId)
+
     if (!parent) {
       return location.name
     }
 
     visited.add(location.id)
+
     return `${this.pathFor(parent, locations, visited)} / ${location.name}`
   }
 
@@ -71,6 +73,7 @@ export default class PhysicalLocationDirectoryService {
 
     return this.assignPaths(locations, hierarchy).sort((left, right) => {
       const pathOrder = String(left.$extras.path).localeCompare(String(right.$extras.path))
+
       return pathOrder || left.id.localeCompare(right.id)
     })
   }
@@ -83,6 +86,7 @@ export default class PhysicalLocationDirectoryService {
     ])
 
     this.assignPaths([location], hierarchy)
+
     return location
   }
 }

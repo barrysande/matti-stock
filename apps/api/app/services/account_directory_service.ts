@@ -98,9 +98,11 @@ export default class AccountDirectoryService {
     const openAssignments = account.roleAssignments.filter((assignment) =>
       this.assignmentLifecycle.isOpen(assignment, now)
     )
+
     account.roleAssignments.splice(0, account.roleAssignments.length, ...openAssignments)
     await this.roleAssignments.prepare(openAssignments, now)
     account.$extras.delegations = await this.delegations.openForAccount(account.id, now)
+
     return account
   }
 }

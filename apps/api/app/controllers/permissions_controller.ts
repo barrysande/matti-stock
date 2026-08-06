@@ -8,10 +8,11 @@ import PermissionTransformer from '#transformers/permission_transformer'
 export default class PermissionsController {
   constructor(private directory: PermissionDirectoryService) {}
 
-  async index({ serialize, bouncer }: HttpContext) {
+  async index({ bouncer, serialize }: HttpContext) {
     await bouncer.with(RolePolicy).authorize('listPermissions')
 
     const permissions = await this.directory.list()
+
     return serialize(PermissionTransformer.transform(permissions))
   }
 }

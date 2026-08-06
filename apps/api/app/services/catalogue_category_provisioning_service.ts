@@ -35,6 +35,7 @@ export default class CatalogueCategoryProvisioningService {
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
         const categories = await this.hierarchy.lock(trx)
         const parentId = data.parentId ?? null
+
         this.hierarchy.assertCreateParent(parentId, categories)
 
         const category = await CatalogueCategory.create(
@@ -46,6 +47,7 @@ export default class CatalogueCategoryProvisioningService {
           },
           { client: trx }
         )
+
         await this.history.createInitialVersion(
           category,
           data.reason,

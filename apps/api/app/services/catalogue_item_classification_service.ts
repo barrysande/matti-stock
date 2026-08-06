@@ -119,6 +119,7 @@ export default class CatalogueItemClassificationService {
 
         const removedIds = await this.attributeValues.currentValueIds(item.id, trx)
         const acknowledged = [...data.acknowledgedRemovedAttributeValueIds].sort()
+
         if (removedIds.join(':') !== acknowledged.join(':')) {
           this.invalid(
             'Acknowledge the exact current attribute values removed by the category change.'

@@ -39,10 +39,12 @@ export default class CategoryAttributeDirectoryService {
 
   list(data: ListData) {
     const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
+
     if (!data.includeArchived) query.whereNull('archived_at')
     if (data.categoryId) query.where('catalogue_category_id', data.categoryId)
     if (data.scope) query.where('scope', data.scope)
     if (data.dataType) query.where('data_type', data.dataType)
+
     if (data.search) {
       query.where((builder) => {
         builder
@@ -50,6 +52,7 @@ export default class CategoryAttributeDirectoryService {
           .orWhereILike('description', `%${data.search}%`)
       })
     }
+
     return query
   }
 

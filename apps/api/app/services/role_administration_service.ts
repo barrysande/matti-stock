@@ -19,6 +19,7 @@ import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE = 'An active role with this name already exists.'
 const DUPLICATE_NAME_CONSTRAINTS = ['roles_active_name_unique'] as const
+
 type RenameData = Infer<typeof renameRoleValidator>
 type ReplacePermissionsData = Infer<typeof replaceRolePermissionsValidator>
 type AdministerData = Infer<typeof administerRoleValidator>
@@ -42,6 +43,7 @@ export default class RoleAdministrationService {
     now: DateTime<true>
   ) {
     const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
     await this.rootAuthority.assertEffectiveActor(actor, trx, now)
   }
 
@@ -85,8 +87,10 @@ export default class RoleAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         const role = await this.lockRole(trx, roleId)
+
         this.assertConfigurable(role)
         this.assertActive(role)
         const previousName = role.name
@@ -126,8 +130,10 @@ export default class RoleAdministrationService {
   ) {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
+
       await this.lockActor(trx, actorAccountId, now)
       const role = await this.lockRole(trx, roleId)
+
       this.assertConfigurable(role)
       this.assertActive(role)
       const result = await this.versions.append(
@@ -173,8 +179,10 @@ export default class RoleAdministrationService {
   ) {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
+
       await this.lockActor(trx, actorAccountId, now)
       const role = await this.lockRole(trx, roleId)
+
       this.assertConfigurable(role)
       this.assertActive(role)
 
@@ -211,8 +219,10 @@ export default class RoleAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         const role = await this.lockRole(trx, roleId)
+
         this.assertConfigurable(role)
 
         if (!role.archivedAt) {
@@ -220,6 +230,7 @@ export default class RoleAdministrationService {
         }
 
         const previousArchivedAt = role.archivedAt
+
         await role.merge({ archivedAt: null }).save()
         await this.accessEvents.record(
           {

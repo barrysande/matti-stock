@@ -119,6 +119,7 @@ export default class EffectiveAccessService {
     now: DateTime = DateTime.now()
   ) {
     const links = await this.delegatedAccess.effectiveLinksForDelegate(accountId, client, now)
+
     if (links.length === 0) return []
 
     const assignments = await this.assignmentQuery(client, now).whereIn(
@@ -129,6 +130,7 @@ export default class EffectiveAccessService {
 
     return links.flatMap((link) => {
       const assignment = assignmentMap.get(link.sourceAssignmentId)
+
       return assignment
         ? this.matchingGrants(
             assignment,
@@ -158,6 +160,7 @@ export default class EffectiveAccessService {
       resolvedScopeOrganizationalUnitId,
       client
     )
+
     if (!scope || scope.target.archivedAt) {
       return []
     }
@@ -174,6 +177,7 @@ export default class EffectiveAccessService {
       client,
       now
     )
+
     return [...direct, ...delegated]
   }
 
@@ -190,6 +194,7 @@ export default class EffectiveAccessService {
       )
     )
     const links = await this.delegatedAccess.effectiveLinksForDelegate(accountId, client, now)
+
     if (links.length === 0) return direct
 
     const sources = await this.assignmentQuery(client, now).whereIn(
@@ -199,6 +204,7 @@ export default class EffectiveAccessService {
     const sourceMap = new Map(sources.map((assignment) => [assignment.id, assignment]))
     const delegated = links.flatMap((link) => {
       const assignment = sourceMap.get(link.sourceAssignmentId)
+
       return assignment
         ? assignment.roleVersion.permissions.map((membership) =>
             this.grant(
@@ -210,6 +216,7 @@ export default class EffectiveAccessService {
           )
         : []
     })
+
     return [...direct, ...delegated]
   }
 
@@ -228,6 +235,7 @@ export default class EffectiveAccessService {
       client,
       now
     )
+
     return grants[0] ?? null
   }
 }

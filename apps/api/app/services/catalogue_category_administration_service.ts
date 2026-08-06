@@ -59,6 +59,7 @@ export default class CatalogueCategoryAdministrationService {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
         const category = await this.lockCategory(trx, categoryId)
+
         this.assertActive(category)
         const name = normalizeCategoryName(data.name)
 
@@ -76,6 +77,7 @@ export default class CatalogueCategoryAdministrationService {
           trx,
           now
         )
+
         return category
       })
     } catch (error) {
@@ -92,15 +94,18 @@ export default class CatalogueCategoryAdministrationService {
 
         const categories = await this.hierarchy.lock(trx)
         const category = categories.find((candidate) => candidate.id === categoryId)
+
         if (!category) {
           return await this.lockCategory(trx, categoryId)
         }
+
         this.assertActive(category)
         const parentId = data.parentId ?? null
 
         if (category.parentId === parentId) {
           this.invalid('The catalogue category already belongs to the selected parent.')
         }
+
         this.hierarchy.assertReparent(category, parentId, categories)
 
         await category.merge({ parentId }).save()
@@ -113,6 +118,7 @@ export default class CatalogueCategoryAdministrationService {
           trx,
           now
         )
+
         return category
       })
     } catch (error) {
@@ -128,6 +134,7 @@ export default class CatalogueCategoryAdministrationService {
 
       const categories = await this.hierarchy.lock(trx)
       const category = categories.find((candidate) => candidate.id === categoryId)
+
       if (!category) return this.lockCategory(trx, categoryId)
       this.assertActive(category)
       this.hierarchy.assertNoActiveChildren(category, categories)
@@ -143,6 +150,7 @@ export default class CatalogueCategoryAdministrationService {
         trx,
         now
       )
+
       return category
     })
   }
@@ -156,11 +164,13 @@ export default class CatalogueCategoryAdministrationService {
 
         const categories = await this.hierarchy.lock(trx)
         const category = categories.find((candidate) => candidate.id === categoryId)
+
         if (!category) return this.lockCategory(trx, categoryId)
 
         if (!category.archivedAt) {
           this.invalid('The catalogue category is not archived.')
         }
+
         this.hierarchy.assertRestorableParent(category, categories)
 
         await category.merge({ archivedAt: null }).save()
@@ -174,6 +184,7 @@ export default class CatalogueCategoryAdministrationService {
           trx,
           now
         )
+
         return category
       })
     } catch (error) {

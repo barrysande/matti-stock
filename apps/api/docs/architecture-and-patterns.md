@@ -1157,3 +1157,23 @@ complete snapshots preserve corrections without JSON interpretation. The
 shared lock order and monotonic use markers protect meaning under concurrent
 catalogue administration and future intake without prematurely implementing
 Week 4 records.
+
+## D39 — Service and controller workflows use semantic whitespace
+
+**Decision.** API services and controllers use blank lines to separate distinct
+workflow phases, including loading or authorization, validation, state
+derivation, mutation, history recording, and response or return. Related
+declarations, fluent query construction, and consecutive operations that form
+one phase remain grouped. Whitespace must not change execution order or be used
+to compress code around the 300-line functional-module limit.
+
+In controllers, `HttpContext` members are destructured alphabetically. Policy
+authorization, request validation, authenticated-user retrieval, domain work,
+and response serialization are separate phases, with blank lines between them.
+This keeps the security boundary and the origin of each input immediately
+visible.
+
+**Why.** Service workflows coordinate several responsibilities even when each
+class remains focused. Making those phase boundaries visible reduces the effort
+needed to trace authorization and transaction behavior, while keeping tightly
+related statements together avoids turning short workflows into visual noise.

@@ -36,6 +36,7 @@ export default class MasterAdminBootstrapService {
       .where('key', 'MASTER_ADMIN')
       .whereNull('archived_at')
       .first()
+
     if (!role || !role.systemManaged) {
       throw new Error('The active MASTER_ADMIN role is missing from the access registry')
     }
@@ -44,6 +45,7 @@ export default class MasterAdminBootstrapService {
       .where('role_id', role.id)
       .where('version', 1)
       .first()
+
     if (!version) {
       throw new Error('MASTER_ADMIN version 1 is missing from the access registry')
     }
@@ -52,6 +54,7 @@ export default class MasterAdminBootstrapService {
       .where('role_version_id', version.id)
       .where('permission_key', 'access.root')
       .first()
+
     if (!accessRoot) {
       throw new Error('MASTER_ADMIN version 1 does not grant access.root')
     }
@@ -69,6 +72,7 @@ export default class MasterAdminBootstrapService {
       if (institute.name !== name) {
         throw new Error('The active institute root does not match the bootstrap institute name')
       }
+
       return { institute, created: false }
     }
 

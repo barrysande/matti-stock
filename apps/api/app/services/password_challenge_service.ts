@@ -96,6 +96,7 @@ export default class PasswordChallengeService {
     trx: TransactionClientContract
   ) {
     const purpose = await this.challengePurpose(account, trx)
+
     return this.issueChallenge(account, purpose, request, trx, {
       accountId: actorAccountId,
       reason,
@@ -120,6 +121,7 @@ export default class PasswordChallengeService {
           },
           trx
         )
+
         return null
       }
 
@@ -135,10 +137,12 @@ export default class PasswordChallengeService {
           },
           trx
         )
+
         return null
       }
 
       const purpose = await this.challengePurpose(account, trx)
+
       return this.issueChallenge(account, purpose, request, trx)
     })
   }

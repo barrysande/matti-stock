@@ -46,6 +46,7 @@ export default class OrganizationalUnitAdministrationService {
     now: DateTime<true>
   ) {
     const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
     await this.rootAuthority.assertEffectiveActor(actor, trx, now)
   }
 
@@ -60,6 +61,7 @@ export default class OrganizationalUnitAdministrationService {
     now: DateTime<true>
   ) {
     const impact = await this.accessImpact.preview(request, trx, now)
+
     if (impact.fingerprint !== expectedFingerprint) {
       throw new StaleOrganizationalAccessImpactException()
     }
@@ -77,6 +79,7 @@ export default class OrganizationalUnitAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         const unit = await this.lockUnit(trx, unitId)
         const previousName = unit.name
@@ -94,6 +97,7 @@ export default class OrganizationalUnitAdministrationService {
           trx,
           now
         )
+
         await this.history.recordChange(
           'ORGANIZATIONAL_UNIT_RENAMED',
           unit,
@@ -123,6 +127,7 @@ export default class OrganizationalUnitAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         await this.assertImpact(
           { operation: 'REPARENT', targetUnitId: unitId, parentId: data.parentId },
@@ -141,6 +146,7 @@ export default class OrganizationalUnitAdministrationService {
           trx,
           now
         )
+
         await this.history.recordChange(
           'ORGANIZATIONAL_UNIT_REPARENTED',
           unit,
@@ -171,6 +177,7 @@ export default class OrganizationalUnitAdministrationService {
   ) {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
+
       await this.lockActor(trx, actorAccountId, now)
       await this.assertImpact(
         { operation: 'ARCHIVE', targetUnitId: unitId },
@@ -182,6 +189,7 @@ export default class OrganizationalUnitAdministrationService {
 
       await unit.merge({ archivedAt: now }).save()
       const version = await this.history.appendVersion(unit, data.reason, actorAccountId, trx, now)
+
       await this.history.recordChange(
         'ORGANIZATIONAL_UNIT_ARCHIVED',
         unit,
@@ -206,6 +214,7 @@ export default class OrganizationalUnitAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         await this.assertImpact(
           { operation: 'RESTORE', targetUnitId: unitId },
@@ -224,6 +233,7 @@ export default class OrganizationalUnitAdministrationService {
           trx,
           now
         )
+
         await this.history.recordChange(
           'ORGANIZATIONAL_UNIT_RESTORED',
           unit,

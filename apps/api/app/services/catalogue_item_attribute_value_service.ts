@@ -69,6 +69,7 @@ export default class CatalogueItemAttributeValueService {
   private resolveValues(attributes: CategoryAttribute[], inputs: CreateValueInput[]) {
     const attributeById = new Map(attributes.map((attribute) => [attribute.id, attribute]))
     const inputIds = inputs.map(({ categoryAttributeId }) => categoryAttributeId)
+
     if (new Set(inputIds).size !== inputIds.length) {
       this.invalid('Each catalogue attribute may be supplied at most once.')
     }
@@ -195,6 +196,7 @@ export default class CatalogueItemAttributeValueService {
       .select('id')
 
     const currentIds = current.map(({ id }) => id)
+
     if (currentIds.join(':') !== expectedIds.join(':')) {
       this.invalid(
         'Catalogue attributes changed during the request. Review the item and try again.'
@@ -225,6 +227,7 @@ export default class CatalogueItemAttributeValueService {
     const attributeById = new Map(attributes.map((attribute) => [attribute.id, attribute]))
 
     const changeIds = changes.map(({ categoryAttributeId }) => categoryAttributeId)
+
     if (new Set(changeIds).size !== changeIds.length) {
       this.invalid('Each catalogue attribute may be changed at most once.')
     }
@@ -249,11 +252,13 @@ export default class CatalogueItemAttributeValueService {
 
     for (const change of changes) {
       const attribute = attributeById.get(change.categoryAttributeId)
+
       if (!attribute) {
         this.invalid('Only active catalogue-scoped attributes from the exact category may change.')
       }
 
       const existing = currentByAttribute.get(attribute.id)
+
       if (change.operation === 'REMOVE') {
         if (
           change.textValue !== undefined ||
@@ -264,9 +269,11 @@ export default class CatalogueItemAttributeValueService {
         ) {
           this.invalid('A REMOVE operation must not supply a replacement value.')
         }
+
         if (attribute.isRequired) {
           this.invalid(`The required attribute "${attribute.name}" cannot be removed.`)
         }
+
         if (!existing) {
           this.invalid(`The optional attribute "${attribute.name}" has no current value.`)
         }
@@ -274,7 +281,9 @@ export default class CatalogueItemAttributeValueService {
         await existing.delete()
         continue
       }
+
       const value = resolvedByAttribute.get(attribute.id)!
+
       if (existing) {
         if (this.sameValue(existing, value)) {
           this.invalid(`The attribute "${attribute.name}" already has this value.`)
@@ -290,11 +299,13 @@ export default class CatalogueItemAttributeValueService {
         await this.createCurrentValue(catalogueItemId, value, trx)
       }
     }
+
     return attributes.map(({ id }) => id)
   }
 
   async currentValueIds(catalogueItemId: string, trx: TransactionClientContract) {
     const values = await this.lockCurrentValues(catalogueItemId, trx)
+
     return values.map(({ id }) => id).sort()
   }
 }

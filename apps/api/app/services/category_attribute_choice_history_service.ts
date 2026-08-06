@@ -71,6 +71,7 @@ export default class CategoryAttributeChoiceHistoryService {
   ) {
     const current = await this.lockCurrentVersion(trx, choice.id)
     const effectiveFrom = this.nextEffectiveTime(current, proposedNow)
+
     await current.merge({ effectiveTo: effectiveFrom }).save()
 
     return CategoryAttributeChoiceVersion.create(

@@ -13,6 +13,7 @@ import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE = 'An active role with this name already exists.'
 const DUPLICATE_NAME_CONSTRAINTS = ['roles_active_name_unique'] as const
+
 type CreateData = Infer<typeof createRoleValidator>
 
 @inject()
@@ -33,6 +34,7 @@ export default class RoleProvisioningService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
         await this.rootAuthority.assertEffectiveActor(actor, trx, now)
         const role = await Role.create(
           {

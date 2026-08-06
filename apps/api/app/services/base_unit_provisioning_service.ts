@@ -32,6 +32,7 @@ export default class BaseUnitProvisioningService {
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
         const details = resolveBaseUnitDetails(data.name, data.symbol, data.kind, data.precision)
         const unit = await BaseUnit.create({ ...details, archivedAt: null }, { client: trx })
+
         await this.history.createInitialVersion(
           unit,
           data.reason,
@@ -40,6 +41,7 @@ export default class BaseUnitProvisioningService {
           trx,
           now
         )
+
         return unit
       })
     } catch (error) {

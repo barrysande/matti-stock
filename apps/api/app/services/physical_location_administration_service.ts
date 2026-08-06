@@ -43,6 +43,7 @@ export default class PhysicalLocationAdministrationService {
     now: DateTime<true>
   ) {
     const actor = await this.rootAuthority.lockAdministrationActor(trx, actorAccountId)
+
     await this.rootAuthority.assertEffectiveActor(actor, trx, now)
   }
 
@@ -73,6 +74,7 @@ export default class PhysicalLocationAdministrationService {
       .where('id', parentId)
       .forUpdate()
       .first()
+
     if (!parent || parent.archivedAt) {
       this.invalid('The selected physical-location parent is unavailable.')
     }
@@ -86,6 +88,7 @@ export default class PhysicalLocationAdministrationService {
       if (cursor.id === location.id) {
         this.invalid('A physical location cannot be moved beneath one of its descendants.')
       }
+
       if (visited.has(cursor.id)) {
         this.invalid('The physical-location hierarchy contains a circular parent relationship.')
       }
@@ -105,8 +108,10 @@ export default class PhysicalLocationAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         const location = await this.lockLocation(trx, locationId)
+
         this.assertActive(location)
         const previousName = location.name
 
@@ -122,6 +127,7 @@ export default class PhysicalLocationAdministrationService {
           trx,
           now
         )
+
         await this.history.recordChange(
           'PHYSICAL_LOCATION_RENAMED',
           location,
@@ -149,8 +155,10 @@ export default class PhysicalLocationAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         const location = await this.lockLocation(trx, locationId)
+
         this.assertActive(location)
         const parentId = data.parentId ?? null
         const previousParentId = location.parentId
@@ -158,6 +166,7 @@ export default class PhysicalLocationAdministrationService {
         if (parentId === previousParentId) {
           this.invalid('The physical location already belongs to the selected parent.')
         }
+
         await this.assertValidParent(location, parentId, trx)
 
         await location.merge({ parentId }).save()
@@ -168,6 +177,7 @@ export default class PhysicalLocationAdministrationService {
           trx,
           now
         )
+
         await this.history.recordChange(
           'PHYSICAL_LOCATION_REPARENTED',
           location,
@@ -198,8 +208,10 @@ export default class PhysicalLocationAdministrationService {
   ) {
     return db.transaction(async (trx) => {
       const now = DateTime.now()
+
       await this.lockActor(trx, actorAccountId, now)
       const location = await this.lockLocation(trx, locationId)
+
       this.assertActive(location)
 
       const activeChild = await PhysicalLocation.query({ client: trx })
@@ -207,6 +219,7 @@ export default class PhysicalLocationAdministrationService {
         .whereNull('archived_at')
         .forUpdate()
         .first()
+
       if (activeChild) {
         this.invalid('Archive or move active child locations before archiving this location.')
       }
@@ -219,6 +232,7 @@ export default class PhysicalLocationAdministrationService {
         trx,
         now
       )
+
       await this.history.recordChange(
         'PHYSICAL_LOCATION_ARCHIVED',
         location,
@@ -243,23 +257,27 @@ export default class PhysicalLocationAdministrationService {
     try {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
+
         await this.lockActor(trx, actorAccountId, now)
         const location = await this.lockLocation(trx, locationId)
 
         if (!location.archivedAt) {
           this.invalid('The physical location is not archived.')
         }
+
         if (location.parentId) {
           const parent = await PhysicalLocation.query({ client: trx })
             .where('id', location.parentId)
             .forUpdate()
             .first()
+
           if (!parent || parent.archivedAt) {
             this.invalid('Restore the parent location before restoring this location.')
           }
         }
 
         const previousArchivedAt = location.archivedAt
+
         await location.merge({ archivedAt: null }).save()
         const version = await this.history.appendVersion(
           location,
@@ -268,6 +286,7 @@ export default class PhysicalLocationAdministrationService {
           trx,
           now
         )
+
         await this.history.recordChange(
           'PHYSICAL_LOCATION_RESTORED',
           location,

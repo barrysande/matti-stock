@@ -12,9 +12,11 @@ export default class RoleVersionService {
 
   private normalizedKeys(permissionKeys: string[]) {
     const keys = [...new Set(permissionKeys)].sort()
+
     if (keys.length !== permissionKeys.length) {
       this.invalid('A role permission may be selected only once.')
     }
+
     return keys
   }
 
@@ -22,6 +24,7 @@ export default class RoleVersionService {
     const permissions = await Permission.query({ client: trx }).whereIn('key', keys)
     const found = new Set(permissions.map(({ key }) => key))
     const missing = keys.filter((key) => !found.has(key))
+
     if (missing.length > 0) {
       this.invalid(`Unknown role permission: ${missing.join(', ')}.`)
     }
@@ -30,6 +33,7 @@ export default class RoleVersionService {
       .filter(({ customRoleAssignable }) => !customRoleAssignable)
       .map(({ key }) => key)
       .sort()
+
     if (restricted.length > 0) {
       this.invalid(`These permissions are reserved for system roles: ${restricted.join(', ')}.`)
     }
@@ -58,6 +62,7 @@ export default class RoleVersionService {
     trx: TransactionClientContract
   ) {
     const keys = this.normalizedKeys(permissionKeys)
+
     await this.assertAssignable(keys, trx)
     const version = await RoleVersion.create(
       {
@@ -68,7 +73,9 @@ export default class RoleVersionService {
       },
       { client: trx }
     )
+
     await this.createMemberships(version, keys, trx)
+
     return { version, permissionKeys: keys }
   }
 
@@ -81,6 +88,7 @@ export default class RoleVersionService {
     trx: TransactionClientContract
   ) {
     const keys = this.normalizedKeys(permissionKeys)
+
     await this.assertAssignable(keys, trx)
     const current = await RoleVersion.query({ client: trx })
       .where('role_id', role.id)
@@ -108,7 +116,9 @@ export default class RoleVersionService {
       },
       { client: trx }
     )
+
     await this.createMemberships(version, keys, trx)
+
     return { version, previousVersion: current, permissionKeys: keys, previousKeys: currentKeys }
   }
 }

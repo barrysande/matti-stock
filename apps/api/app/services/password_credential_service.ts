@@ -63,9 +63,11 @@ export default class PasswordCredentialService {
       reason: rejection.reason,
       purpose,
     }
+
     if (rejection.challengeId) {
       metadata.challengeId = rejection.challengeId
     }
+
     if (rejection.accountStatus) {
       metadata.status = rejection.accountStatus
     }
@@ -92,6 +94,7 @@ export default class PasswordCredentialService {
       data.token,
       'password-credential'
     ) as PasswordCredentialToken | null
+
     if (
       !payload ||
       typeof payload.challengeId !== 'string' ||
@@ -99,6 +102,7 @@ export default class PasswordCredentialService {
       !Number.isInteger(payload.resetVersion)
     ) {
       await this.recordRejectedCredential(expectedPurpose, { reason: 'INVALID_TOKEN' }, request)
+
       return { kind: 'INVALID' }
     }
 
@@ -107,6 +111,7 @@ export default class PasswordCredentialService {
         .where('id', payload.challengeId)
         .forUpdate()
         .first()
+
       if (!challenge) {
         await this.recordRejectedCredential(
           expectedPurpose,
@@ -117,6 +122,7 @@ export default class PasswordCredentialService {
           },
           request
         )
+
         return { kind: 'INVALID' }
       }
 
@@ -131,6 +137,7 @@ export default class PasswordCredentialService {
           },
           request
         )
+
         return { kind: 'INVALID' }
       }
 
@@ -150,12 +157,14 @@ export default class PasswordCredentialService {
           },
           request
         )
+
         return { kind: 'INVALID' }
       }
 
       const redemption = await PasswordResetRedemption.query({ client: trx })
         .where('challenge_id', challenge.id)
         .first()
+
       if (redemption) {
         await this.recordRejectedCredential(
           expectedPurpose,
@@ -167,6 +176,7 @@ export default class PasswordCredentialService {
           },
           request
         )
+
         return { kind: 'INVALID' }
       }
 
@@ -184,6 +194,7 @@ export default class PasswordCredentialService {
           },
           request
         )
+
         return { kind: 'INVALID' }
       }
 
@@ -199,6 +210,7 @@ export default class PasswordCredentialService {
           },
           request
         )
+
         return { kind: 'ACCOUNT_SIGN_IN_UNAVAILABLE' }
       }
 
@@ -225,6 +237,7 @@ export default class PasswordCredentialService {
           .where('id', account.personId)
           .forUpdate()
           .firstOrFail()
+
         await person
           .merge({ primaryEmailVerifiedAt: person.primaryEmailVerifiedAt ?? DateTime.now() })
           .save()

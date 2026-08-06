@@ -40,11 +40,13 @@ export default class RoleDirectoryService {
     if (!data.includeArchived) {
       query.whereNull('archived_at')
     }
+
     if (data.search) {
       query.where((builder) => {
         builder.whereILike('name', `%${data.search}%`).orWhereILike('key', `%${data.search}%`)
       })
     }
+
     if (data.systemManaged !== undefined) {
       query.where('system_managed', data.systemManaged)
     }

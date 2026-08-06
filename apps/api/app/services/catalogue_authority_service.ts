@@ -57,6 +57,7 @@ export default class CatalogueAuthorityService {
   /** Checks current institution-root catalogue authority for Bouncer policies. */
   async isEffective(accountId: string, client?: TransactionClientContract) {
     const institute = await this.activeInstitute(client)
+
     if (!institute) return false
 
     const grant = await this.effectiveAccess.authorize(
@@ -65,6 +66,7 @@ export default class CatalogueAuthorityService {
       institute.id,
       client
     )
+
     return Boolean(grant)
   }
 
@@ -93,6 +95,7 @@ export default class CatalogueAuthorityService {
       trx,
       now
     )
+
     if (!initialGrant) {
       throw new CatalogueAuthorityChangedException()
     }
@@ -106,6 +109,7 @@ export default class CatalogueAuthorityService {
       trx,
       now
     )
+
     if (!revalidatedGrant || !this.sameGrant(initialGrant, revalidatedGrant)) {
       throw new CatalogueAuthorityChangedException()
     }

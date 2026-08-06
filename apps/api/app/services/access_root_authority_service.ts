@@ -83,6 +83,7 @@ export default class AccessRootAuthorityService {
   /** Serializes a root-authorized write and locks its acting account for transactional revalidation. */
   async lockAdministrationActor(trx: TransactionClientContract, actorAccountId: string) {
     await this.lockMutations(trx)
+
     return this.lockAccount(trx, actorAccountId)
   }
 
@@ -96,6 +97,7 @@ export default class AccessRootAuthorityService {
       actor.status === 'ACTIVE'
         ? await this.effectiveAssignments(trx, now).where('account_id', actor.id).first()
         : null
+
     if (!assignment) {
       throw new AccessAuthorityChangedException()
     }
@@ -156,6 +158,7 @@ export default class AccessRootAuthorityService {
         if (interval.startsAt > now) {
           throw new LastRootAccessException()
         }
+
         if (!interval.endsAt) return
         coveredUntil = interval.endsAt.toMillis()
         continue
@@ -168,6 +171,7 @@ export default class AccessRootAuthorityService {
       if (!interval.endsAt) {
         return
       }
+
       if (interval.endsAt.toMillis() > coveredUntil) {
         coveredUntil = interval.endsAt.toMillis()
       }
