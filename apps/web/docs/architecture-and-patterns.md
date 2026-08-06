@@ -114,9 +114,9 @@ moving filtering into browser-to-API requests.
 sheet through the shared shadcn sidebar context before navigation. Desktop
 sidebar state is unchanged.
 
-**Why.** A completed smartphone navigation should reveal the destination
-instead of leaving the off-canvas navigation over it. Using the sidebar's own
-context API keeps sheet state ownership inside the scaffolded component.
+**Why.** Closing the off-canvas navigation reveals the selected destination on
+a smartphone. Using the sidebar's own context API keeps sheet state ownership
+inside the scaffolded component.
 
 ## D9 — Access-impact writes preserve one reviewed server form
 
@@ -224,22 +224,18 @@ lifecycle reasons do not.
 
 **Why.** Physical precision varies from campuses to shelves and therefore needs
 more depth than the institutional organization presentation. Full paths make
-that depth clear using the API's existing response contract. Avoiding an access
-preview prevents a false implication that moving stock-location records changes
-organizational authority, while API-side checks still protect hierarchy and
-lifecycle invariants.
+that depth clear using the API's existing response contract. API-side checks
+still protect hierarchy and lifecycle invariants.
 
 ## D13 — Valibot schemas use named modular imports
 
-**Decision.** Web schema modules import the Valibot functions and types they use
-by name. They do not import the library as a namespace and prefix every schema
-operation with `v.`.
+**Decision.** Web schema modules use named imports for the Valibot functions and
+types they need.
 
 **Why.** Valibot supports tree shaking for both named and namespace imports, but
 named imports make each module's validation dependencies explicit and keep the
 functional schema syntax concise. The import form therefore communicates the
-intended modular boundary directly in source code instead of relying on bundler
-knowledge to interpret a wildcard import.
+intended modular boundary directly in source code.
 
 ## D14 — Field pipelines surface one validation message at a time
 
@@ -490,13 +486,12 @@ primitives avoids churn that would be overwritten by future component updates.
 applicable session guard before validation, query processing, or API access.
 Ordinary authenticated routes use `requireAuth(event)`, effective-root-only
 routes use `requireRoot(event)`, and guest-only authentication routes use
-`requireGuest(event)`. Because `requireRoot` first requires an authenticated
-account, root-only boundaries do not also call `requireAuth`.
+`requireGuest(event)`. `requireRoot(event)` includes the authentication check.
 
-Layout guards remain responsible for protecting and populating their shared
-shells, but child page-server boundaries do not rely on a parent layout guard.
-An existing action helper may own the guard when every action necessarily
-passes through that helper; otherwise actions invoke the guard directly.
+Layout guards protect and populate their shared shells. Each child page-server
+boundary also applies its own guard. An existing action helper may own the guard
+when every action necessarily passes through that helper; otherwise actions
+invoke the guard directly.
 
 **Why.** SvelteKit form actions run before page and layout loads are rerun, and
 parent and child loads are separate execution boundaries. Enforcing the invariant

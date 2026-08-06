@@ -1,47 +1,48 @@
 # System Flows
 
-This document summarizes the implemented API patterns and authorization flows.
-It names application classes and methods as `ClassName.method()` so a reader can
-move from a flow directly to its implementation. It describes current behavior,
-not future stock workflows that have not yet been built.
+This document explains the API's current application patterns and authorization
+flows. It names classes and methods as `ClassName.method()` so readers can move
+from each flow directly to its implementation.
 
 ## 1. Application patterns
 
 ### Request and response boundaries
 
-- **Middleware** establishes request-wide concerns such as authentication and
-  session validity before a protected controller action runs.
+- **Middleware** handles concerns shared across a request, such as authentication
+  and session validity, before a protected controller action runs.
 - **Controllers** coordinate one HTTP action. They authorize, validate, obtain
-  the authenticated actor, call one application workflow, and return or
-  serialize the response.
-- **Policies** answer whether the authenticated actor may attempt an HTTP
-  action. Controllers do not inspect role names or permissions directly.
-- **Validators** own request payload shapes and normalization.
-- **Transformers** own response shapes. Mutation actions normally return only a
-  stable message; read actions return transformer-controlled data.
+  the authenticated actor, call one application workflow, and return a message
+  or serialized resource data.
+- **Policies** use the authenticated actor's effective permissions and scopes to
+  decide whether an HTTP action may proceed.
+- **Validators** define request payload shapes and normalization.
+- **Transformers** define serialized resource data. Successful reads return
+  transformer-controlled data; successful mutations return only
+  `{ message: string }`. An explicitly designed exception may return both.
 
 ### Application and domain boundaries
 
 - **Provisioning services** create a resource and its initial history.
 - **Administration services** perform ordinary updates and lifecycle changes.
-- **Directory services** own list, lookup, and detailed read queries.
-- **History and access-event services** append the reason, actor, effective
-  time, and authorization evidence for durable changes.
+- **Directory services** load lists, lookup results, and detailed views.
+- **History and access-event services** append records of the reason, actor,
+  effective time, and authorization evidence for durable changes.
 - **Focused domain services** own reusable rules such as hierarchy checks,
   effective access, organizational scope, similarity review, and delegation
   compatibility.
 
 ### Persistence and consistency boundaries
 
-- **Models** represent current projections and relationships.
-- **Version or event records** preserve prior meaning instead of rewriting
+- **Models** represent each resource's current state and relationships.
+- **Version or event records** preserve prior meaning through append-only
   history.
 - **Transactions** group authorization revalidation, locks, domain mutations,
-  history, and audit evidence into one atomic operation.
-- **Stable locks and fingerprints** protect workflows whose reviewed effect may
-  become stale before application.
-- **Database constraints and triggers** remain the final guard for invariants
-  that must hold outside the HTTP application as well.
+  history writes, and audit evidence into one atomic operation.
+- **Row locks** protect records during transactional validation and mutation.
+  **Named application locks** coordinate broader workflows, while
+  **fingerprints** detect state changes after review.
+- **Database constraints and triggers** enforce invariants even when a change
+  originates outside the HTTP application.
 
 ## 2. Common system flows
 
@@ -58,15 +59,15 @@ HTTP request
 → database transaction
 → lock and revalidate current authority
 → lock and validate domain state
-→ persist current projection
+→ persist the current projection
 → append version or access event
 → commit
 → message response
 ```
 
-The policy check rejects unauthorized requests before payload validation or
-resource lookup. Transactional revalidation then closes the race between that
-initial check and the committed write.
+The policy check rejects an unauthorized request before payload validation or
+resource lookup. Because authority could change after that check, the service
+revalidates it inside the transaction before committing the write.
 
 ### Authorized directory or detail read
 
@@ -81,14 +82,13 @@ HTTP request
 → serialized response
 ```
 
-Directory projections remain lightweight. Detailed reads may add relationships,
-effective history, lifecycle context, or authorization evidence.
+List projections remain lightweight, while detailed reads may include
+relationships, effective history, lifecycle context, or authorization evidence.
 
 ### Participant-owned workflow
 
-Some actions are authorized by participation in the requested record rather
-than by a general permission. The service performs that ownership check inside
-the transaction.
+Some actions derive authority from participation in the requested record. The
+service verifies that ownership inside the transaction.
 
 ```text
 DelegationsController.accept()
@@ -102,7 +102,7 @@ DelegationsController.accept()
 → message response
 ```
 
-Administrative termination is different:
+Administrative termination uses root authority:
 
 ```text
 DelegationsController.terminate()
@@ -125,13 +125,13 @@ CatalogueCategoriesController.previewMerge()
 → validate source, target, children, and affected items
 → return impact plus fingerprint
 
-administrator confirms the reviewed effect
+administrator confirms the reviewed changes
 
 → CatalogueCategoriesController.merge()
 → CatalogueCategoryPolicy.merge()
 → mergeCatalogueCategoryValidator
 → CatalogueCategoryMergeService.merge()
-→ stable mutation lock and database transaction
+→ named application lock and database transaction
 → CatalogueAuthorityService.authorizeMutation()
 → rebuild preview under locks
 → compare fingerprint
@@ -146,7 +146,7 @@ administrator confirms the reviewed effect
 ```text
 current projection
 → lock current open version
-→ close its effectiveTo
+→ set its end time (`effectiveTo`)
 → update the projection with model.merge().save()
 → append the next version with reason, actor, and authorization evidence
 → commit as one transaction
@@ -154,10 +154,9 @@ current projection
 
 ## 3. Authorization patterns
 
-### Authority is permission plus scope, not a rank
+### Authority combines permission and scope
 
-The application has no universal ascending access levels. Effective authority
-is composed from independent facts:
+The application derives effective authority from these facts:
 
 ```text
 active account
@@ -166,11 +165,11 @@ active account
 + permission key
 + active organizational scope
 + scope mode
-+ current time and lifecycle state
++ assignment timing and lifecycle state
 → effective grant
 ```
 
-Useful authorization boundaries currently include:
+The current authorization boundaries are:
 
 - **Authenticated access:** some shared catalogue reads allow any authenticated
   application user, for example `CatalogueCategoryPolicy.list()`.
@@ -179,18 +178,18 @@ Useful authorization boundaries currently include:
 - **Institution-wide business access:** `catalogue.manage` must resolve at the
   active institute for catalogue mutations.
 - **Technical access administration:** `access.root` manages accounts, roles,
-  assignments, delegations, and organizational authority. It does not imply
-  stock or catalogue permissions.
+  assignments, delegations, and organizational authority. Stock and catalogue
+  operations require their corresponding business permissions.
 
 ### Permissions and roles
 
 Permission keys are software-defined actions such as `catalogue.manage`,
-`movement.request`, `stocktake.count`, and `valuation.record`. Administrators
-may combine assignable permissions into reusable roles, but cannot invent a new
-permission key through the API.
+`movement.request`, `stocktake.count`, and `valuation.record`. The application
+defines the available keys, and administrators combine the assignable ones into
+reusable roles.
 
-Roles are permission bundles, not organizational positions or scopes. The
-starter roles are `MASTER_ADMIN`, `STORE_SUPERVISOR`, `STOCK_SUPERVISOR`,
+Each role assignment grants a role to an account at an organizational scope.
+The starter roles are `MASTER_ADMIN`, `STORE_SUPERVISOR`, `STOCK_SUPERVISOR`,
 `FINANCE_SUPERVISOR`, and `STOCK_TAKER`; configurable roles may evolve as the
 institute's duties evolve.
 
@@ -202,12 +201,12 @@ RolesController.replacePermissions()
 → append a new immutable role version
 ```
 
-Existing assignments remain linked to the role version originally granted. A
-new version therefore does not silently expand or remove existing authority.
+Existing assignments retain the role version originally granted. A new version
+applies through later grants or explicit assignment replacement.
 
-`MASTER_ADMIN` is deliberately narrow: its protected role grants
-`access.root`. A Master Admin needs a separate business-role assignment to
-receive `catalogue.manage` or another operational permission.
+The protected `MASTER_ADMIN` role grants `access.root`. A Master Admin receives
+`catalogue.manage` or another operational permission through a separate
+business-role assignment.
 
 ### Role assignments and organizational reach
 
@@ -236,12 +235,11 @@ Example:
 Stock Supervisor assignment at Engineering + INCLUDE_DESCENDANTS
 → permission applies at Engineering
 → permission applies at Engineering / Workshop
-→ permission does not apply at ICT
+→ ICT requires its own matching assignment
 ```
 
 Assignments may start immediately or later and may expire. Ending, cancelling,
-or replacing an assignment appends a termination record rather than rewriting
-the approved grant.
+or replacing one appends a termination record and preserves the approved grant.
 
 ```text
 RoleAssignmentsController.store()
@@ -258,9 +256,9 @@ RoleAssignmentsController.store()
 
 ### Effective-access resolution
 
-`EffectiveAccessService` is the shared definition of current authority. It
-rejects grants when the account is inactive, the role or scope is archived, the
-assignment has not started, it has expired, or an effective termination exists.
+`EffectiveAccessService` is the shared definition of current authority. An
+effective grant requires an active account, active role and scope, a started and
+unexpired assignment, and an open lifecycle.
 
 ```text
 EffectiveAccessService.authorize(accountId, permissionKey, resolvedScopeId)
@@ -273,14 +271,15 @@ EffectiveAccessService.authorize(accountId, permissionKey, resolvedScopeId)
 → first matching grant or null
 ```
 
-Separate assignments form a union. The returned grant is evidence, not only a
-boolean: it identifies the role, role version, assignment, declared and resolved
-scope, permission, and optional delegation.
+An account receives the combined permissions of all matching assignments. The
+returned evidence identifies the role, role version, assignment, declared and
+resolved scope, permission, and optional delegation.
 
 ### Policy check and transactional revalidation
 
-Policies provide the early HTTP boundary. A sensitive mutation then locks and
-revalidates authority inside its transaction.
+Policies perform the first authorization check at the HTTP boundary. For a
+sensitive mutation, the service then locks the relevant records and revalidates
+authority inside the transaction.
 
 Catalogue example:
 
@@ -293,8 +292,9 @@ CatalogueCategoriesController.merge()
 → CatalogueCategoryMergeService.merge()
 → CatalogueAuthorityService.authorizeMutation()
 → lock actor, institute, source assignment, role, and optional delegation
-→ resolve the same exact grant again
-→ proceed only when the evidence is unchanged
+→ resolve the exact grant again
+→ compare the two grant results
+→ continue when the authorization evidence matches
 ```
 
 Root-access example:
@@ -309,16 +309,16 @@ AccountsController.suspend()
 → mutate account, append version, and record access event
 ```
 
-`access.root` has additional continuity protection: root-affecting assignment
-changes call `AccessRootAuthorityService.assertContinuousCoverage()` so the
-system cannot commit an immediate or scheduled period without an effective root
-administrator.
+Root-affecting assignment changes call
+`AccessRootAuthorityService.assertContinuousCoverage()` and require continuous
+effective `access.root` coverage across immediate and scheduled intervals.
 
 ### Delegation
 
-Delegation temporarily extends complete direct role assignments; it does not
-copy selected permissions, rewrite the source assignment, transfer ownership of
-work, or create a new permanent role assignment.
+Delegation temporarily grants a delegate every permission and the organizational
+reach of a complete direct role assignment. The source assignment and work
+ownership remain with the delegator. The temporary grant applies during the
+accepted interval.
 
 ```text
 effective direct source assignment
@@ -327,7 +327,7 @@ effective direct source assignment
 → validate delegator ownership, recipient compatibility, interval, and overlap
 → append proposal and linked source assignments
 → proposed delegate accepts through DelegationResponseService.accept()
-→ accepted + started + not expired + not terminated
+→ accepted + within effective interval + no early termination
 → DelegatedAccessQueryService.effectiveLinksForDelegate()
 → EffectiveAccessService revalidates each source assignment
 → delegated effective grant
@@ -335,7 +335,7 @@ effective direct source assignment
 
 Important controls:
 
-- only currently effective direct assignments may be delegated;
+- the source must be a currently effective direct assignment;
 - `MASTER_ADMIN`, `access.root`, self-delegation, and re-delegation are blocked;
 - the delegate must have compatible direct organizational standing through the
   delegation's expiry;
@@ -343,8 +343,7 @@ Important controls:
 - acceptance applies to the whole proposal;
 - the delegator may revoke, the delegate may relinquish, and an effective root
   administrator may terminate;
-- expiry is checked synchronously, so security does not depend on a scheduled
-  job.
+- `EffectiveAccessService` checks expiry synchronously on every resolution.
 
 Example:
 
@@ -377,4 +376,4 @@ authorized business mutation
 ```
 
 Later role edits, assignment endings, delegation expiry, or account suspension
-can stop new work without changing who validly authorized historical work.
+govern future work. Historical records retain their original authorization.

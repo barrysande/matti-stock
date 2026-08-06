@@ -7,7 +7,7 @@ source for implementation details.
 ## D1 — One root pnpm workspace
 
 **Decision.** The API is the `api` package inside the repository's single root
-pnpm workspace. It does not own a nested workspace or lockfile.
+pnpm workspace and uses the root lockfile.
 
 **Why.** The API and web application share one dependency graph and lockfile.
 This keeps Tuyau's generated registry link deterministic and prevents commands
@@ -38,9 +38,8 @@ with the feature that needs them.
 ## D4 — Notification models broadcast a best-effort refetch signal
 
 **Decision.** Business services create durable notification rows as part of
-their approved workflows. The Notification model's `@afterCreate` hook owns the
-Transmit broadcast. Services do not repeat Transmit calls, and notifications
-do not use a queue merely to reach SSE clients.
+their approved workflows. The Notification model's `@afterCreate` hook sends
+the Transmit broadcast directly.
 
 **Why.** The notification table is authoritative; SSE only nudges connected
 clients to refetch it. Centralizing transmission in one model hook keeps that
@@ -68,7 +67,7 @@ profile, `User` model, and related migrations were removed before the first
 database migration. Authentication will be introduced only through an approved
 session-authentication feature based on the accepted people, account lifecycle,
 authorization, and audit requirements. The already approved `@adonisjs/auth`
-dependency remains installed but is not wired into the application meanwhile.
+dependency remains installed pending that feature.
 
 **Why.** Adapting the generic scaffold incrementally would preserve the wrong
 public-registration and token-authentication assumptions and prematurely merge
@@ -82,9 +81,8 @@ disposable scaffold behavior as a compatibility contract.
 `GET /health/ready` runs the registered disk-space, heap-memory, and PostgreSQL
 checks and is protected by a named middleware requiring the
 `x-monitoring-secret` header to equal the validated
-`HEALTH_CHECK_SECRET`. Redis is deliberately not part of readiness because it
-transports best-effort SSE refetch signals rather than authoritative
-application state.
+`HEALTH_CHECK_SECRET`. Readiness excludes Redis because it transports
+best-effort SSE refetch signals rather than authoritative application state.
 
 **Why.** A liveness failure should tell an orchestrator to restart the process,
 so it must not fail because an external dependency is temporarily unavailable.
@@ -148,25 +146,25 @@ reserved for best-effort Transmit delivery.
 and production. Tests use Transmit's process-local transport so unrelated Japa
 tests do not require Redis.
 
-Transmit routes are not registered before session authentication exists.
-Week 2 must apply authentication to every Transmit route and explicitly
-authorize every private channel before the browser client is connected.
+Transmit route registration waits for session authentication. Week 2 must apply
+authentication to every Transmit route and explicitly authorize every private
+channel before the browser client is connected.
 Notification rows and other durable state remain in PostgreSQL; Transmit only
 signals clients to refetch.
 
 **Why.** The HTTP server owns SSE connections while a separate queue-worker
 process may create a notification. Redis bridges those processes without
 becoming another queue or persistence system. Deferring route registration
-prevents the package default—public subscriptions for channels without an
-authorization callback—from becoming an accidental API.
+prevents the package default from becoming an accidental API, i.e., public
+subscriptions to channels that have no authorization callback.
 
 ## D11 — Application email is SMTP delivery from the emails queue
 
 **Decision.** AdonisJS Mail has one SMTP mailer with environment-controlled
 sender identity, port-derived secure transport, and optional paired username
 and password credentials. A partial credential pair fails application boot.
-Email features enqueue application jobs on the existing `emails` PostgreSQL
-queue; they do not introduce Mail's separate messenger queue.
+All email features enqueue application jobs on the existing `emails`
+PostgreSQL queue.
 
 **Why.** SMTP remains portable across the institute's eventual provider, while
 the existing worker supplies one visible retry and failure boundary for all
@@ -239,10 +237,10 @@ recoverable password or token.
 ## D15 — Bouncer policies own request authorization
 
 **Decision.** HTTP authorization uses AdonisJS Bouncer policies. Controllers
-will call distinct policy actions instead of performing role or permission
-checks directly. Policies may use private query helpers for checks shared by
-their own actions; a generic authorization service will not be introduced
-before multiple policies demonstrate a real shared resolution requirement.
+delegate role and permission checks to distinct policy actions. Policies may
+use private query helpers for checks shared by their own actions. A generic
+authorization service requires a demonstrated resolution need shared by
+multiple policies.
 
 The initial access policy grants account administration only to an `ACTIVE`
 account with a currently effective `access.root` assignment at the active
@@ -305,10 +303,9 @@ Setup-pending versus reset is determined by the person's official-email
 verification state, since every local account has a non-null AuthFinder
 credential hash.
 
-Read controllers use Transformers. Write controllers return only a concise
-message because the client redirects or invalidates page data after a
-successful mutation and reloads authoritative state. Write responses do not
-return newly written resources or readable credentials.
+Read controllers use Transformers. Write controllers return a concise message
+and never expose readable credentials. After a successful mutation, the client
+redirects or invalidates page data and reloads authoritative state.
 
 **Why.** An undisclosed high-entropy placeholder keeps every local account
 compatible with AuthFinder without giving the administrator a usable
@@ -374,9 +371,10 @@ filters. Setup status is derived from official-email verification, matching the
 password-setup convention established for account writes.
 
 Account Transformers expose only the person and account fields required by the
-directory. The detail response adds role assignments whose time range is current and
-whose role and organizational scope are not archived. Each assignment includes
-its versioned role identity, scope, dates, and reason. Account credentials,
+directory. The detail response adds role assignments whose time range is
+current and whose role and organizational scope are not archived. Each
+assignment includes its versioned role identity, scope, dates, and reason.
+Account credentials,
 credential versions, password-challenge data, and request audit context are not
 serialized.
 
@@ -566,11 +564,11 @@ locations do not produce.
 ## D25 — Software-defined permissions feed configurable, immutable role versions
 
 **Decision.** The application owns a stable registry of action-specific
-permission keys. Master Admin may bundle permissions marked as
-custom-role-assignable into centrally managed reusable roles, but cannot invent
-new permission keys through the API. `access.root` is reserved for the
-system-managed `MASTER_ADMIN` role; additional root holders receive that role
-rather than constructing equivalent authority under another name.
+permission keys. Master Admin may bundle registry permissions marked as
+custom-role-assignable into centrally managed reusable roles. `access.root` is
+reserved for the system-managed `MASTER_ADMIN` role; additional root holders
+receive that role rather than constructing equivalent authority under another
+name.
 
 The access-registry seeder creates the stable permissions and five initial role
 definitions. `MASTER_ADMIN` remains protected and grants only `access.root`.
@@ -740,9 +738,9 @@ Administrative account overview shows incoming and outgoing active or upcoming
 delegations separately. Delegation directory reads are limited to the two
 participants and effective root oversight.
 
-Delegation changes access only. It does not rewrite the source assignment,
-organizational appointment, custody, pending task ownership, or previously
-completed work. A directly appointed Stock Supervisor remains the
+Delegation affects access while leaving the source assignment, organizational
+appointment, custody, pending task ownership, and previously completed work
+unchanged. A directly appointed Stock Supervisor remains the
 manager-of-record; temporary coverage is presented separately. If one source
 later becomes ineffective, only that item stops authorizing actions. A
 delegation termination ends every item. Natural expiry is always checked
@@ -1190,7 +1188,7 @@ related statements together avoids turning short workflows into visual noise.
 **Decision.** Catalogue items use their required name and optional description
 for shared recognition and specification detail. Category-specific attribute
 definitions, choices, scopes, current values, value snapshots, routes, and use
-locks are removed rather than carried as dormant infrastructure. The base-unit
+locks are removed completely. The base-unit
 first-use lock and catalogue-item identity, keyword, similarity, lifecycle, and
 effective-history patterns remain unchanged.
 
@@ -1201,11 +1199,11 @@ The apply workflow obtains the existing PostgreSQL-backed catalogue mutation
 lock, locks authority and domain rows in stable order, rebuilds the preview,
 and rejects a stale fingerprint before changing anything.
 
-Active children are never moved implicitly. They must first be explicitly
-reparented, merged, or archived. The web implementation may select one,
-several, or all children and call the existing individual reparent operation;
-successful calls remain successful, the preview is refreshed, and different
-subsets may be sent to different destinations.
+Administrators must reparent, merge, or archive every active child before
+applying the merge. The web implementation may select one, several, or all
+children and call the existing individual reparent operation; successful calls
+remain successful, the preview is refreshed, and different subsets may be sent
+to different destinations.
 
 A successful merge moves all directly classified catalogue items while
 preserving each item's lifecycle and description, appends item versions,
@@ -1215,15 +1213,16 @@ read-only; the target description continues through ordinary reasoned editing.
 Later target merges form an allowed chain, and detailed reads resolve both the
 direct target and the final canonical active target.
 
-Merge is terminal. Application guards reject source restoration and ordinary
+A merge is terminal. Application guards reject source restoration and ordinary
 target archival, while database checks enforce merged-source archival and a
 valid merge target. Partial unique indexes reserve a merged source's normalized
 sibling name but continue to exclude ordinary archived, never-merged categories
 so their established name-reuse behaviour remains available. A same-normalized
 name remains valid beneath a different parent.
 
-**Why.** Description-first capture fits unlike stock without asking irrelevant
-questions such as computer specifications for furniture. Explicit child
-handling makes hierarchy changes visible and reversible before the terminal
-operation. Fingerprinting, stable locks, database constraints, and append-only
-history make the merge effect reviewable and atomic under concurrent use.
+**Why.** Description-first capture accommodates different types of stock
+without asking irrelevant questions such as computer specifications for
+furniture. Explicit child handling makes hierarchy changes visible and
+reversible before the terminal operation. Fingerprinting, stable locks,
+database constraints, and append-only history make the merge effect reviewable
+and atomic under concurrent use.

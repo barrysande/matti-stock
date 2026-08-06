@@ -39,9 +39,7 @@ export default class extends BaseSchema {
             )
       `)
 
-      await db.rawQuery(
-        'DROP FUNCTION IF EXISTS prevent_catalogue_category_merge_reversal()'
-      )
+      await db.rawQuery('DROP FUNCTION IF EXISTS prevent_catalogue_category_merge_reversal()')
 
       await db.rawQuery(`
         CREATE FUNCTION prevent_catalogue_category_merge_reversal()
