@@ -316,6 +316,23 @@ that the proposed definition is not interchangeable with those candidates.
 V1 shall not add a separate search dependency or PostgreSQL search extension
 for this guidance.
 
+Current catalogue-item names shall be normalized and unique across the
+institution, including archived definitions. Archiving an item shall not make
+its current name available for a second definition. An exact normalized-name
+duplicate is therefore a hard conflict; the non-blocking rule above applies to
+similar but non-identical names that may still describe different
+interchangeable definitions. A materially different item shall use a name that
+identifies the meaningful difference. Similarity confirmation shall include a
+reason and shall be repeated if concurrent catalogue changes make the reviewed
+candidate set stale.
+
+Historical records that cannot yet be identified precisely shall use an
+explicit `PLACEHOLDER` identification status rather than relying only on words
+such as `unknown` in the name. Correctly identified definitions use
+`CONFIRMED`. Changing this status is a reasoned, versioned catalogue correction,
+and the data-quality worklist shall derive unresolved placeholder work directly
+from the current status.
+
 ##### Reason
 
 Storing shared product information once avoids repeating brand, model, and
@@ -512,6 +529,22 @@ required, validated, filtered, or reported consistently. Unpredictable shared
 detail that does not require those controls may remain in the catalogue item's
 optional description; a second free-form specifications field shall not be
 introduced.
+
+Catalogue capture shall remain description-first and deliberately minimal. V1
+shall not seed attributes, infer them from a category, or encourage collection
+merely because a detail could be recorded. An exact category may have no
+attributes. Administrators should introduce a controlled attribute only for a
+demonstrated identification, operational, compliance, validation, filtering,
+or reporting need; required attributes should be exceptional. Ordinary shared
+recognition and specification details belong in the catalogue item's optional
+description.
+
+After exact-category catalogue items exist, a new optional catalogue-scoped
+definition locks immediately because existing items already omit its value. A
+new required definition shall require a controlled backfill rather than making
+existing items silently invalid. Restoring a required definition is permitted
+only when every affected current item already has a valid value or a separately
+authorized backfill workflow supplies one.
 
 ##### Reason
 
