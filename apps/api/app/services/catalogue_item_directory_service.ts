@@ -22,28 +22,18 @@ export default class CatalogueItemDirectoryService {
   }
 
   private detailQuery() {
-    return this.summaryQuery()
-      .preload('attributeValues', (valueQuery) => {
-        valueQuery
-          .preload('categoryAttribute')
-          .preload('choice')
-          .orderBy('category_attribute_id', 'asc')
-      })
-      .preload('versions', (versionQuery) => {
-        versionQuery
-          .preload('catalogueCategory')
-          .preload('baseUnit')
-          .preload('changedByAccount', (accountQuery) => accountQuery.preload('person'))
-          .preload('resolvedScopeOrganizationalUnit')
-          .preload('keywords', (keywordQuery) => keywordQuery.orderBy('display_order', 'asc'))
-          .preload('attributeValues', (valueQuery) => {
-            valueQuery.orderBy('category_attribute_id', 'asc')
-          })
-          .preload('reviewedCandidates', (candidateQuery) => {
-            candidateQuery.preload('candidateCatalogueItem').orderBy('display_order', 'asc')
-          })
-          .orderBy('version', 'desc')
-      })
+    return this.summaryQuery().preload('versions', (versionQuery) => {
+      versionQuery
+        .preload('catalogueCategory')
+        .preload('baseUnit')
+        .preload('changedByAccount', (accountQuery) => accountQuery.preload('person'))
+        .preload('resolvedScopeOrganizationalUnit')
+        .preload('keywords', (keywordQuery) => keywordQuery.orderBy('display_order', 'asc'))
+        .preload('reviewedCandidates', (candidateQuery) => {
+          candidateQuery.preload('candidateCatalogueItem').orderBy('display_order', 'asc')
+        })
+        .orderBy('version', 'desc')
+    })
   }
 
   list(data: ListData) {

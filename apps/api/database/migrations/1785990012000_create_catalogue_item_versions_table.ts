@@ -84,7 +84,7 @@ export default class extends BaseSchema {
       await db.rawQuery(`
         ALTER TABLE catalogue_item_versions
           ADD CONSTRAINT catalogue_item_versions_kind_valid
-            CHECK (change_kind IN ('CREATED', 'DETAILS_UPDATED', 'CLASSIFICATION_UPDATED', 'ATTRIBUTE_VALUES_UPDATED', 'ARCHIVED', 'RESTORED')),
+            CHECK (change_kind IN ('CREATED', 'DETAILS_UPDATED', 'CLASSIFICATION_UPDATED', 'ARCHIVED', 'RESTORED')),
           ADD CONSTRAINT catalogue_item_versions_code_format
             CHECK (catalogue_code ~ '^ITEM-[0-9]{6}$'),
           ADD CONSTRAINT catalogue_item_versions_name_present

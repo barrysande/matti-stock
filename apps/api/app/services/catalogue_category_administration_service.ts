@@ -17,10 +17,10 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE =
-  'An active catalogue category with this name already exists under the selected parent.'
+  'An active or merged catalogue category with this name already exists under the selected parent.'
 const DUPLICATE_NAME_CONSTRAINTS = [
-  'catalogue_categories_active_top_level_name_unique',
-  'catalogue_categories_active_sibling_name_unique',
+  'catalogue_categories_available_top_name_unique',
+  'catalogue_categories_available_sibling_name_unique',
 ] as const
 
 type DetailsData = Infer<typeof updateCatalogueCategoryDetailsValidator>
@@ -139,6 +139,12 @@ export default class CatalogueCategoryAdministrationService {
       this.assertActive(category)
       this.hierarchy.assertNoActiveChildren(category, categories)
 
+      if (categories.some((candidate) => candidate.mergedIntoCategoryId === category.id)) {
+        this.invalid(
+          'A catalogue category that replaces merged categories must be merged into another active category instead of archived.'
+        )
+      }
+
       await category.merge({ archivedAt: now }).save()
 
       await this.history.appendVersion(
@@ -169,6 +175,10 @@ export default class CatalogueCategoryAdministrationService {
 
         if (!category.archivedAt) {
           this.invalid('The catalogue category is not archived.')
+        }
+
+        if (category.mergedIntoCategoryId) {
+          this.invalid('A merged catalogue category cannot be restored.')
         }
 
         this.hierarchy.assertRestorableParent(category, categories)

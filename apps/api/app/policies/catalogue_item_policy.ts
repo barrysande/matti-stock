@@ -33,10 +33,6 @@ export default class CatalogueItemPolicy extends BasePolicy {
     return this.catalogueAuthority.isEffective(account.id)
   }
 
-  updateAttributeValues(account: UserAccount) {
-    return this.catalogueAuthority.isEffective(account.id)
-  }
-
   archive(account: UserAccount) {
     return this.catalogueAuthority.isEffective(account.id)
   }

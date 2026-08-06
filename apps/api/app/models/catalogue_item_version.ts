@@ -4,7 +4,6 @@ import { CatalogueItemVersionSchema } from '#database/schema'
 import BaseUnit from '#models/base_unit'
 import CatalogueCategory from '#models/catalogue_category'
 import CatalogueItem from '#models/catalogue_item'
-import CatalogueItemVersionAttributeValue from '#models/catalogue_item_version_attribute_value'
 import CatalogueItemVersionKeyword from '#models/catalogue_item_version_keyword'
 import CatalogueItemReviewCandidate from '#models/catalogue_item_review_candidate'
 import Delegation from '#models/delegation'
@@ -42,9 +41,6 @@ export default class CatalogueItemVersion extends CatalogueItemVersionSchema {
 
   @hasMany(() => CatalogueItemVersionKeyword)
   declare keywords: HasMany<typeof CatalogueItemVersionKeyword>
-
-  @hasMany(() => CatalogueItemVersionAttributeValue)
-  declare attributeValues: HasMany<typeof CatalogueItemVersionAttributeValue>
 
   @hasMany(() => CatalogueItemReviewCandidate)
   declare reviewedCandidates: HasMany<typeof CatalogueItemReviewCandidate>

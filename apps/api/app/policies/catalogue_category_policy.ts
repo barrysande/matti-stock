@@ -29,6 +29,14 @@ export default class CatalogueCategoryPolicy extends BasePolicy {
     return this.catalogueAuthority.isEffective(account.id)
   }
 
+  previewMerge(account: UserAccount) {
+    return this.catalogueAuthority.isEffective(account.id)
+  }
+
+  merge(account: UserAccount) {
+    return this.catalogueAuthority.isEffective(account.id)
+  }
+
   archive(account: UserAccount) {
     return this.catalogueAuthority.isEffective(account.id)
   }

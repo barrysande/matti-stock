@@ -1,8 +1,6 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
-import CatalogueItemAttributeValue from '#models/catalogue_item_attribute_value'
 import CatalogueItemVersion from '#models/catalogue_item_version'
-import CategoryAttribute from '#models/category_attribute'
 import {
   authenticatedCatalogueRequest,
   cleanupCatalogueTables,
@@ -89,8 +87,6 @@ test.group('Catalogue item administration', (group) => {
         trackingMethod: 'QUANTITY',
         trackingMethodConfirmed: true,
         baseUnitId: first.baseUnit.id,
-        attributeValues: [],
-        acknowledgedRemovedAttributeValueIds: [],
         reason: 'Attempt unsafe semantic rewrite',
       }),
       account
@@ -114,8 +110,6 @@ test.group('Catalogue item administration', (group) => {
         trackingMethod: 'QUANTITY',
         trackingMethodConfirmed: true,
         baseUnitId: first.baseUnit.id,
-        attributeValues: [],
-        acknowledgedRemovedAttributeValueIds: [],
         reviewFingerprint: review.body().data.fingerprint,
         confirmedNotInterchangeable: true,
         similarityReason: 'The corrected category does not make this item interchangeable.',
@@ -126,57 +120,6 @@ test.group('Catalogue item administration', (group) => {
     corrected.assertStatus(200)
     await item.refresh()
     assert.equal(item.catalogueCategoryId, second.category.id)
-  })
-
-  test('uses explicit set and remove operations without treating omission as deletion', async ({
-    client,
-    assert,
-  }) => {
-    const { account } = await createDirectCatalogueActor()
-    const { category, baseUnit } = await createCatalogueClassification('Tools')
-    const material = await CategoryAttribute.create({
-      catalogueCategoryId: category.id,
-      name: 'Material',
-      description: null,
-      dataType: 'TEXT',
-      isRequired: false,
-      scope: 'CATALOGUE',
-      semanticsLockedAt: null,
-      archivedAt: null,
-    })
-    const item = await createCatalogueItem(client, account, category, baseUnit)
-    const set = await authenticatedCatalogueRequest(
-      client.post(`/catalogue-items/${item.catalogueCode}/attribute-values`).json({
-        changes: [{ operation: 'SET', categoryAttributeId: material.id, textValue: 'Wood' }],
-        reason: 'Record a useful controlled characteristic',
-      }),
-      account
-    )
-    set.assertStatus(200)
-    const currentValue = await CatalogueItemAttributeValue.firstOrFail()
-    assert.equal(currentValue.textValue, 'Wood')
-
-    const remove = await authenticatedCatalogueRequest(
-      client.post(`/catalogue-items/${item.catalogueCode}/attribute-values`).json({
-        changes: [{ operation: 'REMOVE', categoryAttributeId: material.id }],
-        reason: 'Remove an incorrect optional value',
-      }),
-      account
-    )
-    remove.assertStatus(200)
-    assert.equal(
-      await CatalogueItemAttributeValue.query()
-        .count('* as total')
-        .then((r) => Number(r[0].$extras.total)),
-      0
-    )
-    assert.equal(
-      await CatalogueItemVersion.query()
-        .where('catalogue_item_id', item.id)
-        .count('* as total')
-        .then((r) => Number(r[0].$extras.total)),
-      3
-    )
   })
 
   test('requires authorization before validation or catalogue-code lookup', async ({ client }) => {

@@ -7,7 +7,6 @@ import BaseUnit from '#models/base_unit'
 import CatalogueCategory from '#models/catalogue_category'
 import CatalogueItem from '#models/catalogue_item'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
-import CatalogueItemAttributeValueService from '#services/catalogue_item_attribute_value_service'
 import CatalogueItemHistoryService from '#services/catalogue_item_history_service'
 import CatalogueItemKeywordService from '#services/catalogue_item_keyword_service'
 import CatalogueItemSimilarityService from '#services/catalogue_item_similarity_service'
@@ -29,7 +28,6 @@ type CreateData = Infer<typeof createCatalogueItemValidator>
 export default class CatalogueItemProvisioningService {
   constructor(
     private authority: CatalogueAuthorityService,
-    private attributeValues: CatalogueItemAttributeValueService,
     private history: CatalogueItemHistoryService,
     private keywords: CatalogueItemKeywordService,
     private similarity: CatalogueItemSimilarityService
@@ -82,19 +80,7 @@ export default class CatalogueItemProvisioningService {
       return await db.transaction(async (trx) => {
         const now = DateTime.now()
         const authorization = await this.authority.authorizeMutation(trx, actorAccountId, now)
-        const preparedValues = await this.attributeValues.prepareReplacement(
-          data.catalogueCategoryId,
-          data.attributeValues,
-          trx,
-          now
-        )
-
         await this.lockActiveCategory(data.catalogueCategoryId, trx)
-        await this.attributeValues.assertApplicableSetUnchanged(
-          data.catalogueCategoryId,
-          preparedValues.attributeIds,
-          trx
-        )
         const baseUnit = await this.lockActiveBaseUnit(data.baseUnitId, trx)
         const candidates = await this.similarity.assertReviewed(data, trx)
 
@@ -120,8 +106,6 @@ export default class CatalogueItemProvisioningService {
         await baseUnit.merge({ firstUsedAt: baseUnit.firstUsedAt ?? now }).save()
 
         await this.keywords.replace(item.id, normalizedKeywords, trx)
-        await this.attributeValues.replaceCurrent(item.id, preparedValues.values, trx)
-
         const version = await this.history.createInitialVersion(
           item,
           data.reason,

@@ -15,6 +15,12 @@ export default class CatalogueCategoryVersionTransformer extends BaseTransformer
             name: this.resource.parent.name,
           }
         : null,
+      mergedInto: this.resource.mergedIntoCategoryId
+        ? {
+            id: this.resource.mergedIntoCategory.id,
+            name: this.resource.mergedIntoCategory.name,
+          }
+        : null,
       archivedAt: this.resource.archivedAt,
       effectiveFrom: this.resource.effectiveFrom,
       effectiveTo: this.resource.effectiveTo,

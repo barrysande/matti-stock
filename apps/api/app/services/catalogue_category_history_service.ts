@@ -38,6 +38,7 @@ export default class CatalogueCategoryHistoryService {
       name: category.name,
       description: category.description,
       parentId: category.parentId,
+      mergedIntoCategoryId: category.mergedIntoCategoryId,
       archivedAt: category.archivedAt,
       effectiveFrom,
       effectiveTo: null,

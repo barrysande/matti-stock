@@ -11,10 +11,10 @@ import type { createCatalogueCategoryValidator } from '#validators/catalogue_cat
 import type { Infer } from '@vinejs/vine/types'
 
 const DUPLICATE_NAME_MESSAGE =
-  'An active catalogue category with this name already exists under the selected parent.'
+  'An active or merged catalogue category with this name already exists under the selected parent.'
 const DUPLICATE_NAME_CONSTRAINTS = [
-  'catalogue_categories_active_top_level_name_unique',
-  'catalogue_categories_active_sibling_name_unique',
+  'catalogue_categories_available_top_name_unique',
+  'catalogue_categories_available_sibling_name_unique',
 ] as const
 
 type CreateData = Infer<typeof createCatalogueCategoryValidator>

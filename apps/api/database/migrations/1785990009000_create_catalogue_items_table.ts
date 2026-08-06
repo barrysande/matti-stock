@@ -37,12 +37,15 @@ export default class extends BaseSchema {
     })
 
     this.defer(async (db) => {
+      await db.rawQuery('DROP SEQUENCE IF EXISTS catalogue_item_code_sequence')
+
       await db.rawQuery(`
         CREATE SEQUENCE catalogue_item_code_sequence
           AS integer
           MINVALUE 1
           MAXVALUE 999999
           NO CYCLE
+          OWNED BY catalogue_items.catalogue_code
       `)
 
       await db.rawQuery(`
@@ -66,6 +69,8 @@ export default class extends BaseSchema {
           ADD CONSTRAINT catalogue_items_code_unique UNIQUE (catalogue_code),
           ADD CONSTRAINT catalogue_items_normalized_name_unique UNIQUE (normalized_name)
       `)
+
+      await db.rawQuery('DROP FUNCTION IF EXISTS prevent_catalogue_item_code_change()')
 
       await db.rawQuery(`
         CREATE FUNCTION prevent_catalogue_item_code_change()
@@ -93,8 +98,8 @@ export default class extends BaseSchema {
   async down() {
     this.schema.dropTable(this.tableName)
     this.defer(async (db) => {
-      await db.rawQuery('DROP FUNCTION prevent_catalogue_item_code_change()')
-      await db.rawQuery('DROP SEQUENCE catalogue_item_code_sequence')
+      await db.rawQuery('DROP FUNCTION IF EXISTS prevent_catalogue_item_code_change()')
+      await db.rawQuery('DROP SEQUENCE IF EXISTS catalogue_item_code_sequence')
     })
   }
 }

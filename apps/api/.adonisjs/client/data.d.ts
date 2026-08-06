@@ -9,16 +9,12 @@ import type AccessEventTransformer from '#transformers/access_event_transformer'
 import type AccountTransformer from '#transformers/account_transformer'
 import type BaseUnitTransformer from '#transformers/base_unit_transformer'
 import type BaseUnitVersionTransformer from '#transformers/base_unit_version_transformer'
+import type CatalogueCategoryMergePreviewTransformer from '#transformers/catalogue_category_merge_preview_transformer'
 import type CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
 import type CatalogueCategoryVersionTransformer from '#transformers/catalogue_category_version_transformer'
-import type CatalogueItemAttributeValueTransformer from '#transformers/catalogue_item_attribute_value_transformer'
 import type CatalogueItemReviewTransformer from '#transformers/catalogue_item_review_transformer'
 import type CatalogueItemTransformer from '#transformers/catalogue_item_transformer'
 import type CatalogueItemVersionTransformer from '#transformers/catalogue_item_version_transformer'
-import type CategoryAttributeChoiceTransformer from '#transformers/category_attribute_choice_transformer'
-import type CategoryAttributeChoiceVersionTransformer from '#transformers/category_attribute_choice_version_transformer'
-import type CategoryAttributeTransformer from '#transformers/category_attribute_transformer'
-import type CategoryAttributeVersionTransformer from '#transformers/category_attribute_version_transformer'
 import type CurrentAccountTransformer from '#transformers/current_account_transformer'
 import type DelegationProposalOptionsTransformer from '#transformers/delegation_proposal_options_transformer'
 import type DelegationTransformer from '#transformers/delegation_transformer'
@@ -48,6 +44,10 @@ export namespace Data {
   export namespace BaseUnitVersion {
     export type Variants = InferVariants<BaseUnitVersionTransformer>
   }
+  export type CatalogueCategoryMergePreview = InferData<CatalogueCategoryMergePreviewTransformer>
+  export namespace CatalogueCategoryMergePreview {
+    export type Variants = InferVariants<CatalogueCategoryMergePreviewTransformer>
+  }
   export type CatalogueCategory = InferData<CatalogueCategoryTransformer>
   export namespace CatalogueCategory {
     export type Variants = InferVariants<CatalogueCategoryTransformer>
@@ -55,10 +55,6 @@ export namespace Data {
   export type CatalogueCategoryVersion = InferData<CatalogueCategoryVersionTransformer>
   export namespace CatalogueCategoryVersion {
     export type Variants = InferVariants<CatalogueCategoryVersionTransformer>
-  }
-  export type CatalogueItemAttributeValue = InferData<CatalogueItemAttributeValueTransformer>
-  export namespace CatalogueItemAttributeValue {
-    export type Variants = InferVariants<CatalogueItemAttributeValueTransformer>
   }
   export type CatalogueItemReview = InferData<CatalogueItemReviewTransformer>
   export namespace CatalogueItemReview {
@@ -71,22 +67,6 @@ export namespace Data {
   export type CatalogueItemVersion = InferData<CatalogueItemVersionTransformer>
   export namespace CatalogueItemVersion {
     export type Variants = InferVariants<CatalogueItemVersionTransformer>
-  }
-  export type CategoryAttributeChoice = InferData<CategoryAttributeChoiceTransformer>
-  export namespace CategoryAttributeChoice {
-    export type Variants = InferVariants<CategoryAttributeChoiceTransformer>
-  }
-  export type CategoryAttributeChoiceVersion = InferData<CategoryAttributeChoiceVersionTransformer>
-  export namespace CategoryAttributeChoiceVersion {
-    export type Variants = InferVariants<CategoryAttributeChoiceVersionTransformer>
-  }
-  export type CategoryAttribute = InferData<CategoryAttributeTransformer>
-  export namespace CategoryAttribute {
-    export type Variants = InferVariants<CategoryAttributeTransformer>
-  }
-  export type CategoryAttributeVersion = InferData<CategoryAttributeVersionTransformer>
-  export namespace CategoryAttributeVersion {
-    export type Variants = InferVariants<CategoryAttributeVersionTransformer>
   }
   export type CurrentAccount = InferData<CurrentAccountTransformer>
   export namespace CurrentAccount {

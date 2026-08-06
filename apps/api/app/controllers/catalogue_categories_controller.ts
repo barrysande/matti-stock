@@ -3,12 +3,17 @@ import type { HttpContext } from '@adonisjs/core/http'
 import CatalogueCategoryPolicy from '#policies/catalogue_category_policy'
 import CatalogueCategoryAdministrationService from '#services/catalogue_category_administration_service'
 import CatalogueCategoryDirectoryService from '#services/catalogue_category_directory_service'
+import CatalogueCategoryMergePreviewService from '#services/catalogue_category_merge_preview_service'
+import CatalogueCategoryMergeService from '#services/catalogue_category_merge_service'
 import CatalogueCategoryProvisioningService from '#services/catalogue_category_provisioning_service'
 import CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
+import CatalogueCategoryMergePreviewTransformer from '#transformers/catalogue_category_merge_preview_transformer'
 import {
   administerCatalogueCategoryValidator,
   createCatalogueCategoryValidator,
   indexCatalogueCategoriesValidator,
+  mergeCatalogueCategoryValidator,
+  previewCatalogueCategoryMergeValidator,
   reparentCatalogueCategoryValidator,
   updateCatalogueCategoryDetailsValidator,
 } from '#validators/catalogue_category'
@@ -18,6 +23,8 @@ export default class CatalogueCategoriesController {
   constructor(
     private administration: CatalogueCategoryAdministrationService,
     private directory: CatalogueCategoryDirectoryService,
+    private mergePreview: CatalogueCategoryMergePreviewService,
+    private mergeService: CatalogueCategoryMergeService,
     private provisioning: CatalogueCategoryProvisioningService
   ) {}
 
@@ -71,6 +78,28 @@ export default class CatalogueCategoriesController {
     const category = await this.directory.findDetails(params.id)
 
     return serialize(CatalogueCategoryTransformer.transform(category).useVariant('forDetailedView'))
+  }
+
+  async previewMerge({ bouncer, params, request, serialize }: HttpContext) {
+    await bouncer.with(CatalogueCategoryPolicy).authorize('previewMerge')
+
+    const payload = await request.validateUsing(previewCatalogueCategoryMergeValidator)
+
+    const preview = await this.mergePreview.preview(params.id, payload.targetCategoryId)
+
+    return serialize(CatalogueCategoryMergePreviewTransformer.transform(preview))
+  }
+
+  async merge({ auth, bouncer, params, request, response }: HttpContext) {
+    await bouncer.with(CatalogueCategoryPolicy).authorize('merge')
+
+    const payload = await request.validateUsing(mergeCatalogueCategoryValidator)
+
+    const actor = auth.getUserOrFail()
+
+    await this.mergeService.merge(params.id, payload, actor.id)
+
+    return response.ok({ message: 'Catalogue category merged.' })
   }
 
   async archive({ auth, bouncer, params, request, response }: HttpContext) {

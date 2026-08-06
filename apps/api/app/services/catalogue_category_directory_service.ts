@@ -1,22 +1,30 @@
+import { inject } from '@adonisjs/core'
 import CatalogueCategory from '#models/catalogue_category'
+import CatalogueCategoryHierarchyService from '#services/catalogue_category_hierarchy_service'
 import type { indexCatalogueCategoriesValidator } from '#validators/catalogue_category'
 import type { Infer } from '@vinejs/vine/types'
 
 type ListData = Infer<typeof indexCatalogueCategoriesValidator>
 
+@inject()
 export default class CatalogueCategoryDirectoryService {
+  constructor(private hierarchy: CatalogueCategoryHierarchyService) {}
+
   private summaryQuery() {
     return CatalogueCategory.query()
   }
 
   private detailQuery() {
-    return CatalogueCategory.query().preload('versions', (versionQuery) => {
-      versionQuery
-        .preload('parent')
-        .preload('changedByAccount', (accountQuery) => accountQuery.preload('person'))
-        .preload('resolvedScopeOrganizationalUnit')
-        .orderBy('version', 'desc')
-    })
+    return CatalogueCategory.query()
+      .preload('mergedIntoCategory')
+      .preload('versions', (versionQuery) => {
+        versionQuery
+          .preload('parent')
+          .preload('mergedIntoCategory')
+          .preload('changedByAccount', (accountQuery) => accountQuery.preload('person'))
+          .preload('resolvedScopeOrganizationalUnit')
+          .orderBy('version', 'desc')
+      })
   }
 
   private pathFor(
@@ -86,6 +94,16 @@ export default class CatalogueCategoryDirectoryService {
     ])
 
     this.assignPaths([category], hierarchy)
+
+    if (category.mergedIntoCategoryId) {
+      const canonicalTarget = this.hierarchy.canonicalMergeTarget(category, hierarchy)
+
+      category.$extras.canonicalMergeTarget = {
+        id: canonicalTarget.id,
+        name: canonicalTarget.name,
+        description: canonicalTarget.description,
+      }
+    }
 
     return category
   }

@@ -24,20 +24,6 @@ export default class CatalogueItemVersionTransformer extends BaseTransformer<Cat
       identificationStatus: this.resource.identificationStatus,
       inventorySemanticsLockedAt: this.resource.inventorySemanticsLockedAt,
       archivedAt: this.resource.archivedAt,
-      attributeValues: this.resource.attributeValues.map((value) => ({
-        attribute: {
-          id: value.categoryAttributeId,
-          name: value.attributeName,
-          dataType: value.dataType,
-        },
-        value: {
-          text: value.textValue,
-          number: value.numberValue === null ? null : String(value.numberValue),
-          date: value.dateValue?.toISODate() ?? null,
-          yesNo: value.yesNoValue,
-          choice: value.choiceId ? { id: value.choiceId, label: value.choiceLabel } : null,
-        },
-      })),
       reviewedCandidates: this.resource.reviewedCandidates.map((candidate) => ({
         catalogueCode: candidate.candidateCatalogueItem.catalogueCode,
         name: candidate.candidateCatalogueItem.name,

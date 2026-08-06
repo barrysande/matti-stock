@@ -2,7 +2,6 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import CatalogueItemPolicy from '#policies/catalogue_item_policy'
 import CatalogueItemAdministrationService from '#services/catalogue_item_administration_service'
-import CatalogueItemAttributeAdministrationService from '#services/catalogue_item_attribute_administration_service'
 import CatalogueItemClassificationService from '#services/catalogue_item_classification_service'
 import CatalogueItemDirectoryService from '#services/catalogue_item_directory_service'
 import CatalogueItemProvisioningService from '#services/catalogue_item_provisioning_service'
@@ -17,7 +16,6 @@ import {
   restoreCatalogueItemValidator,
   reviewCatalogueItemChangeValidator,
   reviewCatalogueItemCreationValidator,
-  updateCatalogueItemAttributeValuesValidator,
   updateCatalogueItemClassificationValidator,
   updateCatalogueItemDetailsValidator,
 } from '#validators/catalogue_item'
@@ -26,7 +24,6 @@ import {
 export default class CatalogueItemsController {
   constructor(
     private administration: CatalogueItemAdministrationService,
-    private attributeAdministration: CatalogueItemAttributeAdministrationService,
     private classification: CatalogueItemClassificationService,
     private directory: CatalogueItemDirectoryService,
     private provisioning: CatalogueItemProvisioningService,
@@ -89,18 +86,6 @@ export default class CatalogueItemsController {
     await this.classification.update(params.catalogueCode, payload, actor.id)
 
     return response.ok({ message: 'Catalogue item classification updated.' })
-  }
-
-  async updateAttributeValues({ auth, bouncer, params, request, response }: HttpContext) {
-    await bouncer.with(CatalogueItemPolicy).authorize('updateAttributeValues')
-
-    const payload = await request.validateUsing(updateCatalogueItemAttributeValuesValidator)
-
-    const actor = auth.getUserOrFail()
-
-    await this.attributeAdministration.update(params.catalogueCode, payload, actor.id)
-
-    return response.ok({ message: 'Catalogue item attributes updated.' })
   }
 
   async index({ bouncer, request, serialize }: HttpContext) {

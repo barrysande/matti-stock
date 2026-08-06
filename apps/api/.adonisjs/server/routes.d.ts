@@ -65,6 +65,8 @@ export type ScannedRoutes = {
     'catalogue_categories.store': { paramsTuple?: []; params?: {} }
     'catalogue_categories.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.reparent': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.preview_merge': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.merge': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
@@ -73,18 +75,6 @@ export type ScannedRoutes = {
     'base_units.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.index': { paramsTuple?: []; params?: {} }
-    'category_attributes.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.store': { paramsTuple?: []; params?: {} }
-    'category_attributes.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.update_semantics': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attribute_choices.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attribute_choices.reorder': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attribute_choices.update_details': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
-    'category_attribute_choices.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
-    'category_attribute_choices.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
-    'category_attributes.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_items.index': { paramsTuple?: []; params?: {} }
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
     'catalogue_items.creation_review': { paramsTuple?: []; params?: {} }
@@ -92,7 +82,6 @@ export type ScannedRoutes = {
     'catalogue_items.change_review': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.update_details': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.update_classification': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
-    'catalogue_items.update_attribute_values': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.archive': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.restore': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
@@ -120,8 +109,6 @@ export type ScannedRoutes = {
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
     'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.index': { paramsTuple?: []; params?: {} }
-    'category_attributes.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_items.index': { paramsTuple?: []; params?: {} }
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
@@ -149,8 +136,6 @@ export type ScannedRoutes = {
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
     'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.index': { paramsTuple?: []; params?: {} }
-    'category_attributes.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_items.index': { paramsTuple?: []; params?: {} }
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
@@ -196,28 +181,19 @@ export type ScannedRoutes = {
     'catalogue_categories.store': { paramsTuple?: []; params?: {} }
     'catalogue_categories.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.reparent': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.preview_merge': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.merge': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.store': { paramsTuple?: []; params?: {} }
     'base_units.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.store': { paramsTuple?: []; params?: {} }
-    'category_attributes.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.update_semantics': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attribute_choices.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attribute_choices.reorder': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attribute_choices.update_details': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
-    'category_attribute_choices.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
-    'category_attribute_choices.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
-    'category_attributes.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'category_attributes.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_items.creation_review': { paramsTuple?: []; params?: {} }
     'catalogue_items.store': { paramsTuple?: []; params?: {} }
     'catalogue_items.change_review': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.update_details': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.update_classification': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
-    'catalogue_items.update_attribute_values': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.archive': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.restore': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
   }

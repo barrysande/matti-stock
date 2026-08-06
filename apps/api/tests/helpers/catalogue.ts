@@ -201,7 +201,6 @@ export async function createCatalogueItem(
       trackingMethodConfirmed: true,
       baseUnitId: baseUnit.id,
       identificationStatus: 'CONFIRMED',
-      attributeValues: [],
       reviewFingerprint: reviewBody.fingerprint,
       confirmedNotInterchangeable: reviewBody.candidates.length ? true : undefined,
       similarityReason: reviewBody.candidates.length

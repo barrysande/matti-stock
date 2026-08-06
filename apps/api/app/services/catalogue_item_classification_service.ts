@@ -8,7 +8,6 @@ import CatalogueCategory from '#models/catalogue_category'
 import CatalogueItem from '#models/catalogue_item'
 import CatalogueItemKeyword from '#models/catalogue_item_keyword'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
-import CatalogueItemAttributeValueService from '#services/catalogue_item_attribute_value_service'
 import CatalogueItemHistoryService from '#services/catalogue_item_history_service'
 import CatalogueItemSimilarityService, {
   type CatalogueSimilarityCandidate,
@@ -23,7 +22,6 @@ type ClassificationData = Infer<typeof updateCatalogueItemClassificationValidato
 export default class CatalogueItemClassificationService {
   constructor(
     private authority: CatalogueAuthorityService,
-    private attributeValues: CatalogueItemAttributeValueService,
     private history: CatalogueItemHistoryService,
     private similarity: CatalogueItemSimilarityService
   ) {}
@@ -99,33 +97,9 @@ export default class CatalogueItemClassificationService {
         this.invalid('The catalogue item already has this classification.')
       }
 
-      if (
-        !categoryChanged &&
-        (data.attributeValues?.length || data.acknowledgedRemovedAttributeValueIds.length)
-      ) {
-        this.invalid('Use the attribute-value route when the catalogue category is unchanged.')
-      }
-
-      let preparedValues = null
       let candidates: CatalogueSimilarityCandidate[] = []
 
       if (categoryChanged) {
-        preparedValues = await this.attributeValues.prepareReplacement(
-          data.catalogueCategoryId,
-          data.attributeValues,
-          trx,
-          now
-        )
-
-        const removedIds = await this.attributeValues.currentValueIds(item.id, trx)
-        const acknowledged = [...data.acknowledgedRemovedAttributeValueIds].sort()
-
-        if (removedIds.join(':') !== acknowledged.join(':')) {
-          this.invalid(
-            'Acknowledge the exact current attribute values removed by the category change.'
-          )
-        }
-
         if (!data.reviewFingerprint) {
           this.invalid('Review similar catalogue items before changing the category.')
         }
@@ -151,14 +125,6 @@ export default class CatalogueItemClassificationService {
 
       await this.lockActiveCategory(data.catalogueCategoryId, trx)
 
-      if (preparedValues) {
-        await this.attributeValues.assertApplicableSetUnchanged(
-          data.catalogueCategoryId,
-          preparedValues.attributeIds,
-          trx
-        )
-      }
-
       const baseUnit = await this.lockActiveBaseUnit(data.baseUnitId, trx)
 
       await item
@@ -171,10 +137,6 @@ export default class CatalogueItemClassificationService {
         .save()
 
       await baseUnit.merge({ firstUsedAt: baseUnit.firstUsedAt ?? now }).save()
-
-      if (preparedValues) {
-        await this.attributeValues.replaceCurrent(item.id, preparedValues.values, trx)
-      }
 
       const version = await this.history.appendVersion(
         item,

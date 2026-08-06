@@ -1,8 +1,6 @@
 import type { DateTime } from 'luxon'
-import CatalogueItemAttributeValue from '#models/catalogue_item_attribute_value'
 import CatalogueItemKeyword from '#models/catalogue_item_keyword'
 import CatalogueItemVersion from '#models/catalogue_item_version'
-import CatalogueItemVersionAttributeValue from '#models/catalogue_item_version_attribute_value'
 import CatalogueItemVersionKeyword from '#models/catalogue_item_version_keyword'
 import type CatalogueItem from '#models/catalogue_item'
 import type { CatalogueAuthorization, CatalogueItemChangeKind } from '#types/catalogue'
@@ -74,30 +72,6 @@ export default class CatalogueItemHistoryService {
           keyword: keyword.keyword,
           normalizedKeyword: keyword.normalizedKeyword,
           displayOrder: keyword.displayOrder,
-        },
-        { client: trx }
-      )
-    }
-
-    const values = await CatalogueItemAttributeValue.query({ client: trx })
-      .where('catalogue_item_id', itemId)
-      .preload('categoryAttribute')
-      .preload('choice')
-      .orderBy('category_attribute_id', 'asc')
-
-    for (const value of values) {
-      await CatalogueItemVersionAttributeValue.create(
-        {
-          catalogueItemVersionId: versionId,
-          categoryAttributeId: value.categoryAttributeId,
-          attributeName: value.categoryAttribute.name,
-          dataType: value.dataType,
-          textValue: value.textValue,
-          numberValue: value.numberValue,
-          dateValue: value.dateValue,
-          yesNoValue: value.yesNoValue,
-          choiceId: value.choiceId,
-          choiceLabel: value.choice?.label ?? null,
         },
         { client: trx }
       )

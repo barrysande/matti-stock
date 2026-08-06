@@ -88,6 +88,8 @@ export interface ApiDefinition {
     store: typeof routes['catalogue_categories.store']
     updateDetails: typeof routes['catalogue_categories.update_details']
     reparent: typeof routes['catalogue_categories.reparent']
+    previewMerge: typeof routes['catalogue_categories.preview_merge']
+    merge: typeof routes['catalogue_categories.merge']
     archive: typeof routes['catalogue_categories.archive']
     restore: typeof routes['catalogue_categories.restore']
   }
@@ -99,22 +101,6 @@ export interface ApiDefinition {
     archive: typeof routes['base_units.archive']
     restore: typeof routes['base_units.restore']
   }
-  categoryAttributes: {
-    index: typeof routes['category_attributes.index']
-    show: typeof routes['category_attributes.show']
-    store: typeof routes['category_attributes.store']
-    updateDetails: typeof routes['category_attributes.update_details']
-    updateSemantics: typeof routes['category_attributes.update_semantics']
-    archive: typeof routes['category_attributes.archive']
-    restore: typeof routes['category_attributes.restore']
-  }
-  categoryAttributeChoices: {
-    store: typeof routes['category_attribute_choices.store']
-    reorder: typeof routes['category_attribute_choices.reorder']
-    updateDetails: typeof routes['category_attribute_choices.update_details']
-    archive: typeof routes['category_attribute_choices.archive']
-    restore: typeof routes['category_attribute_choices.restore']
-  }
   catalogueItems: {
     index: typeof routes['catalogue_items.index']
     lookup: typeof routes['catalogue_items.lookup']
@@ -123,7 +109,6 @@ export interface ApiDefinition {
     changeReview: typeof routes['catalogue_items.change_review']
     updateDetails: typeof routes['catalogue_items.update_details']
     updateClassification: typeof routes['catalogue_items.update_classification']
-    updateAttributeValues: typeof routes['catalogue_items.update_attribute_values']
     show: typeof routes['catalogue_items.show']
     archive: typeof routes['catalogue_items.archive']
     restore: typeof routes['catalogue_items.restore']

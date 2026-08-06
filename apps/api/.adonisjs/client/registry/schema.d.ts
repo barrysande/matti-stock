@@ -739,6 +739,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['reparent']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'catalogue_categories.preview_merge': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories/:id/merge-preview'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').previewCatalogueCategoryMergeValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').previewCatalogueCategoryMergeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['previewMerge']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['previewMerge']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_categories.merge': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories/:id/merge'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').mergeCatalogueCategoryValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').mergeCatalogueCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['merge']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['merge']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'catalogue_categories.archive': {
     methods: ["POST"]
     pattern: '/catalogue-categories/:id/archive'
@@ -835,150 +859,6 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
-  'category_attributes.index': {
-    methods: ["GET","HEAD"]
-    pattern: '/category-attributes'
-    types: {
-      body: {}
-      paramsTuple: []
-      params: {}
-      query: ExtractQueryForGet<InferInput<(typeof import('#validators/category_attribute').indexCategoryAttributesValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['index']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attributes.show': {
-    methods: ["GET","HEAD"]
-    pattern: '/category-attributes/:id'
-    types: {
-      body: {}
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
-      query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['show']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['show']>>>
-    }
-  }
-  'category_attributes.store': {
-    methods: ["POST"]
-    pattern: '/category-attributes'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').createCategoryAttributeValidator)>>
-      paramsTuple: []
-      params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').createCategoryAttributeValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attributes.update_details': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/details'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeDetailsValidator)>>
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeDetailsValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['updateDetails']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['updateDetails']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attributes.update_semantics': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/semantics'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeSemanticsValidator)>>
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeSemanticsValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['updateSemantics']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['updateSemantics']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attribute_choices.store': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/choices'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').addCategoryAttributeChoiceValidator)>>
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').addCategoryAttributeChoiceValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attribute_choices.reorder': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/choices/reorder'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').reorderCategoryAttributeChoicesValidator)>>
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').reorderCategoryAttributeChoicesValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['reorder']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['reorder']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attribute_choices.update_details': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/choices/:choiceId/details'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeChoiceDetailsValidator)>>
-      paramsTuple: [ParamValue, ParamValue]
-      params: { id: ParamValue; choiceId: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeChoiceDetailsValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['updateDetails']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['updateDetails']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attribute_choices.archive': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/choices/:choiceId/archive'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeChoiceValidator)>>
-      paramsTuple: [ParamValue, ParamValue]
-      params: { id: ParamValue; choiceId: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeChoiceValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['archive']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attribute_choices.restore': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/choices/:choiceId/restore'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeChoiceValidator)>>
-      paramsTuple: [ParamValue, ParamValue]
-      params: { id: ParamValue; choiceId: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeChoiceValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['restore']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attribute_choices_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attributes.archive': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/archive'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeValidator)>>
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['archive']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['archive']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'category_attributes.restore': {
-    methods: ["POST"]
-    pattern: '/category-attributes/:id/restore'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeValidator)>>
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').administerCategoryAttributeValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['restore']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/category_attributes_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
   'catalogue_items.index': {
     methods: ["GET","HEAD"]
     pattern: '/catalogue-items'
@@ -1061,18 +941,6 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemClassificationValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateClassification']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateClassification']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'catalogue_items.update_attribute_values': {
-    methods: ["POST"]
-    pattern: '/catalogue-items/:catalogueCode/attribute-values'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemAttributeValuesValidator)>>
-      paramsTuple: [ParamValue]
-      params: { catalogueCode: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').updateCatalogueItemAttributeValuesValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateAttributeValues']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['updateAttributeValues']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'catalogue_items.show': {

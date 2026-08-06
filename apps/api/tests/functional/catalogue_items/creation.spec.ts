@@ -1,10 +1,7 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
 import CatalogueItem from '#models/catalogue_item'
-import CatalogueItemAttributeValue from '#models/catalogue_item_attribute_value'
 import CatalogueItemVersion from '#models/catalogue_item_version'
-import CategoryAttribute from '#models/category_attribute'
-import CategoryAttributeChoice from '#models/category_attribute_choice'
 import {
   authenticatedCatalogueRequest,
   cleanupCatalogueTables,
@@ -79,7 +76,6 @@ test.group('Catalogue item creation', (group) => {
         trackingMethodConfirmed: true,
         baseUnitId: baseUnit.id,
         identificationStatus: 'CONFIRMED',
-        attributeValues: [],
         reviewFingerprint: review.body().data.fingerprint,
         reason: 'Attempt duplicate definition',
       }),
@@ -119,7 +115,6 @@ test.group('Catalogue item creation', (group) => {
       trackingMethodConfirmed: true,
       baseUnitId: baseUnit.id,
       identificationStatus: 'CONFIRMED',
-      attributeValues: [],
       reviewFingerprint: review.body().data.fingerprint,
       reason: 'Create distinct notebook definition',
     }
@@ -139,132 +134,6 @@ test.group('Catalogue item creation', (group) => {
       account
     )
     confirmed.assertStatus(201)
-  })
-
-  test('validates generic typed values and locks omitted optional semantics and selected choices', async ({
-    client,
-    assert,
-  }) => {
-    const { account } = await createDirectCatalogueActor()
-    const { category, baseUnit } = await createCatalogueClassification('Vehicles')
-    const registrationDate = await CategoryAttribute.create({
-      catalogueCategoryId: category.id,
-      name: 'Registration date',
-      description: null,
-      dataType: 'DATE',
-      isRequired: true,
-      scope: 'CATALOGUE',
-      semanticsLockedAt: null,
-      archivedAt: null,
-    })
-    const notes = await CategoryAttribute.create({
-      catalogueCategoryId: category.id,
-      name: 'Identification note',
-      description: null,
-      dataType: 'TEXT',
-      isRequired: false,
-      scope: 'CATALOGUE',
-      semanticsLockedAt: null,
-      archivedAt: null,
-    })
-    const fuel = await CategoryAttribute.create({
-      catalogueCategoryId: category.id,
-      name: 'Fuel type',
-      description: null,
-      dataType: 'PREDEFINED_CHOICE',
-      isRequired: true,
-      scope: 'CATALOGUE',
-      semanticsLockedAt: null,
-      archivedAt: null,
-    })
-    const diesel = await CategoryAttributeChoice.create({
-      categoryAttributeId: fuel.id,
-      label: 'Diesel',
-      displayOrder: 1,
-      firstUsedAt: null,
-      archivedAt: null,
-    })
-
-    await createCatalogueItem(client, account, category, baseUnit, {
-      name: 'Institute Utility Vehicle',
-      keywords: ['utility vehicle'],
-      trackingMethod: 'INDIVIDUAL',
-      attributeValues: [
-        { categoryAttributeId: registrationDate.id, dateValue: '2026-08-01' },
-        { categoryAttributeId: fuel.id, choiceId: diesel.id },
-      ],
-    })
-    await registrationDate.refresh()
-    await notes.refresh()
-    await fuel.refresh()
-    await diesel.refresh()
-    assert.isTrue(DateTime.isDateTime(registrationDate.semanticsLockedAt))
-    assert.isTrue(DateTime.isDateTime(notes.semanticsLockedAt))
-    assert.isTrue(DateTime.isDateTime(fuel.semanticsLockedAt))
-    assert.isTrue(DateTime.isDateTime(diesel.firstUsedAt))
-    assert.equal(
-      await CatalogueItemAttributeValue.query()
-        .count('* as total')
-        .then((r) => Number(r[0].$extras.total)),
-      2
-    )
-  })
-
-  test('rejects missing required and wrong-type values without creating an item', async ({
-    client,
-    assert,
-  }) => {
-    const { account } = await createDirectCatalogueActor()
-    const { category, baseUnit } = await createCatalogueClassification('Fuel')
-    const grade = await CategoryAttribute.create({
-      catalogueCategoryId: category.id,
-      name: 'Fuel grade',
-      description: null,
-      dataType: 'TEXT',
-      isRequired: true,
-      scope: 'CATALOGUE',
-      semanticsLockedAt: null,
-      archivedAt: null,
-    })
-    const proposal = {
-      name: 'Workshop Fuel',
-      keywords: [],
-      catalogueCategoryId: category.id,
-      stockType: 'CONSUMABLE' as const,
-    }
-    const review = await authenticatedCatalogueRequest(
-      client.post('/catalogue-items/creation-review').json(proposal),
-      account
-    )
-    const payload = {
-      ...proposal,
-      description: null,
-      trackingMethod: 'QUANTITY',
-      trackingMethodConfirmed: true,
-      baseUnitId: baseUnit.id,
-      identificationStatus: 'CONFIRMED',
-      reviewFingerprint: review.body().data.fingerprint,
-      reason: 'Attempt invalid catalogue value',
-    }
-    const missing = await authenticatedCatalogueRequest(
-      client.post('/catalogue-items').json({ ...payload, attributeValues: [] }),
-      account
-    )
-    missing.assertStatus(409)
-    const wrongType = await authenticatedCatalogueRequest(
-      client.post('/catalogue-items').json({
-        ...payload,
-        attributeValues: [{ categoryAttributeId: grade.id, numberValue: '95' }],
-      }),
-      account
-    )
-    wrongType.assertStatus(409)
-    assert.equal(
-      await CatalogueItem.query()
-        .count('* as total')
-        .then((r) => Number(r[0].$extras.total)),
-      0
-    )
   })
 
   test('serializes concurrent creation against a stale similarity review', async ({
@@ -290,7 +159,6 @@ test.group('Catalogue item creation', (group) => {
       trackingMethodConfirmed: true,
       baseUnitId: baseUnit.id,
       identificationStatus: 'CONFIRMED',
-      attributeValues: [],
       reviewFingerprint: review.body().data.fingerprint,
       reason: 'Create paper definition',
     }

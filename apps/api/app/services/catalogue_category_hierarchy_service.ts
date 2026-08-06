@@ -1,10 +1,15 @@
 import InvalidCatalogueCategoryChangeException from '#exceptions/invalid_catalogue_category_change_exception'
+import InvalidCatalogueCategoryMergeException from '#exceptions/invalid_catalogue_category_merge_exception'
 import CatalogueCategory from '#models/catalogue_category'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
 export default class CatalogueCategoryHierarchyService {
   private invalid(message: string): never {
     throw new InvalidCatalogueCategoryChangeException(message)
+  }
+
+  private invalidMerge(message: string): never {
+    throw new InvalidCatalogueCategoryMergeException(message)
   }
 
   private depth(
@@ -115,6 +120,76 @@ export default class CatalogueCategoryHierarchyService {
     ) {
       this.invalid('Archive or move active child categories before archiving this category.')
     }
+  }
+
+  activeChildren(categoryId: string, categories: CatalogueCategory[]) {
+    return categories
+      .filter((category) => category.parentId === categoryId && !category.archivedAt)
+      .sort((left, right) => left.name.localeCompare(right.name) || left.id.localeCompare(right.id))
+  }
+
+  assertMergeTarget(
+    source: CatalogueCategory,
+    target: CatalogueCategory,
+    categories: CatalogueCategory[]
+  ) {
+    if (source.id === target.id) {
+      this.invalidMerge('A catalogue category cannot be merged into itself.')
+    }
+
+    if (source.archivedAt || source.mergedIntoCategoryId) {
+      this.invalidMerge('Only an active, unmerged catalogue category may be merged.')
+    }
+
+    if (target.archivedAt || target.mergedIntoCategoryId) {
+      this.invalidMerge('The merge target must be an active catalogue category.')
+    }
+
+    const categoryMap = new Map(categories.map((category) => [category.id, category]))
+    let cursor: CatalogueCategory | undefined = target
+    const visited = new Set<string>()
+
+    while (cursor) {
+      if (cursor.id === source.id) {
+        this.invalidMerge('A catalogue category cannot be merged into one of its descendants.')
+      }
+
+      if (visited.has(cursor.id)) {
+        this.invalidMerge(
+          'The catalogue-category hierarchy contains a circular parent relationship.'
+        )
+      }
+
+      visited.add(cursor.id)
+      cursor = cursor.parentId ? categoryMap.get(cursor.parentId) : undefined
+    }
+  }
+
+  canonicalMergeTarget(category: CatalogueCategory, categories: CatalogueCategory[]) {
+    const categoryMap = new Map(categories.map((candidate) => [candidate.id, candidate]))
+    let cursor = category
+    const visited = new Set<string>()
+
+    while (cursor.mergedIntoCategoryId) {
+      if (visited.has(cursor.id)) {
+        this.invalid('The catalogue-category merge history contains a circular relationship.')
+      }
+
+      visited.add(cursor.id)
+      const target = categoryMap.get(cursor.mergedIntoCategoryId)
+
+      if (!target) {
+        this.invalid('The catalogue-category merge history contains an unavailable target.')
+      }
+
+      cursor = target
+    }
+
+    if (cursor.archivedAt) {
+      this.invalid('The catalogue-category merge history does not end at an active category.')
+    }
+
+    return cursor
   }
 
   assertRestorableParent(category: CatalogueCategory, categories: CatalogueCategory[]) {

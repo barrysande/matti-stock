@@ -20,6 +20,9 @@ export default class CatalogueCategoryVersion extends CatalogueCategoryVersionSc
   @belongsTo(() => CatalogueCategory, { foreignKey: 'parentId' })
   declare parent: BelongsTo<typeof CatalogueCategory>
 
+  @belongsTo(() => CatalogueCategory, { foreignKey: 'mergedIntoCategoryId' })
+  declare mergedIntoCategory: BelongsTo<typeof CatalogueCategory>
+
   @belongsTo(() => UserAccount, { foreignKey: 'changedByAccountId' })
   declare changedByAccount: BelongsTo<typeof UserAccount>
 

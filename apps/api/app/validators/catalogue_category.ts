@@ -3,6 +3,11 @@ import vine from '@vinejs/vine'
 const name = () => vine.string().trim().minLength(1).maxLength(255)
 const description = () => vine.string().trim().minLength(1).maxLength(5000)
 const reason = () => vine.string().trim().minLength(1)
+const fingerprint = () =>
+  vine
+    .string()
+    .trim()
+    .regex(/^[0-9a-f]{64}$/)
 
 export const indexCatalogueCategoriesValidator = vine.create({
   search: vine.string().trim().minLength(1).maxLength(255).optional(),
@@ -24,6 +29,16 @@ export const updateCatalogueCategoryDetailsValidator = vine.create({
 
 export const reparentCatalogueCategoryValidator = vine.create({
   parentId: vine.string().uuid().nullable(),
+  reason: reason(),
+})
+
+export const previewCatalogueCategoryMergeValidator = vine.create({
+  targetCategoryId: vine.string().uuid(),
+})
+
+export const mergeCatalogueCategoryValidator = vine.create({
+  targetCategoryId: vine.string().uuid(),
+  previewFingerprint: fingerprint(),
   reason: reason(),
 })
 
