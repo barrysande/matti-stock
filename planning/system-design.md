@@ -205,12 +205,24 @@ reparent, archive, restore, and controlled merge, but never permanent deletion.
 Archived categories remain visible on existing records and are excluded from
 new catalogue-item selection.
 
-Merge is a controlled migration rather than an ordinary edit. It shall preview
-affected catalogue items and attribute conflicts, reject self-merge, cycles,
-and archived targets, atomically reclassify affected current catalogue items,
-record their change history, archive the source category, record its merge
-target, and preserve the source's history. Attribute conflicts shall require an
-explicit resolution and shall never be silently discarded or coerced.
+Merge is a controlled and terminal migration rather than an ordinary edit. It
+shall preview all active and archived catalogue items directly classified by
+the source, reject self-merge, descendants, archived or already-merged targets,
+and stale previews, atomically reclassify those catalogue items, record their
+change history, archive the source category, record its direct merge target,
+and preserve both categories' descriptions and histories. A source with active
+children cannot be merged: administrators must first explicitly reparent,
+merge, or archive each child. The interface may help select one, several, or
+all children for ordinary reparenting, including sending different subsets to
+different destinations, but the parent merge itself never moves children.
+
+A merged source cannot be restored and its normalized sibling name remains
+reserved. An ordinary archived category that has never been merged retains the
+existing name-reuse behaviour. Merge chains are allowed; category reads shall
+show both the direct target and the final canonical active target. Empty source
+categories may be merged. The preview fingerprint and the merge transaction's
+stable locking shall prevent concurrent changes from silently altering the
+approved effect.
 
 Examples of valid hierarchies include:
 
@@ -238,8 +250,7 @@ The system shall distinguish between:
 
 A catalogue item shall hold shared descriptive and behavioural information,
 including its permanent code, required name, optional description, optional
-search keywords, primary category, stock type, tracking method, base unit, and
-applicable catalogue-scoped attribute values.
+search keywords, primary category, stock type, tracking method, and base unit.
 
 The catalogue shall use one optional description rather than a second general
 specifications field. Its interface guidance shall invite shared brand, model,
@@ -305,9 +316,9 @@ a reasoned, versioned change. After holdings exist, stock type, tracking method,
 and base unit shall not be changed through ordinary catalogue editing; their
 controlled correction or conversion workflows must preserve existing stock
 semantics and history. The permanent code is never editable. Compatible name,
-description, keyword, category, and catalogue-attribute corrections remain
-versioned. Archiving a catalogue item prevents new intake without hiding or
-disabling its existing holdings.
+description, keyword, and category corrections remain versioned. Archiving a
+catalogue item prevents new intake without hiding or disabling its existing
+holdings.
 
 Before creating a catalogue item, the system shall show non-blocking similar
 active candidates using normalized name, keyword, category, prefix, or
@@ -448,8 +459,12 @@ composite relationship model has been removed.
 
 #### DEC-011: Support controlled category-specific attributes
 
-- **Status:** Accepted
+- **Status:** Superseded
 - **Area:** Inventory definitions and classification
+- **Superseded by:** Area 1 / DEC-014
+
+This decision records the earlier structured-attribute design for historical
+context only. It no longer applies to the product or implementation.
 
 Authorized inventory administrators shall be able to define attributes that
 apply to catalogue items or inventory units within a particular category.
@@ -554,8 +569,12 @@ reducing important information to unvalidated, unreportable notes.
 
 #### DEC-012: Give category-specific attributes an explicit scope
 
-- **Status:** Accepted
+- **Status:** Superseded
 - **Area:** Inventory definitions and classification
+- **Superseded by:** Area 1 / DEC-014
+
+This decision records the earlier attribute-scope design for historical context
+only. It no longer applies to the product or implementation.
 
 Every category-specific attribute definition shall have one of these scopes:
 
@@ -626,6 +645,33 @@ Physical items may be purchased in phases, held as spares, replaced, lost,
 damaged, or used with different equipment over time. A component relationship
 model would add coupling without being required to track the inventory itself.
 Independent records preserve the physical and operational reality.
+
+#### DEC-014: Keep catalogue detail description-first
+
+- **Status:** Accepted
+- **Area:** Inventory definitions and classification
+- **Supersedes:** Area 1 / DEC-011, Area 1 / DEC-012
+
+V1 shall not provide category-specific attribute definitions, choices, scopes,
+or attribute-value columns. A catalogue item requires a name and may have one
+generous optional description for shared recognition, specification,
+compatibility, material, dimensions, model, purpose, or other useful detail.
+The category itself likewise retains its description of what belongs there.
+
+The system shall not assume that unlike fixed/non-consumable items share a
+technical schema: a chair does not need computer fields, and a notebook does
+not need furniture fields. Administrators express relevant shared detail in the
+description and create separate catalogue items when a difference materially
+affects interchangeability. Facts belonging to one physical unit, such as its
+serial number, condition, location, or holder, remain on that unit's standard
+fields rather than in the catalogue description.
+
+##### Reason
+
+The stock system's purpose is clear identification and accountable movement,
+not exhaustive specification management. A flexible description meets that
+need without imposing irrelevant fields or a costly definition-and-resolution
+workflow on administrators.
 
 ### Area 2 — Tracking Method Rules
 
@@ -1328,7 +1374,7 @@ exposing or depending on database UUIDs or mutable external numbering schemes.
 
 - **Status:** Accepted
 - **Area:** Item identification and codes
-- **Builds on:** Area 1 / DEC-011, Area 2 / DEC-003
+- **Builds on:** Area 1 / DEC-014, Area 2 / DEC-003
 
 A manufacturer serial number shall be stored separately from the permanent
 domain inventory identifier and institute asset number.
@@ -1601,7 +1647,7 @@ For an individually tracked catalogue item:
   unit, initial current holder, and other common creation information may be
   entered once; and
 - unit-specific information, such as institute asset number, manufacturer
-  serial number, and unit-scoped attributes, may be entered separately for each
+  serial number, may be entered separately for each
   generated unit.
 
 For a quantity-tracked catalogue item, the creation transaction shall add the
@@ -5304,9 +5350,9 @@ original mistake and every action taken to correct it.
 - **Builds on:** Area 1 / DEC-003, Area 10 / DEC-002,
   Area 10 / DEC-003, Area 10 / DEC-008, Area 10 / DEC-010
 
-Active catalogue items, categories, base units, and category-attribute
-definitions shall be readable by authenticated application users. Mutation of
-those institution-wide definitions shall require effective `catalogue.manage`
+Active catalogue items, categories, and base units shall be readable by
+authenticated application users. Mutation of those institution-wide
+definitions shall require effective `catalogue.manage`
 authority resolved at the institute root organizational unit. A grant scoped
 only to a department or sub-department shall not change definitions used by the
 whole institute.

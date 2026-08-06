@@ -67,7 +67,7 @@ Covers:
 - base units and quantity precision;
 - independent component tracking without attachment or composite relationships;
   and
-- category-specific attributes.
+- description-first catalogue detail without category-specific schemas.
 
 ### Area 2 — Tracking Method Rules
 

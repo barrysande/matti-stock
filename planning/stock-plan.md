@@ -287,7 +287,7 @@ Deliver:
 - base-unit definitions and countable/measured precision rules;
 - catalogue-item creation based on interchangeability;
 - system-generated permanent catalogue codes;
-- controlled category attributes and catalogue/inventory-unit scopes;
+- controlled, terminal category merge with explicit child handling;
 - the canonical catalogue route and the reserved inventory-route contract;
 - catalogue keyword/code lookup foundation; and
 - responsive creation, list, detail, and history screens.
@@ -297,7 +297,7 @@ Critical tests:
 - permanent codes are unique and never reused;
 - duplicate protected external identifiers are rejected;
 - countable units reject fractional quantities;
-- attribute scope cannot be casually changed after use; and
+- category merges reject stale previews and preserve item/category history; and
 - component/composite relationships cannot be created.
 
 ### Week 4 — 17 to 23 August

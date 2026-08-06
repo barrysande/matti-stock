@@ -1026,6 +1026,10 @@ one generic normalizer.
 
 ## D36 — Category attributes separate mutable projections, governed history, and future use locks
 
+**Status.** Superseded by D40. This entry preserves the former implementation
+decision for chronology; category attributes and their integrations no longer
+exist in the API.
+
 **Decision.** Category attributes and predefined choices use current projection
 tables plus independent append-only, effective-dated version tables. Definition
 versions snapshot the exact category, label, optional guidance, type,
@@ -1085,7 +1089,7 @@ explicit database and lock-order contract for Slice 4 and Week 4.
 controller action `show`, a directory-service method named `findDetails`, and a
 transformer variant named `forDetailedView`. This naming applies consistently
 to accounts, organizational units, physical locations, roles, role assignments,
-delegations, catalogue categories, base units, and category attributes.
+delegations, catalogue categories, and base units.
 
 The word “overview” remains valid only when it names an actual summarized
 domain concept, such as an account's nested access overview. It is not used as
@@ -1098,6 +1102,9 @@ method names explicit removes mental translation without coupling directory
 queries to HTTP action names or changing response contracts.
 
 ## D38 — Catalogue items combine strict identity with reviewable similarity and typed history
+
+**Status.** The identity, similarity, description, lifecycle, and versioning
+parts remain current. D40 supersedes the typed-attribute/value parts.
 
 **Decision.** Catalogue items use a small current projection identified publicly
 by a PostgreSQL-sequence-generated `ITEM-000001` code. The database owns the
@@ -1177,3 +1184,46 @@ visible.
 class remains focused. Making those phase boundaries visible reduces the effort
 needed to trace authorization and transaction behavior, while keeping tightly
 related statements together avoids turning short workflows into visual noise.
+
+## D40 — Description-first catalogue and terminal category merge
+
+**Decision.** Catalogue items use their required name and optional description
+for shared recognition and specification detail. Category-specific attribute
+definitions, choices, scopes, current values, value snapshots, routes, and use
+locks are removed rather than carried as dormant infrastructure. The base-unit
+first-use lock and catalogue-item identity, keyword, similarity, lifecycle, and
+effective-history patterns remain unchanged.
+
+Category merge is a two-step preview-and-apply workflow. The preview validates
+the source and target, lists active child blockers and every directly affected
+active or archived catalogue item, and fingerprints the relevant current state.
+The apply workflow obtains the existing PostgreSQL-backed catalogue mutation
+lock, locks authority and domain rows in stable order, rebuilds the preview,
+and rejects a stale fingerprint before changing anything.
+
+Active children are never moved implicitly. They must first be explicitly
+reparented, merged, or archived. The web implementation may select one,
+several, or all children and call the existing individual reparent operation;
+successful calls remain successful, the preview is refreshed, and different
+subsets may be sent to different destinations.
+
+A successful merge moves all directly classified catalogue items while
+preserving each item's lifecycle and description, appends item versions,
+archives the source, records its direct target, and appends the source version
+in the same transaction. The source description remains historical and
+read-only; the target description continues through ordinary reasoned editing.
+Later target merges form an allowed chain, and detailed reads resolve both the
+direct target and the final canonical active target.
+
+Merge is terminal. Application guards reject source restoration and ordinary
+target archival, while database checks enforce merged-source archival and a
+valid merge target. Partial unique indexes reserve a merged source's normalized
+sibling name but continue to exclude ordinary archived, never-merged categories
+so their established name-reuse behaviour remains available. A same-normalized
+name remains valid beneath a different parent.
+
+**Why.** Description-first capture fits unlike stock without asking irrelevant
+questions such as computer specifications for furniture. Explicit child
+handling makes hierarchy changes visible and reversible before the terminal
+operation. Fingerprinting, stable locks, database constraints, and append-only
+history make the merge effect reviewable and atomic under concurrent use.

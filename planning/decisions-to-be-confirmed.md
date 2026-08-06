@@ -92,22 +92,11 @@ during implementation shall be added explicitly rather than inferred.
    operation provides convenience only and does not create a persistent
    relationship?
 
-## Category-Specific Attributes
+## Catalogue Detail
 
-1. Does the institute need authorized inventory administrators to define
-   structured fields for particular categories, such as `Chassis number` for
-   vehicles or `RAM` for computers?
-
-2. Which staff members or positions should be allowed to create, change, or
-   archive these attribute definitions?
-
-3. Does the institute agree that each attribute should be explicitly defined as
-   either:
-   - catalogue-level, with one value shared by all matching holdings; or
-   - inventory-unit-level, with a separate value for each physical unit?
-
-4. Does the institute agree that changing an attribute's scope after values
-   exist must use an authorized, auditable migration rather than a normal edit?
+Confirmed for V1: catalogue items use a required name and one generous optional
+description for relevant shared detail. Category-specific attribute
+definitions, scopes, choices, and value columns are intentionally excluded.
 
 ## Tracking Method
 
