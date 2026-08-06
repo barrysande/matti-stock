@@ -99,4 +99,20 @@ export interface ApiDefinition {
     archive: typeof routes['base_units.archive']
     restore: typeof routes['base_units.restore']
   }
+  categoryAttributes: {
+    index: typeof routes['category_attributes.index']
+    show: typeof routes['category_attributes.show']
+    store: typeof routes['category_attributes.store']
+    updateDetails: typeof routes['category_attributes.update_details']
+    updateSemantics: typeof routes['category_attributes.update_semantics']
+    archive: typeof routes['category_attributes.archive']
+    restore: typeof routes['category_attributes.restore']
+  }
+  categoryAttributeChoices: {
+    store: typeof routes['category_attribute_choices.store']
+    reorder: typeof routes['category_attribute_choices.reorder']
+    updateDetails: typeof routes['category_attribute_choices.update_details']
+    archive: typeof routes['category_attribute_choices.archive']
+    restore: typeof routes['category_attribute_choices.restore']
+  }
 }

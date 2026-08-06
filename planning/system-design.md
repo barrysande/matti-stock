@@ -483,6 +483,30 @@ migration. Labels and guidance may receive versioned edits, new predefined
 choices may be added, and the definition may be archived while its historical
 values remain readable.
 
+The optional description is also the attribute's data-entry guidance; V1 shall
+not create two overlapping fields. Active attribute names shall be normalized
+and unique within their exact category. A predefined-choice definition shall
+have at least one active choice. Its active choice labels shall be normalized
+and unique within that attribute, and its active choices shall have an explicit
+administrator-controlled display order.
+
+Predefined choices shall never be permanently deleted. An unused choice may be
+archived and later restored, but an active definition shall retain at least one
+active choice. A used choice shall not be renamed or archived through ordinary
+administration because doing so could reinterpret or remove a historical
+value. New choices and presentation-only reordering remain permitted after
+use. A used choice may be removed or repurposed only through the separately
+authorized controlled-migration boundary above.
+
+Attribute semantics become locked when the first affected target exists, even
+when the attribute is optional and that target has no value. Catalogue-scoped
+definitions therefore lock with the first exact-category catalogue item, and
+inventory-unit-scoped definitions lock with the first exact-category inventory
+unit. A particular predefined choice becomes used only when a value selects
+it. These monotonic markers shall be maintained atomically by the consuming
+target/value workflow and remain explainable from the preserved target and
+value history.
+
 Controlled attributes are appropriate when a value must be structured,
 required, validated, filtered, or reported consistently. Unpredictable shared
 detail that does not require those controls may remain in the catalogue item's
@@ -521,6 +545,11 @@ editable. A scope change shall require a controlled migration that defines how
 existing values are preserved or transformed. The migration shall be
 authorized and auditable; its detailed workflow will be decided during data
 governance and technical design.
+
+For V1 ordinary administration uses the stricter shared semantic lock above:
+scope is no longer directly editable after the first affected target exists.
+This prevents an optional attribute with an omitted value from changing scope
+after records have already been created under its original meaning.
 
 ##### Reason
 

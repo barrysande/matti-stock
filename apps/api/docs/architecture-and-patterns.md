@@ -1023,3 +1023,58 @@ avoid constructor injection, allocation, and mocking seams that provide no
 benefit. Domain-specific modules retain clear ownership without prematurely
 forcing differently evolving names, symbols, keywords, or other values through
 one generic normalizer.
+
+## D36 — Category attributes separate mutable projections, governed history, and future use locks
+
+**Decision.** Category attributes and predefined choices use current projection
+tables plus independent append-only, effective-dated version tables. Definition
+versions snapshot the exact category, label, optional guidance, type,
+requiredness, scope, lifecycle, reason, actor, and exact institute-root
+`catalogue.manage` evidence. Choice versions independently snapshot label,
+display order, lifecycle, reason, actor, and the same authorization evidence.
+Choice changes do not manufacture misleading definition versions.
+
+Applicability is exact-category only; directory queries never expand ancestors
+or descendants. Active attribute names are case-insensitively unique within an
+exact category. Active choice labels and positive display positions are unique
+within a predefined-choice attribute. Choice creation and ordering lock the
+owning attribute first and choice rows in stable UUID order. Reordering shifts
+positions within the transaction before assigning the requested complete
+permutation so the partial unique position index remains an effective final
+concurrency guard.
+
+The longest choice-version foreign-key, composite-unique, and supporting-index
+identifiers use explicit short names. PostgreSQL truncates identifiers to 63
+bytes, so relying on Knex's generated names for this table would collapse
+different constraints onto the same prefix during migration.
+
+`category_attributes.semantics_locked_at` and
+`category_attribute_choices.first_used_at` are monotonic current projections.
+Ordinary attribute administration checks the former before changing category,
+type, requiredness, or scope; ordinary choice administration checks the latter
+before renaming or archiving a used option. Definition archival remains allowed
+because it prevents new entry without rewriting historical values.
+
+Slice 3 deliberately creates no placeholder catalogue-item, attribute-value,
+or inventory-unit model and no dormant generic value interface. Slice 4's
+catalogue-item transaction must lock active exact-category catalogue-scoped
+definitions, validate their values, create the item and values, and set the
+definition lock in the same transaction. Week 4 must apply the corresponding
+contract to inventory-unit-scoped definitions and set a selected choice's use
+marker atomically. Both consumers lock the attribute before a selected choice
+and revalidate category, scope, type, requiredness, and lifecycle after locking.
+The target and value records will be authoritative history from which these
+markers can be explained or rebuilt.
+
+Stateless attribute-name, choice-label, and nullable-guidance normalization
+lives in the domain-specific `category_attribute.ts` helper under `app/utils/`.
+Provisioning, semantic administration, lifecycle administration, choice
+administration, history, authority, and directory queries remain services
+because they coordinate application state and transactions.
+
+**Why.** Separate projections keep later entry forms and filters direct while
+effective histories preserve administrative meaning and authorization. Locking
+on the first affected target protects optional definitions whose value was
+omitted as well as definitions with recorded values. Deferring concrete value
+integration to its real consumers avoids speculative models while leaving an
+explicit database and lock-order contract for Slice 4 and Week 4.

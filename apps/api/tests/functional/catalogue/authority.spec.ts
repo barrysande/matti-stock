@@ -24,10 +24,16 @@ test.group('Catalogue authority', (group) => {
       client.get('/catalogue-categories'),
       account
     )
+    const attributes = await authenticatedCatalogueRequest(
+      client.get('/category-attributes'),
+      account
+    )
 
     anonymous.assertStatus(401)
     authenticated.assertStatus(200)
     authenticated.assertBody({ data: [] })
+    attributes.assertStatus(200)
+    attributes.assertBody({ data: [] })
   })
 
   test('authorizes mutations before payload validation', async ({ client }) => {
@@ -58,6 +64,11 @@ test.group('Catalogue authority', (group) => {
       root
     )
     rootResponse.assertStatus(403)
+    const attributeResponse = await authenticatedCatalogueRequest(
+      client.post('/category-attributes').json({}),
+      root
+    )
+    attributeResponse.assertStatus(403)
   })
 
   test('rejects department-scoped catalogue authority', async ({ client }) => {
@@ -72,6 +83,11 @@ test.group('Catalogue authority', (group) => {
       departmental.account
     )
     departmentResponse.assertStatus(403)
+    const attributeResponse = await authenticatedCatalogueRequest(
+      client.post('/category-attributes').json({}),
+      departmental.account
+    )
+    attributeResponse.assertStatus(403)
   })
 
   test('accepts direct institution-root authority and records its exact assignment', async ({

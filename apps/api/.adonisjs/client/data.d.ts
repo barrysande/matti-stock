@@ -11,6 +11,10 @@ import type BaseUnitTransformer from '#transformers/base_unit_transformer'
 import type BaseUnitVersionTransformer from '#transformers/base_unit_version_transformer'
 import type CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
 import type CatalogueCategoryVersionTransformer from '#transformers/catalogue_category_version_transformer'
+import type CategoryAttributeChoiceTransformer from '#transformers/category_attribute_choice_transformer'
+import type CategoryAttributeChoiceVersionTransformer from '#transformers/category_attribute_choice_version_transformer'
+import type CategoryAttributeTransformer from '#transformers/category_attribute_transformer'
+import type CategoryAttributeVersionTransformer from '#transformers/category_attribute_version_transformer'
 import type CurrentAccountTransformer from '#transformers/current_account_transformer'
 import type DelegationProposalOptionsTransformer from '#transformers/delegation_proposal_options_transformer'
 import type DelegationTransformer from '#transformers/delegation_transformer'
@@ -47,6 +51,22 @@ export namespace Data {
   export type CatalogueCategoryVersion = InferData<CatalogueCategoryVersionTransformer>
   export namespace CatalogueCategoryVersion {
     export type Variants = InferVariants<CatalogueCategoryVersionTransformer>
+  }
+  export type CategoryAttributeChoice = InferData<CategoryAttributeChoiceTransformer>
+  export namespace CategoryAttributeChoice {
+    export type Variants = InferVariants<CategoryAttributeChoiceTransformer>
+  }
+  export type CategoryAttributeChoiceVersion = InferData<CategoryAttributeChoiceVersionTransformer>
+  export namespace CategoryAttributeChoiceVersion {
+    export type Variants = InferVariants<CategoryAttributeChoiceVersionTransformer>
+  }
+  export type CategoryAttribute = InferData<CategoryAttributeTransformer>
+  export namespace CategoryAttribute {
+    export type Variants = InferVariants<CategoryAttributeTransformer>
+  }
+  export type CategoryAttributeVersion = InferData<CategoryAttributeVersionTransformer>
+  export namespace CategoryAttributeVersion {
+    export type Variants = InferVariants<CategoryAttributeVersionTransformer>
   }
   export type CurrentAccount = InferData<CurrentAccountTransformer>
   export namespace CurrentAccount {

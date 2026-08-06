@@ -156,6 +156,136 @@ export class CatalogueCategoryVersionSchema extends BaseModel {
   declare version: number
 }
 
+export class CategoryAttributeChoiceVersionSchema extends BaseModel {
+  static $columns = ['archivedAt', 'authorizationDelegationId', 'authorizationRoleAssignmentId', 'categoryAttributeChoiceId', 'changeKind', 'changedByAccountId', 'createdAt', 'displayOrder', 'effectiveFrom', 'effectiveTo', 'id', 'label', 'permissionKey', 'reason', 'resolvedScopeOrganizationalUnitId', 'version'] as const
+  $columns = CategoryAttributeChoiceVersionSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column()
+  declare authorizationDelegationId: string | null
+  @column()
+  declare authorizationRoleAssignmentId: string
+  @column()
+  declare categoryAttributeChoiceId: string
+  @column()
+  declare changeKind: string
+  @column()
+  declare changedByAccountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare displayOrder: number | null
+  @column.dateTime()
+  declare effectiveFrom: DateTime
+  @column.dateTime()
+  declare effectiveTo: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare label: string
+  @column()
+  declare permissionKey: string
+  @column()
+  declare reason: string
+  @column()
+  declare resolvedScopeOrganizationalUnitId: string
+  @column()
+  declare version: number
+}
+
+export class CategoryAttributeChoiceSchema extends BaseModel {
+  static $columns = ['archivedAt', 'categoryAttributeId', 'createdAt', 'displayOrder', 'firstUsedAt', 'id', 'label', 'updatedAt'] as const
+  $columns = CategoryAttributeChoiceSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column()
+  declare categoryAttributeId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare displayOrder: number | null
+  @column.dateTime()
+  declare firstUsedAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare label: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class CategoryAttributeVersionSchema extends BaseModel {
+  static $columns = ['archivedAt', 'authorizationDelegationId', 'authorizationRoleAssignmentId', 'catalogueCategoryId', 'categoryAttributeId', 'changeKind', 'changedByAccountId', 'createdAt', 'dataType', 'description', 'effectiveFrom', 'effectiveTo', 'id', 'isRequired', 'name', 'permissionKey', 'reason', 'resolvedScopeOrganizationalUnitId', 'scope', 'version'] as const
+  $columns = CategoryAttributeVersionSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column()
+  declare authorizationDelegationId: string | null
+  @column()
+  declare authorizationRoleAssignmentId: string
+  @column()
+  declare catalogueCategoryId: string
+  @column()
+  declare categoryAttributeId: string
+  @column()
+  declare changeKind: string
+  @column()
+  declare changedByAccountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare dataType: string
+  @column()
+  declare description: string | null
+  @column.dateTime()
+  declare effectiveFrom: DateTime
+  @column.dateTime()
+  declare effectiveTo: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare isRequired: boolean
+  @column()
+  declare name: string
+  @column()
+  declare permissionKey: string
+  @column()
+  declare reason: string
+  @column()
+  declare resolvedScopeOrganizationalUnitId: string
+  @column()
+  declare scope: string
+  @column()
+  declare version: number
+}
+
+export class CategoryAttributeSchema extends BaseModel {
+  static $columns = ['archivedAt', 'catalogueCategoryId', 'createdAt', 'dataType', 'description', 'id', 'isRequired', 'name', 'scope', 'semanticsLockedAt', 'updatedAt'] as const
+  $columns = CategoryAttributeSchema.$columns
+  @column.dateTime()
+  declare archivedAt: DateTime | null
+  @column()
+  declare catalogueCategoryId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare dataType: string
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare isRequired: boolean
+  @column()
+  declare name: string
+  @column()
+  declare scope: string
+  @column.dateTime()
+  declare semanticsLockedAt: DateTime | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class DelegationAssignmentSchema extends BaseModel {
   static $columns = ['createdAt', 'delegationId', 'id', 'sourceAssignmentId'] as const
   $columns = DelegationAssignmentSchema.$columns

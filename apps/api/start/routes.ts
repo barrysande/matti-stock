@@ -9,6 +9,7 @@ import {
 } from '#start/limiter'
 
 router.where('id', router.matchers.uuid())
+router.where('choiceId', router.matchers.uuid())
 
 router.get('/health/live', [controllers.HealthChecks, 'live'])
 router.get('/health/ready', [controllers.HealthChecks, 'ready']).use(middleware.monitoringAuth())
@@ -144,4 +145,25 @@ router
     router.post('/:id/restore', [controllers.BaseUnits, 'restore'])
   })
   .prefix('/base-units')
+  .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/', [controllers.CategoryAttributes, 'index'])
+    router.get('/:id', [controllers.CategoryAttributes, 'show'])
+    router.post('/', [controllers.CategoryAttributes, 'store'])
+    router.post('/:id/details', [controllers.CategoryAttributes, 'updateDetails'])
+    router.post('/:id/semantics', [controllers.CategoryAttributes, 'updateSemantics'])
+    router.post('/:id/choices', [controllers.CategoryAttributeChoices, 'store'])
+    router.post('/:id/choices/reorder', [controllers.CategoryAttributeChoices, 'reorder'])
+    router.post('/:id/choices/:choiceId/details', [
+      controllers.CategoryAttributeChoices,
+      'updateDetails',
+    ])
+    router.post('/:id/choices/:choiceId/archive', [controllers.CategoryAttributeChoices, 'archive'])
+    router.post('/:id/choices/:choiceId/restore', [controllers.CategoryAttributeChoices, 'restore'])
+    router.post('/:id/archive', [controllers.CategoryAttributes, 'archive'])
+    router.post('/:id/restore', [controllers.CategoryAttributes, 'restore'])
+  })
+  .prefix('/category-attributes')
   .use(middleware.auth({ guards: ['web'] }))

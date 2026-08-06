@@ -420,6 +420,78 @@ const routes = {
     tokens: [{"old":"/base-units/:id/restore","type":0,"val":"base-units","end":""},{"old":"/base-units/:id/restore","type":1,"val":"id","end":""},{"old":"/base-units/:id/restore","type":0,"val":"restore","end":""}],
     types: placeholder as Registry['base_units.restore']['types'],
   },
+  'category_attributes.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/category-attributes',
+    tokens: [{"old":"/category-attributes","type":0,"val":"category-attributes","end":""}],
+    types: placeholder as Registry['category_attributes.index']['types'],
+  },
+  'category_attributes.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/category-attributes/:id',
+    tokens: [{"old":"/category-attributes/:id","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['category_attributes.show']['types'],
+  },
+  'category_attributes.store': {
+    methods: ["POST"],
+    pattern: '/category-attributes',
+    tokens: [{"old":"/category-attributes","type":0,"val":"category-attributes","end":""}],
+    types: placeholder as Registry['category_attributes.store']['types'],
+  },
+  'category_attributes.update_details': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/details',
+    tokens: [{"old":"/category-attributes/:id/details","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/details","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/details","type":0,"val":"details","end":""}],
+    types: placeholder as Registry['category_attributes.update_details']['types'],
+  },
+  'category_attributes.update_semantics': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/semantics',
+    tokens: [{"old":"/category-attributes/:id/semantics","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/semantics","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/semantics","type":0,"val":"semantics","end":""}],
+    types: placeholder as Registry['category_attributes.update_semantics']['types'],
+  },
+  'category_attribute_choices.store': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/choices',
+    tokens: [{"old":"/category-attributes/:id/choices","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/choices","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/choices","type":0,"val":"choices","end":""}],
+    types: placeholder as Registry['category_attribute_choices.store']['types'],
+  },
+  'category_attribute_choices.reorder': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/choices/reorder',
+    tokens: [{"old":"/category-attributes/:id/choices/reorder","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/choices/reorder","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/choices/reorder","type":0,"val":"choices","end":""},{"old":"/category-attributes/:id/choices/reorder","type":0,"val":"reorder","end":""}],
+    types: placeholder as Registry['category_attribute_choices.reorder']['types'],
+  },
+  'category_attribute_choices.update_details': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/choices/:choiceId/details',
+    tokens: [{"old":"/category-attributes/:id/choices/:choiceId/details","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/choices/:choiceId/details","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/choices/:choiceId/details","type":0,"val":"choices","end":""},{"old":"/category-attributes/:id/choices/:choiceId/details","type":1,"val":"choiceId","end":""},{"old":"/category-attributes/:id/choices/:choiceId/details","type":0,"val":"details","end":""}],
+    types: placeholder as Registry['category_attribute_choices.update_details']['types'],
+  },
+  'category_attribute_choices.archive': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/choices/:choiceId/archive',
+    tokens: [{"old":"/category-attributes/:id/choices/:choiceId/archive","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/choices/:choiceId/archive","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/choices/:choiceId/archive","type":0,"val":"choices","end":""},{"old":"/category-attributes/:id/choices/:choiceId/archive","type":1,"val":"choiceId","end":""},{"old":"/category-attributes/:id/choices/:choiceId/archive","type":0,"val":"archive","end":""}],
+    types: placeholder as Registry['category_attribute_choices.archive']['types'],
+  },
+  'category_attribute_choices.restore': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/choices/:choiceId/restore',
+    tokens: [{"old":"/category-attributes/:id/choices/:choiceId/restore","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/choices/:choiceId/restore","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/choices/:choiceId/restore","type":0,"val":"choices","end":""},{"old":"/category-attributes/:id/choices/:choiceId/restore","type":1,"val":"choiceId","end":""},{"old":"/category-attributes/:id/choices/:choiceId/restore","type":0,"val":"restore","end":""}],
+    types: placeholder as Registry['category_attribute_choices.restore']['types'],
+  },
+  'category_attributes.archive': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/archive',
+    tokens: [{"old":"/category-attributes/:id/archive","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/archive","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/archive","type":0,"val":"archive","end":""}],
+    types: placeholder as Registry['category_attributes.archive']['types'],
+  },
+  'category_attributes.restore': {
+    methods: ["POST"],
+    pattern: '/category-attributes/:id/restore',
+    tokens: [{"old":"/category-attributes/:id/restore","type":0,"val":"category-attributes","end":""},{"old":"/category-attributes/:id/restore","type":1,"val":"id","end":""},{"old":"/category-attributes/:id/restore","type":0,"val":"restore","end":""}],
+    types: placeholder as Registry['category_attributes.restore']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

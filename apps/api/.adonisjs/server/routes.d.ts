@@ -73,6 +73,18 @@ export type ScannedRoutes = {
     'base_units.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.index': { paramsTuple?: []; params?: {} }
+    'category_attributes.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.store': { paramsTuple?: []; params?: {} }
+    'category_attributes.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.update_semantics': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attribute_choices.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attribute_choices.reorder': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attribute_choices.update_details': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
+    'category_attribute_choices.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
+    'category_attribute_choices.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
+    'category_attributes.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -97,6 +109,8 @@ export type ScannedRoutes = {
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
     'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.index': { paramsTuple?: []; params?: {} }
+    'category_attributes.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -121,6 +135,8 @@ export type ScannedRoutes = {
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
     'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.index': { paramsTuple?: []; params?: {} }
+    'category_attributes.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'sessions.login': { paramsTuple?: []; params?: {} }
@@ -169,6 +185,16 @@ export type ScannedRoutes = {
     'base_units.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.store': { paramsTuple?: []; params?: {} }
+    'category_attributes.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.update_semantics': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attribute_choices.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attribute_choices.reorder': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attribute_choices.update_details': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
+    'category_attribute_choices.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
+    'category_attribute_choices.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'choiceId': ParamValue} }
+    'category_attributes.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'category_attributes.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }
