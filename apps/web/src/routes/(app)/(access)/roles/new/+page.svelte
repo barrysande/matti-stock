@@ -53,7 +53,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>Role name</Form.Label>
-							<Input {...props} bind:value={$formData.name} aria-required="true" />
+							<Input
+								{...props}
+								bind:value={$formData.name}
+								aria-required="true"
+								placeholder="e.g Catalogue Manager"
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.Description>Active reusable roles cannot share a name.</Form.Description>

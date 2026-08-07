@@ -567,15 +567,16 @@ review unusable until refreshed.
 Detail pages remain readable to every authenticated account. Mutation controls
 use the API-resolved `canManageCatalogue` capability and named server actions,
 but the API reauthorizes every request. Eligible reparent choices and known
-archive/restore blockers are derived from the returned small hierarchy only to
-explain the workflow; the API remains authoritative under concurrent change.
+archive/restore blockers are derived from the returned small hierarchy and
+shown only to catalogue managers because they explain unavailable
+administrative actions. The API remains authoritative under concurrent change.
 Audit-reason dialogs are not browser-history snapshots. Successful writes
 redirect to API-refreshed detail, while validation and domain failures retain
 the applicable SuperForm and open dialog.
 
 Merged sources render as terminal historical records with direct and canonical
 target links and no mutation controls. Merge preview and execution remain Slice
-7 work.
+6 work.
 
 **Why.** Direct routes match the established resource administration pattern
 without adding an extra navigation step. Path-first presentation makes the
@@ -616,3 +617,26 @@ language about whole and fractional values is more useful than exposing a raw
 precision integer. Locking the visual semantics at the same milestone as the
 API prevents the interface from offering a knowingly unavailable correction,
 without treating stale browser state as a domain guarantee.
+
+## D29 — Sidebar navigation uses compact route-aware disclosures
+
+**Decision.** The application sidebar keeps Workspace, Catalogue, and
+permission-gated Access administration headings visible as disclosure
+controls. At most one group is open. The group that owns the current route
+opens when navigation changes the pathname, while users may manually collapse
+the current group. Destination links continue to close the off-canvas sidebar
+on smartphones.
+
+The footer presents the signed-in identity as one compact avatar trigger. Its
+menu contains Change password and Log out. My access remains a Workspace
+destination and is not repeated in the footer; it uses an account icon so the
+key icon remains associated with access assignment rather than personal
+credentials. The generated initials are a text fallback, not a claimed user
+profile image.
+
+**Why.** Persistent group headings keep the application map discoverable while
+disclosing one route family at a time prevents a growing navigation list from
+hiding destinations below the viewport. Route-aware opening preserves context
+after navigation without taking away the user's ability to compact the current
+view. Consolidating infrequent session actions behind the identity trigger
+reduces repetition and keeps the footer useful at narrow heights.

@@ -157,7 +157,7 @@
 		</Alert.Root>
 	{/if}
 
-	{#if archiveBlocked && !isArchived}
+	{#if data.account?.canManageCatalogue && archiveBlocked && !isArchived}
 		<Alert.Root variant="destructive">
 			<Alert.Title>This category cannot currently be archived.</Alert.Title>
 			<Alert.Description>
@@ -177,7 +177,7 @@
 		</Alert.Root>
 	{/if}
 
-	{#if restoreBlocked && isArchived && !isMerged}
+	{#if data.account?.canManageCatalogue && restoreBlocked && isArchived && !isMerged}
 		<Alert.Root variant="destructive">
 			<Alert.Title>Restore the parent category first.</Alert.Title>
 			<Alert.Description

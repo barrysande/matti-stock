@@ -1057,16 +1057,17 @@ type, requiredness, or scope; ordinary choice administration checks the latter
 before renaming or archiving a used option. Definition archival remains allowed
 because it prevents new entry without rewriting historical values.
 
-Slice 3 deliberately creates no placeholder catalogue-item, attribute-value,
-or inventory-unit model and no dormant generic value interface. Slice 4's
-catalogue-item transaction must lock active exact-category catalogue-scoped
-definitions, validate their values, create the item and values, and set the
-definition lock in the same transaction. Week 4 must apply the corresponding
-contract to inventory-unit-scoped definitions and set a selected choice's use
-marker atomically. Both consumers lock the attribute before a selected choice
-and revalidate category, scope, type, requiredness, and lifecycle after locking.
-The target and value records will be authoritative history from which these
-markers can be explained or rebuilt.
+The removed attribute implementation deliberately created no placeholder
+catalogue-item, attribute-value, or inventory-unit model and no dormant generic
+value interface. The then-planned catalogue-item transaction had to lock active
+exact-category catalogue-scoped definitions, validate their values, create the
+item and values, and set the definition lock in the same transaction. Week 4
+had to apply the corresponding contract to inventory-unit-scoped definitions
+and set a selected choice's use marker atomically. Both consumers lock the
+attribute before a selected choice and revalidate category, scope, type,
+requiredness, and lifecycle after locking. The target and value records would
+be authoritative history from which these markers could be explained or
+rebuilt.
 
 Stateless attribute-name, choice-label, and nullable-guidance normalization
 lives in the domain-specific `category_attribute.ts` helper under `app/utils/`.
@@ -1079,7 +1080,7 @@ effective histories preserve administrative meaning and authorization. Locking
 on the first affected target protects optional definitions whose value was
 omitted as well as definitions with recorded values. Deferring concrete value
 integration to its real consumers avoids speculative models while leaving an
-explicit database and lock-order contract for Slice 4 and Week 4.
+explicit database and lock-order contract for the catalogue-item API and Week 4.
 
 ## D37 — Detail-read names follow the responsibility of each layer
 
@@ -1144,8 +1145,8 @@ projection while holding the same item row lock. Name, description, keywords,
 identification status, category, and compatible attribute corrections remain
 reasoned and versioned. Only stock type, tracking method, and base unit leave
 ordinary editing after first holding use and require a workflow that reconciles
-affected holdings. Slice 4 creates no placeholder holding model or mutation
-that sets this future marker.
+affected holdings. The catalogue-item API creates no placeholder holding model
+or mutation that sets this future marker.
 
 Catalogue capture is description-first. No attributes are seeded or inferred;
 an exact category may have none. A new optional definition introduced after
