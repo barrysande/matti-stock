@@ -25,6 +25,16 @@ export function requireRoot(event: RequestEvent) {
 	return account;
 }
 
+export function requireCatalogueManager(event: RequestEvent) {
+	const account = requireAuth(event);
+
+	if (!account.canManageCatalogue) {
+		redirect(303, '/catalogue-categories');
+	}
+
+	return account;
+}
+
 export function safeRedirectUrl(value: string | null, fallback = '/') {
 	if (!value || !value.startsWith('/') || value.startsWith('//')) {
 		return fallback;

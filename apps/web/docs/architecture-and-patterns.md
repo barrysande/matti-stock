@@ -547,3 +547,39 @@ A consistent directional layout reduces the effort required to compare
 delegation participants, while CSS truncation protects responsive layouts and
 keeps the complete values in the document. Matching shell radii preserves the
 intended inset silhouette without clipping the sticky header.
+
+## D27 — Catalogue categories use direct routes and path-first hierarchy context
+
+**Decision.** Classification resources live under direct authenticated routes
+rather than a content-free classification landing page. The application sidebar
+uses a Catalogue group and adds each resource only when its route exists.
+Catalogue-category pages use `/catalogue-categories`, `/catalogue-categories/new`,
+and `/catalogue-categories/[id]` inside a pathless `(catalogue)` source group.
+
+The directory is ordered by the API-provided full path and uses smartphone cards
+plus a desktop table. Full paths remain visible in directories, parent choices,
+review candidates, detail pages, and merge-target links; indentation is not the
+sole hierarchy signal. Creation uses one snapshot-enabled SuperForm and an
+API-owned advisory similar-category review. The reviewed candidates are not
+snapshotted, and changing the reviewed name or parent makes the current browser
+review unusable until refreshed.
+
+Detail pages remain readable to every authenticated account. Mutation controls
+use the API-resolved `canManageCatalogue` capability and named server actions,
+but the API reauthorizes every request. Eligible reparent choices and known
+archive/restore blockers are derived from the returned small hierarchy only to
+explain the workflow; the API remains authoritative under concurrent change.
+Audit-reason dialogs are not browser-history snapshots. Successful writes
+redirect to API-refreshed detail, while validation and domain failures retain
+the applicable SuperForm and open dialog.
+
+Merged sources render as terminal historical records with direct and canonical
+target links and no mutation controls. Merge preview and execution remain Slice
+7 work.
+
+**Why.** Direct routes match the established resource administration pattern
+without adding an extra navigation step. Path-first presentation makes the
+three-level hierarchy and same-named categories understandable on narrow
+screens. Server-owned capability and advisory-review data prevent the browser
+from reconstructing authorization or similarity rules, while local hierarchy
+filtering improves guidance without weakening transactional domain checks.
