@@ -49,20 +49,20 @@ from each flow directly to its implementation.
 ### Authenticated mutation
 
 ```text
-HTTP request
-→ authentication middleware
-→ Controller.action()
-→ Policy.action()
-→ request validator
-→ auth.getUserOrFail()
-→ ProvisioningService.create() or AdministrationService.operation()
-→ database transaction
-→ lock and revalidate current authority
-→ lock and validate domain state
-→ persist the current projection
-→ append version or access event
-→ commit
-→ message response
+- HTTP request
+- authentication middleware
+- Controller.action()
+- Policy.action()
+- request validator
+- auth.getUserOrFail()
+- ProvisioningService.create() or AdministrationService.operation()
+- database transaction
+- lock and revalidate current authority
+- lock and validate domain state
+- persist the current projection
+- append version or access event
+- commit
+- message response
 ```
 
 The policy check rejects an unauthorized request before payload validation or
@@ -72,14 +72,14 @@ revalidates it inside the transaction before committing the write.
 ### Authorized directory or detail read
 
 ```text
-HTTP request
-→ authentication middleware
-→ Controller.index() or Controller.show()
-→ Policy.list() or Policy.view()
-→ optional filter validator
-→ DirectoryService.list() or DirectoryService.findDetails()
-→ Transformer.transform()
-→ serialized response
+- HTTP request
+- authentication middleware
+- Controller.index() or Controller.show()
+- Policy.list() or Policy.view()
+- optional filter validator
+- DirectoryService.list() or DirectoryService.findDetails()
+- Transformer.transform()
+- serialized response
 ```
 
 List projections remain lightweight, while detailed reads may include
@@ -91,65 +91,65 @@ Some actions derive authority from participation in the requested record. The
 service verifies that ownership inside the transaction.
 
 ```text
-DelegationsController.accept()
-→ acceptDelegationValidator
-→ auth.getUserOrFail()
-→ DelegationResponseService.accept()
-→ lock actor and delegation
-→ require actor = proposed delegate
-→ revalidate source effectiveness and scope compatibility
-→ append acceptance and access event
-→ message response
+- DelegationsController.accept()
+- acceptDelegationValidator
+- auth.getUserOrFail()
+- DelegationResponseService.accept()
+- lock actor and delegation
+- require actor = proposed delegate
+- revalidate source effectiveness and scope compatibility
+- append acceptance and access event
+- message response
 ```
 
 Administrative termination uses root authority:
 
 ```text
-DelegationsController.terminate()
-→ DelegationPolicy.terminate()
-→ AccessRootAuthorityService.isEffective()
-→ terminateDelegationValidator
-→ DelegationTerminationService.administrativelyTerminate()
-→ transactional root-authority revalidation
-→ append termination and access event
-→ message response
+- DelegationsController.terminate()
+- DelegationPolicy.terminate()
+- AccessRootAuthorityService.isEffective()
+- terminateDelegationValidator
+- DelegationTerminationService.administrativelyTerminate()
+- transactional root-authority revalidation
+- append termination and access event
+- message response
 ```
 
 ### Preview and apply workflow
 
 ```text
-CatalogueCategoriesController.previewMerge()
-→ CatalogueCategoryPolicy.previewMerge()
-→ previewCatalogueCategoryMergeValidator
-→ CatalogueCategoryMergePreviewService.preview()
-→ validate source, target, children, and affected items
-→ return impact plus fingerprint
+- CatalogueCategoriesController.previewMerge()
+- CatalogueCategoryPolicy.previewMerge()
+- previewCatalogueCategoryMergeValidator
+- CatalogueCategoryMergePreviewService.preview()
+- validate source, target, children, and affected items
+- return impact plus fingerprint
 
 administrator confirms the reviewed changes
 
-→ CatalogueCategoriesController.merge()
-→ CatalogueCategoryPolicy.merge()
-→ mergeCatalogueCategoryValidator
-→ CatalogueCategoryMergeService.merge()
-→ named application lock and database transaction
-→ CatalogueAuthorityService.authorizeMutation()
-→ rebuild preview under locks
-→ compare fingerprint
-→ mutate items and source category
-→ append item and category histories
-→ commit
-→ message response
+- CatalogueCategoriesController.merge()
+- CatalogueCategoryPolicy.merge()
+- mergeCatalogueCategoryValidator
+- CatalogueCategoryMergeService.merge()
+- named application lock and database transaction
+- CatalogueAuthorityService.authorizeMutation()
+- rebuild preview under locks
+- compare fingerprint
+- mutate items and source category
+- append item and category histories
+- commit
+- message response
 ```
 
 ### Effective-history mutation
 
 ```text
-current projection
-→ lock current open version
-→ set its end time (`effectiveTo`)
-→ update the projection with model.merge().save()
-→ append the next version with reason, actor, and authorization evidence
-→ commit as one transaction
+- current projection
+- lock current open version
+- set its end time (`effectiveTo`)
+- update the projection with model.merge().save()
+- append the next version with reason, actor, and authorization evidence
+- commit as one transaction
 ```
 
 ## 3. Authorization patterns
@@ -159,14 +159,14 @@ current projection
 The application derives effective authority from these facts:
 
 ```text
-active account
-+ effective role assignment
-+ immutable role version
-+ permission key
-+ active organizational scope
-+ scope mode
-+ assignment timing and lifecycle state
-→ effective grant
+- active account
+- effective role assignment
+- immutable role version
+- permission key
+- active organizational scope
+- scope mode
+- assignment timing and lifecycle state
+- effective grant
 ```
 
 The current authorization boundaries are:
@@ -194,11 +194,11 @@ The starter roles are `MASTER_ADMIN`, `STORE_SUPERVISOR`, `STOCK_SUPERVISOR`,
 institute's duties evolve.
 
 ```text
-RolesController.replacePermissions()
-→ RolePolicy.replacePermissions()
-→ RoleAdministrationService.replacePermissions()
-→ RoleVersionService.append()
-→ append a new immutable role version
+- RolesController.replacePermissions()
+- RolePolicy.replacePermissions()
+- RoleAdministrationService.replacePermissions()
+- RoleVersionService.append()
+- append a new immutable role version
 ```
 
 Existing assignments retain the role version originally granted. A new version
@@ -208,17 +208,41 @@ The protected `MASTER_ADMIN` role grants `access.root`. A Master Admin receives
 `catalogue.manage` or another operational permission through a separate
 business-role assignment.
 
+### Master Admin bootstrap
+
+`AccessRegistrySeeder` establishes the permission and role registry before
+`MasterAdminBootstrapService.run()` creates the first administrative account.
+
+```text
+- create the access.root permission
+- create the protected MASTER_ADMIN role and immutable version 1
+- attach access.root to version 1
+- validate the institute name and Master Admin identity
+- resolve or create the institute root
+- create the unverified person and INVITED account
+- issue an INITIAL_SETUP password challenge
+- assign MASTER_ADMIN version 1 at the institute with INCLUDE_DESCENDANTS
+- record MASTER_ADMIN_BOOTSTRAPPED with SYSTEM as the actor
+- commit the bootstrap transaction
+- queue the password-setup email
+- holder sets a password and verifies the primary email
+- first successful login activates the account
+```
+
+The system grants the assignment immediately with no expiry. The account can
+exercise `access.root` after activation.
+
 ### Role assignments and organizational reach
 
 A direct appointment is represented as:
 
 ```text
-one account
-+ one immutable role version
-+ one organizational unit
-+ one scope mode
-+ start and optional expiry
-→ role assignment
+- one account
+- one immutable role version
+- one organizational unit
+- one scope mode
+- start and optional expiry
+- role assignment
 ```
 
 The two scope modes are:
@@ -232,26 +256,26 @@ and `OrganizationalScopeService.matches()` applies the scope mode.
 Example:
 
 ```text
-Stock Supervisor assignment at Engineering + INCLUDE_DESCENDANTS
-→ permission applies at Engineering
-→ permission applies at Engineering / Workshop
-→ ICT requires its own matching assignment
+- Stock Supervisor assignment at Engineering with INCLUDE_DESCENDANTS
+- permission applies at Engineering
+- permission applies at Engineering / Workshop
+- ICT requires its own matching assignment
 ```
 
 Assignments may start immediately or later and may expire. Ending, cancelling,
 or replacing one appends a termination record and preserves the approved grant.
 
 ```text
-RoleAssignmentsController.store()
-→ RoleAssignmentPolicy.create()
-→ AccessRootAuthorityService.isEffective()
-→ createRoleAssignmentValidator
-→ RoleAssignmentProvisioningService.create()
-→ lock access mutations and acting account
-→ AccessRootAuthorityService.assertEffectiveActor()
-→ select latest role version and validate scope
-→ create assignment
-→ AccessEventService.record()
+- RoleAssignmentsController.store()
+- RoleAssignmentPolicy.create()
+- AccessRootAuthorityService.isEffective()
+- createRoleAssignmentValidator
+- RoleAssignmentProvisioningService.create()
+- lock access mutations and acting account
+- AccessRootAuthorityService.assertEffectiveActor()
+- select latest role version and validate scope
+- create assignment
+- AccessEventService.record()
 ```
 
 ### Effective-access resolution
@@ -261,14 +285,14 @@ effective grant requires an active account, active role and scope, a started and
 unexpired assignment, and an open lifecycle.
 
 ```text
-EffectiveAccessService.authorize(accountId, permissionKey, resolvedScopeId)
-→ EffectiveAccessService.grantsForAccount()
-→ OrganizationalScopeService.ancestorIds()
-→ match effective direct assignments
-→ DelegatedAccessQueryService.effectiveLinksForDelegate()
-→ match still-effective delegated source assignments
-→ direct grants first, then delegated grants
-→ first matching grant or null
+- EffectiveAccessService.authorize(accountId, permissionKey, resolvedScopeId)
+- EffectiveAccessService.grantsForAccount()
+- OrganizationalScopeService.ancestorIds()
+- match effective direct assignments
+- DelegatedAccessQueryService.effectiveLinksForDelegate()
+- match still-effective delegated source assignments
+- direct grants first, then delegated grants
+- first matching grant or null
 ```
 
 An account receives the combined permissions of all matching assignments. The
@@ -284,29 +308,29 @@ authority inside the transaction.
 Catalogue example:
 
 ```text
-CatalogueCategoriesController.merge()
-→ CatalogueCategoryPolicy.merge()
-→ CatalogueAuthorityService.isEffective()
-→ EffectiveAccessService.authorize(catalogue.manage at institute)
-→ validate request
-→ CatalogueCategoryMergeService.merge()
-→ CatalogueAuthorityService.authorizeMutation()
-→ lock actor, institute, source assignment, role, and optional delegation
-→ resolve the exact grant again
-→ compare the two grant results
-→ continue when the authorization evidence matches
+- CatalogueCategoriesController.merge()
+- CatalogueCategoryPolicy.merge()
+- CatalogueAuthorityService.isEffective()
+- EffectiveAccessService.authorize(catalogue.manage at institute)
+- validate request
+- CatalogueCategoryMergeService.merge()
+- CatalogueAuthorityService.authorizeMutation()
+- lock actor, institute, source assignment, role, and optional delegation
+- resolve the exact grant again
+- compare the two grant results
+- continue when the authorization evidence matches
 ```
 
 Root-access example:
 
 ```text
-AccountsController.suspend()
-→ AccessPolicy.suspend()
-→ AccessRootAuthorityService.isEffective()
-→ AccountLifecycleService.suspend()
-→ AccessRootAuthorityService.lockAdministrationAccounts()
-→ AccessRootAuthorityService.assertEffectiveActor()
-→ mutate account, append version, and record access event
+- AccountsController.suspend()
+- AccessPolicy.suspend()
+- AccessRootAuthorityService.isEffective()
+- AccountLifecycleService.suspend()
+- AccessRootAuthorityService.lockAdministrationAccounts()
+- AccessRootAuthorityService.assertEffectiveActor()
+- mutate account, append version, and record access event
 ```
 
 Root-affecting assignment changes call
@@ -321,16 +345,16 @@ ownership remain with the delegator. The temporary grant applies during the
 accepted interval.
 
 ```text
-effective direct source assignment
-→ DelegationsController.store()
-→ DelegationProvisioningService.create()
-→ validate delegator ownership, recipient compatibility, interval, and overlap
-→ append proposal and linked source assignments
-→ proposed delegate accepts through DelegationResponseService.accept()
-→ accepted + within effective interval + no early termination
-→ DelegatedAccessQueryService.effectiveLinksForDelegate()
-→ EffectiveAccessService revalidates each source assignment
-→ delegated effective grant
+- effective direct source assignment
+- DelegationsController.store()
+- DelegationProvisioningService.create()
+- validate delegator ownership, recipient compatibility, interval, and overlap
+- append proposal and linked source assignments
+- proposed delegate accepts through DelegationResponseService.accept()
+- accepted within effective interval with no early termination
+- DelegatedAccessQueryService.effectiveLinksForDelegate()
+- EffectiveAccessService revalidates each source assignment
+- delegated effective grant
 ```
 
 Important controls:
@@ -348,13 +372,13 @@ Important controls:
 Example:
 
 ```text
-Store Supervisor has a direct institute-scoped role assignment
-→ proposes that whole assignment to a compatible active colleague for leave cover
-→ colleague accepts
-→ during the accepted interval, EffectiveAccessService returns DELEGATED evidence
-→ a catalogue mutation may use catalogue.manage through that evidence
-→ catalogue history records both source assignment ID and delegation ID
-→ expiry or early termination immediately stops future authorization
+- Store Supervisor has a direct institute-scoped role assignment
+- proposes that whole assignment to a compatible active colleague for leave cover
+- colleague accepts
+- during the accepted interval, EffectiveAccessService returns DELEGATED evidence
+- a catalogue mutation may use catalogue.manage through that evidence
+- catalogue history records both source assignment ID and delegation ID
+- expiry or early termination immediately stops future authorization
 ```
 
 ### Authorization evidence and auditability
@@ -365,14 +389,14 @@ assignment. Business histories preserve the exact grant returned by effective
 access resolution.
 
 ```text
-authorized business mutation
-→ permissionKey
-→ role and immutable role version
-→ source assignment
-→ optional delegation
-→ declared and resolved organizational scope
-→ actor, reason, and effective time
-→ append-only version or access event
+- authorized business mutation
+- permissionKey
+- role and immutable role version
+- source assignment
+- optional delegation
+- declared and resolved organizational scope
+- actor, reason, and effective time
+- append-only version or access event
 ```
 
 Later role edits, assignment endings, delegation expiry, or account suspension
