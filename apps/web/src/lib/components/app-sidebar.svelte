@@ -58,18 +58,18 @@
 	type NavigationSection = 'WORKSPACE' | 'CATALOGUE' | 'ACCESS_ADMINISTRATION';
 
 	function sectionForPath(pathname: string): NavigationSection {
-		if (catalogue.some((item) => pathname.startsWith(item.href))) return 'CATALOGUE';
+		if (catalogue.some((item) => pathname.startsWith(item.href))) {
+			return 'CATALOGUE';
+		}
+
 		if (administration.some((item) => pathname.startsWith(item.href))) {
 			return 'ACCESS_ADMINISTRATION';
 		}
+
 		return 'WORKSPACE';
 	}
 
-	let openSection = $state<NavigationSection | null>(sectionForPath(page.url.pathname));
-
-	$effect(() => {
-		openSection = sectionForPath(page.url.pathname);
-	});
+	let openSection = $derived<NavigationSection | null>(sectionForPath(page.url.pathname));
 
 	function active(href: string) {
 		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);

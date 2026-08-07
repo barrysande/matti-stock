@@ -252,8 +252,8 @@
 												><Select.Trigger {...props} class="w-full cursor-pointer"
 													>{precisionLabel($detailsData.precision)}</Select.Trigger
 												><Select.Content
-													>{#each ['1', '2', '3'] as precision}<Select.Item value={precision}
-															>{precisionLabel(precision)}</Select.Item
+													>{#each ['1', '2', '3'] as precision (precision)}<Select.Item
+															value={precision}>{precisionLabel(precision)}</Select.Item
 														>{/each}</Select.Content
 												></Select.Root
 											>{/if}<input

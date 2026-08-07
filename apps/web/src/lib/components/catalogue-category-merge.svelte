@@ -21,6 +21,7 @@
 	import { superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { valibotClient } from 'sveltekit-superforms/adapters';
 	import type { InferOutput } from 'valibot';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	const topLevelValue = 'TOP_LEVEL';
 	type MergePreviewFormData = InferOutput<typeof previewCatalogueCategoryMergeSchema>;
@@ -149,7 +150,7 @@
 	});
 
 	function descendantsOf(allCategories: CatalogueCategory[], categoryId: string) {
-		const descendantIds = new Set<string>();
+		const descendantIds = new SvelteSet<string>();
 		let found = true;
 
 		while (found) {
