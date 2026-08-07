@@ -7,7 +7,9 @@
 		IconKey,
 		IconMapPin,
 		IconRepeat,
+		IconRulerMeasure,
 		IconShield,
+		IconTags,
 		IconUsers
 	} from '@tabler/icons-svelte';
 	import type { ComponentProps } from 'svelte';
@@ -34,6 +36,10 @@
 		{ href: '/account', label: 'My access', icon: IconKey },
 		{ href: '/delegations', label: 'Delegations', icon: IconRepeat }
 	] as const;
+	const catalogue = [
+		{ href: '/catalogue-categories', label: 'Categories', icon: IconTags },
+		{ href: '/base-units', label: 'Base units', icon: IconRulerMeasure }
+	] as const;
 	const administration = [
 		{ href: '/accounts', label: 'Accounts', icon: IconUsers },
 		{ href: '/organization', label: 'Organization', icon: IconBuildingCommunity },
@@ -42,7 +48,9 @@
 		{ href: '/role-assignments', label: 'Assignments', icon: IconKey }
 	] as const;
 	type NavigationHref =
-		(typeof workspace)[number]['href'] | (typeof administration)[number]['href'];
+		| (typeof workspace)[number]['href']
+		| (typeof catalogue)[number]['href']
+		| (typeof administration)[number]['href'];
 
 	function active(href: string) {
 		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
@@ -56,6 +64,10 @@
 				return resolve('/account');
 			case '/delegations':
 				return resolve('/delegations');
+			case '/catalogue-categories':
+				return resolve('/catalogue-categories');
+			case '/base-units':
+				return resolve('/base-units');
 			case '/accounts':
 				return resolve('/accounts');
 			case '/organization':
@@ -107,6 +119,27 @@
 										<span>{item.label}</span>
 									</a>
 									<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+								{/snippet}
+							</Sidebar.MenuButton>
+						</Sidebar.MenuItem>
+					{/each}
+				</Sidebar.Menu>
+			</Sidebar.GroupContent>
+		</Sidebar.Group>
+		<Sidebar.Group>
+			<Sidebar.GroupLabel>Catalogue</Sidebar.GroupLabel>
+			<Sidebar.GroupContent>
+				<Sidebar.Menu>
+					{#each catalogue as item (item.href)}
+						<Sidebar.MenuItem>
+							<Sidebar.MenuButton isActive={active(item.href)} tooltipContent={item.label}>
+								{#snippet child({ props })}
+									<!-- Dynamic navigation targets are resolved centrally above. -->
+									<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+									<a href={navigationHref(item.href)} {...props} onclick={closeMobileSidebar}>
+										<item.icon />
+										<span>{item.label}</span>
+									</a>
 								{/snippet}
 							</Sidebar.MenuButton>
 						</Sidebar.MenuItem>

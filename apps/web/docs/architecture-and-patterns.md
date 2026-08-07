@@ -583,3 +583,36 @@ three-level hierarchy and same-named categories understandable on narrow
 screens. Server-owned capability and advisory-review data prevent the browser
 from reconstructing authorization or similarity rules, while local hierarchy
 filtering improves guidance without weakening transactional domain checks.
+
+## D28 — Base-unit screens explain quantity semantics before administration
+
+**Decision.** Base-unit pages use `/base-units`, `/base-units/new`, and
+`/base-units/[id]` alongside categories in the pathless `(catalogue)` source
+group and authenticated Catalogue navigation. The responsive directory exposes
+API-supported search, countable/measured kind, and active/archive visibility
+through URL-addressable GET filters.
+
+Creation and pre-use editing present quantity kind before precision. Countable
+means whole quantities and fixes precision at zero. Measured means fractional
+quantities and offers one, two, or three decimal places, with the API's default
+of three selected when switching into measured entry. The BFF converts the
+form's controlled precision string to the API's numeric contract; shared
+Valibot validation rejects incompatible kind/precision pairs before transport.
+
+Once `firstUsedAt` is present, detail editing keeps name and symbol available
+for correction but renders kind and precision as read-only values submitted
+unchanged. The page explains that changing those semantics requires a
+controlled conversion rather than ordinary editing. The API remains
+authoritative if use begins concurrently after an unused detail page loads.
+
+Base-unit detail includes effective history and manager-only edit, archive, and
+restore dialogs. Creation is the only snapshot-enabled base-unit form;
+administrative reasons remain request-local. Successful writes redirect to the
+refreshed detail route, while validation, duplicate, semantic-lock, and restore
+conflicts retain the applicable SuperForm and dialog.
+
+**Why.** Users choose units to constrain future stock quantities, so ordinary
+language about whole and fractional values is more useful than exposing a raw
+precision integer. Locking the visual semantics at the same milestone as the
+API prevents the interface from offering a knowingly unavailable correction,
+without treating stale browser state as a domain guarantee.
