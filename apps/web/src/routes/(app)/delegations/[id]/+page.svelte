@@ -51,7 +51,9 @@
 		validators: valibotClient(optionalReasonSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') acceptDialogOpen = false;
+			if (result.type === 'redirect') {
+				acceptDialogOpen = false;
+			}
 		}
 	});
 
@@ -63,7 +65,9 @@
 		validators: valibotClient(delegationReasonSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') rejectDialogOpen = false;
+			if (result.type === 'redirect') {
+				rejectDialogOpen = false;
+			}
 		}
 	});
 
@@ -75,7 +79,9 @@
 		validators: valibotClient(delegationReasonSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') revokeDialogOpen = false;
+			if (result.type === 'redirect') {
+				revokeDialogOpen = false;
+			}
 		}
 	});
 
@@ -87,7 +93,9 @@
 		validators: valibotClient(delegationReasonSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') relinquishDialogOpen = false;
+			if (result.type === 'redirect') {
+				relinquishDialogOpen = false;
+			}
 		}
 	});
 
@@ -103,7 +111,9 @@
 		validators: valibotClient(delegationReasonSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') terminateDialogOpen = false;
+			if (result.type === 'redirect') {
+				terminateDialogOpen = false;
+			}
 		}
 	});
 

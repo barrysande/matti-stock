@@ -42,7 +42,9 @@
 		validators: valibotClient(grantRoleAssignmentSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') replaceDialogOpen = false;
+			if (result.type === 'redirect') {
+				replaceDialogOpen = false;
+			}
 		}
 	});
 
@@ -52,7 +54,9 @@
 		validators: valibotClient(administerRoleAssignmentSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') endDialogOpen = false;
+			if (result.type === 'redirect') {
+				endDialogOpen = false;
+			}
 		}
 	});
 
@@ -64,7 +68,9 @@
 		validators: valibotClient(administerRoleAssignmentSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') cancelDialogOpen = false;
+			if (result.type === 'redirect') {
+				cancelDialogOpen = false;
+			}
 		}
 	});
 

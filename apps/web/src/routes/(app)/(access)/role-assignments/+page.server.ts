@@ -3,14 +3,11 @@ import { getOrganizationalUnits } from '$lib/server/api/organizational-units';
 import { getRoleAssignments } from '$lib/server/api/role-assignments';
 import { getRoles } from '$lib/server/api/roles';
 import { requireRoot } from '$lib/server/auth/guards';
+import { roleAssignmentStatus } from '$lib/server/helpers/role-assignment-route';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 const statuses = ['UPCOMING', 'ACTIVE', 'EXPIRED', 'ENDED', 'CANCELLED', 'REPLACED'] as const;
-
-function assignmentStatus(value: string | null) {
-	return statuses.find((status) => status === value);
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);
@@ -22,7 +19,7 @@ export const load: PageServerLoad = async (event) => {
 		scopeOrganizationalUnitId: optionalFilter(
 			event.url.searchParams.get('scopeOrganizationalUnitId')
 		),
-		status: assignmentStatus(event.url.searchParams.get('status'))
+		status: roleAssignmentStatus(event.url.searchParams.get('status'), statuses)
 	};
 
 	const [assignmentsResult, rolesResult, unitsResult] = await Promise.all([

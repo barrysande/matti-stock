@@ -38,13 +38,17 @@
 				impactDialogOpen = false;
 				return;
 			}
-			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) return;
+
+			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) {
+				return;
+			}
 
 			const actionData = result.data as {
 				impact?: AccessImpact;
 				reviewedSelection?: ReviewedSelection;
 				previewInvalidated?: boolean;
 			};
+
 			if (actionData.previewInvalidated) {
 				impact = null;
 				reviewedSelection = null;

@@ -1,12 +1,9 @@
 import { booleanFilter, optionalFilter } from '$lib/server/helpers/list-filters';
 import { getRoles } from '$lib/server/api/roles';
 import { requireRoot } from '$lib/server/auth/guards';
+import { roleTypeFilter } from '$lib/server/helpers/role-route';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-
-function roleTypeFilter(value: string | null) {
-	return value === 'true' ? true : value === 'false' ? false : undefined;
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);

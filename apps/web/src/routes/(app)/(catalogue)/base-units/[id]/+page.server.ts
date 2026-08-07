@@ -7,22 +7,19 @@ import {
 } from '$lib/server/api/base-units';
 import { requireAuth, requireCatalogueManager } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import { redirectToBaseUnit } from '$lib/server/helpers/base-unit-route';
 import type { BaseUnitKind } from '$lib/types/base-units';
 import { error, fail } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad, RequestEvent } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const formIds = {
 	details: 'base-unit-details',
 	archive: 'base-unit-archive',
 	restore: 'base-unit-restore'
 } as const;
-
-function redirectToBaseUnit(event: RequestEvent, message: string) {
-	redirect(303, `/base-units/${event.params.id}`, { type: 'success', message }, event.cookies);
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireAuth(event);

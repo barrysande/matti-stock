@@ -31,7 +31,9 @@
 		validators: valibotClient(baseUnitDetailsSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') detailsDialogOpen = false;
+			if (result.type === 'redirect') {
+				detailsDialogOpen = false;
+			}
 		}
 	});
 	const { form: detailsData, enhance: detailsEnhance, submitting: detailsSubmitting } = detailsForm;
@@ -42,7 +44,9 @@
 		validators: valibotClient(administerBaseUnitSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') archiveDialogOpen = false;
+			if (result.type === 'redirect') {
+				archiveDialogOpen = false;
+			}
 		}
 	});
 	const { form: archiveData, enhance: archiveEnhance, submitting: archiveSubmitting } = archiveForm;
@@ -53,7 +57,9 @@
 		validators: valibotClient(administerBaseUnitSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') restoreDialogOpen = false;
+			if (result.type === 'redirect') {
+				restoreDialogOpen = false;
+			}
 		}
 	});
 	const { form: restoreData, enhance: restoreEnhance, submitting: restoreSubmitting } = restoreForm;

@@ -1,5 +1,8 @@
 import {
+	applyCatalogueCategoryMergeSchema,
 	administerCatalogueCategorySchema,
+	moveCatalogueCategoryChildrenSchema,
+	previewCatalogueCategoryMergeSchema,
 	reparentCatalogueCategorySchema,
 	updateCatalogueCategoryDetailsSchema
 } from '$lib/schemas/catalogue-category';
@@ -7,63 +10,34 @@ import {
 	archiveCatalogueCategory,
 	getCatalogueCategories,
 	getCatalogueCategory,
+	mergeCatalogueCategory,
+	previewCatalogueCategoryMerge,
 	reparentCatalogueCategory,
 	restoreCatalogueCategory,
 	updateCatalogueCategoryDetails
 } from '$lib/server/api/catalogue-categories';
 import { requireAuth, requireCatalogueManager } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
-import type { CatalogueCategory } from '$lib/types/catalogue-categories';
+import {
+	catalogueCategoryDescendants,
+	catalogueCategorySubtreeHeight,
+	redirectToCatalogueCategory
+} from '$lib/server/helpers/catalogue-category-route';
 import { error, fail } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad, RequestEvent } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const formIds = {
 	details: 'catalogue-category-details',
 	reparent: 'catalogue-category-reparent',
 	archive: 'catalogue-category-archive',
-	restore: 'catalogue-category-restore'
+	restore: 'catalogue-category-restore',
+	mergePreview: 'catalogue-category-merge-preview',
+	moveChildren: 'catalogue-category-move-children',
+	mergeApply: 'catalogue-category-merge-apply'
 } as const;
-
-function descendantsOf(categories: CatalogueCategory[], categoryId: string) {
-	const descendantIds = new Set<string>();
-	let found = true;
-
-	while (found) {
-		found = false;
-		for (const candidate of categories) {
-			if (
-				!descendantIds.has(candidate.id) &&
-				(candidate.parentId === categoryId ||
-					(candidate.parentId && descendantIds.has(candidate.parentId)))
-			) {
-				descendantIds.add(candidate.id);
-				found = true;
-			}
-		}
-	}
-
-	return descendantIds;
-}
-
-function subtreeHeight(categories: CatalogueCategory[], categoryId: string): number {
-	const children = categories.filter((candidate) => candidate.parentId === categoryId);
-	return children.reduce(
-		(height, child) => Math.max(height, subtreeHeight(categories, child.id) + 1),
-		0
-	);
-}
-
-function redirectToCategory(event: RequestEvent, message: string) {
-	redirect(
-		303,
-		`/catalogue-categories/${event.params.id}`,
-		{ type: 'success', message },
-		event.cookies
-	);
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireAuth(event);
@@ -81,8 +55,8 @@ export const load: PageServerLoad = async (event) => {
 
 	const category = categoryResponse.data;
 	const categories = directoryResponse.data;
-	const descendantIds = descendantsOf(categories, category.id);
-	const height = subtreeHeight(categories, category.id);
+	const descendantIds = catalogueCategoryDescendants(categories, category.id);
+	const height = catalogueCategorySubtreeHeight(categories, category.id);
 	const parentOptions = categories.filter(
 		(candidate) =>
 			!candidate.archivedAt &&
@@ -93,6 +67,10 @@ export const load: PageServerLoad = async (event) => {
 	);
 	const activeChildren = categories.filter(
 		(candidate) => candidate.parentId === category.id && !candidate.archivedAt
+	);
+	const mergeTargetOptions = categories.filter(
+		(candidate) =>
+			!candidate.archivedAt && candidate.id !== category.id && !descendantIds.has(candidate.id)
 	);
 	const mergedSources = categories.filter(
 		(candidate) => candidate.mergedIntoCategoryId === category.id
@@ -109,7 +87,9 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		category,
+		categories,
 		parentOptions,
+		mergeTargetOptions,
 		activeChildren,
 		mergedSources,
 		parent,
@@ -130,7 +110,27 @@ export const load: PageServerLoad = async (event) => {
 		}),
 		restoreForm: await superValidate({ reason: '' }, valibot(administerCatalogueCategorySchema), {
 			id: formIds.restore
-		})
+		}),
+		mergePreviewForm: await superValidate(
+			{ targetCategoryId: mergeTargetOptions[0]?.id ?? '' },
+			valibot(previewCatalogueCategoryMergeSchema),
+			{ id: formIds.mergePreview }
+		),
+		moveChildrenForm: await superValidate(
+			{ childIds: [] as string[], parentId: '', reason: '' },
+			valibot(moveCatalogueCategoryChildrenSchema),
+			{ id: formIds.moveChildren }
+		),
+		mergeApplyForm: await superValidate(
+			{
+				targetCategoryId: '',
+				previewFingerprint: '',
+				terminalConfirmed: false,
+				reason: ''
+			},
+			valibot(applyCatalogueCategoryMergeSchema),
+			{ id: formIds.mergeApply }
+		)
 	};
 };
 
@@ -152,7 +152,7 @@ export const actions: Actions = {
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
-		redirectToCategory(event, response.message);
+		redirectToCatalogueCategory(event, response.message);
 	},
 
 	reparent: async (event) => {
@@ -171,7 +171,7 @@ export const actions: Actions = {
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
-		redirectToCategory(event, response.message);
+		redirectToCatalogueCategory(event, response.message);
 	},
 
 	archive: async (event) => {
@@ -191,7 +191,7 @@ export const actions: Actions = {
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
-		redirectToCategory(event, response.message);
+		redirectToCatalogueCategory(event, response.message);
 	},
 
 	restore: async (event) => {
@@ -211,6 +211,117 @@ export const actions: Actions = {
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form });
 		}
-		redirectToCategory(event, response.message);
+		redirectToCatalogueCategory(event, response.message);
+	},
+
+	mergePreview: async (event) => {
+		requireCatalogueManager(event);
+
+		const form = await superValidate(event, valibot(previewCatalogueCategoryMergeSchema), {
+			id: formIds.mergePreview
+		});
+		if (!form.valid) return fail(400, { form, previewInvalidated: true });
+
+		const [response, apiError] = await previewCatalogueCategoryMerge(
+			event,
+			event.params.id,
+			form.data.targetCategoryId
+		);
+		if (apiError) {
+			const details = apiErrorDetails(apiError, 'The category merge could not be previewed.');
+			setFlash({ type: 'error', message: details.message }, event.cookies);
+			return fail(apiError.status ?? 400, { form, previewInvalidated: true });
+		}
+
+		return { form, preview: response.data };
+	},
+
+	moveChildren: async (event) => {
+		requireCatalogueManager(event);
+
+		const form = await superValidate(event, valibot(moveCatalogueCategoryChildrenSchema), {
+			id: formIds.moveChildren
+		});
+		if (!form.valid) return fail(400, { form });
+
+		const [directoryResponse, directoryError] = await getCatalogueCategories(event, {
+			includeArchived: true
+		});
+		if (directoryError) {
+			const details = apiErrorDetails(
+				directoryError,
+				'Current category choices could not be loaded.'
+			);
+			setFlash({ type: 'error', message: details.message }, event.cookies);
+			return fail(directoryError.status ?? 400, { form });
+		}
+
+		const categories = directoryResponse.data;
+		const childIds = [...new Set(form.data.childIds)];
+		const activeChildIds = new Set(
+			categories
+				.filter((category) => category.parentId === event.params.id && !category.archivedAt)
+				.map((category) => category.id)
+		);
+		if (childIds.some((childId) => !activeChildIds.has(childId))) {
+			setFlash(
+				{ type: 'error', message: 'Select only current active child categories.' },
+				event.cookies
+			);
+			return fail(400, { form, invalidSelection: true });
+		}
+		if (form.data.parentId === event.params.id) {
+			setFlash(
+				{ type: 'error', message: 'Move child categories outside the merge source.' },
+				event.cookies
+			);
+			return fail(400, { form, invalidSelection: true });
+		}
+
+		let moved = 0;
+		for (const childId of childIds) {
+			const [, apiError] = await reparentCatalogueCategory(event, childId, {
+				parentId: form.data.parentId || null,
+				reason: form.data.reason
+			});
+			if (apiError) {
+				const details = apiErrorDetails(apiError, 'A selected child category could not be moved.');
+				redirectToCatalogueCategory(
+					event,
+					moved
+						? `${moved} ${moved === 1 ? 'child was' : 'children were'} moved before the workflow stopped. ${details.message}`
+						: details.message,
+					'error'
+				);
+			}
+			moved += 1;
+		}
+
+		redirectToCatalogueCategory(
+			event,
+			`${moved} ${moved === 1 ? 'child category was' : 'child categories were'} moved. Refresh the merge preview to continue.`
+		);
+	},
+
+	mergeApply: async (event) => {
+		requireCatalogueManager(event);
+
+		const form = await superValidate(event, valibot(applyCatalogueCategoryMergeSchema), {
+			id: formIds.mergeApply
+		});
+		if (!form.valid) return fail(400, { form });
+
+		const [response, apiError] = await mergeCatalogueCategory(event, event.params.id, {
+			targetCategoryId: form.data.targetCategoryId,
+			previewFingerprint: form.data.previewFingerprint,
+			reason: form.data.reason
+		});
+		if (apiError) {
+			const details = apiErrorDetails(apiError, 'The catalogue category could not be merged.');
+			setFlash({ type: 'error', message: details.message }, event.cookies);
+			return fail(apiError.status ?? 400, { form });
+		}
+
+		redirectToCatalogueCategory(event, response.message);
 	}
 };

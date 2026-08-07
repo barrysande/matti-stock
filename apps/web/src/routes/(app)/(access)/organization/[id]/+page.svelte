@@ -49,7 +49,9 @@
 		validators: valibotClient(renameOrganizationalUnitSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') renameDialogOpen = false;
+			if (result.type === 'redirect') {
+				renameDialogOpen = false;
+			}
 		}
 	});
 
@@ -65,13 +67,17 @@
 				reparentDialogOpen = false;
 				return;
 			}
-			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) return;
+
+			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) {
+				return;
+			}
 
 			const actionData = result.data as {
 				impact?: AccessImpact;
 				reviewedParentId?: string;
 				previewInvalidated?: boolean;
 			};
+
 			if (actionData.previewInvalidated) {
 				invalidateReparentPreview();
 			} else if (actionData.impact && actionData.reviewedParentId) {
@@ -99,12 +105,16 @@
 				archiveDialogOpen = false;
 				return;
 			}
-			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) return;
+
+			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) {
+				return;
+			}
 
 			const actionData = result.data as {
 				impact?: AccessImpact;
 				previewInvalidated?: boolean;
 			};
+
 			if (actionData.previewInvalidated) {
 				invalidateArchivePreview();
 			} else if (actionData.impact) {
@@ -127,12 +137,16 @@
 				restoreDialogOpen = false;
 				return;
 			}
-			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) return;
+
+			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) {
+				return;
+			}
 
 			const actionData = result.data as {
 				impact?: AccessImpact;
 				previewInvalidated?: boolean;
 			};
+
 			if (actionData.previewInvalidated) {
 				invalidateRestorePreview();
 			} else if (actionData.impact) {

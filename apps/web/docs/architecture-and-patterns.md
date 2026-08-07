@@ -468,7 +468,9 @@ serve one intention, with one blank line between blocks that serve different
 intentions. Imports remain one uninterrupted block. Related declarations,
 repeated state, and the internals of one UI element stay together, while props,
 derived concerns, major sibling UI sections, and separate workflow stages are
-visually separated.
+visually separated. Every conditional branch uses braces, including one-line
+guards, so later changes cannot silently alter control flow and related blocks
+retain the same visible shape.
 
 SvelteKit server actions group form parsing with its validity guard, then
 separate that validation block from the API workflow and the final successful
@@ -575,8 +577,8 @@ redirect to API-refreshed detail, while validation and domain failures retain
 the applicable SuperForm and open dialog.
 
 Merged sources render as terminal historical records with direct and canonical
-target links and no mutation controls. Merge preview and execution remain Slice
-6 work.
+target links and no mutation controls. Active unmerged sources expose the
+manager-only preview-and-apply workflow recorded in D30.
 
 **Why.** Direct routes match the established resource administration pattern
 without adding an extra navigation step. Path-first presentation makes the
@@ -640,3 +642,60 @@ hiding destinations below the viewport. Route-aware opening preserves context
 after navigation without taking away the user's ability to compact the current
 view. Consolidating infrequent session actions behind the identity trigger
 reduces repetition and keeps the footer useful at narrow heights.
+
+## D30 — Catalogue-item capture separates review, identity, and inventory semantics
+
+**Decision.** Catalogue-item pages use `/catalogue-items`,
+`/catalogue-items/new`, and `/catalogue-items/[catalogueCode]`. The permanent
+API-generated code is the canonical detail identity. The responsive directory
+uses the paginated API with URL-addressable text, category, stock-type,
+tracking-method, identification-quality, and lifecycle filters. Category
+selectors and displays use full paths from the small category directory. The
+specialized ranked lookup API remains available for future embedded selectors
+and intake rather than adding a competing search mode to the directory.
+
+Creation is one snapshot-enabled SuperForm followed by a request-local review
+stage. Keywords are entered one unique phrase per line and converted by the BFF
+to the ordered API array. Name, keywords, category, or stock-type changes make
+the review presentation unusable until refreshed; the API fingerprint remains
+authoritative. Candidate confirmation requires a reason only when candidates
+exist. Tracking method is selected and explicitly confirmed after the API's
+stock-type guidance is visible. Review results, fingerprints, confirmation,
+and administrative reasons are not browser-history snapshots.
+
+The creation schema owns its typed initial values. A catalogue-item-specific
+server helper owns initial SuperForm construction and the shared form identity,
+while actions pass their `RequestEvent` directly to `superValidate` to parse
+submitted data. Route modules keep their `load` and `actions` orchestrators easy
+to scan by importing feature-specific helper functions from focused modules
+under `$lib/server/helpers`. Route-local configuration constants such as form
+identities may remain beside the orchestrators. Ordinary one-off API reads and
+writes remain visible rather than being wrapped solely to shorten the route
+module.
+
+Detail reads and effective history remain available to every authenticated
+account. Catalogue managers receive separate shared-detail and classification
+workflows because their API review and locking rules differ. Name or keyword
+changes require similarity review; category changes require review against the
+proposed category and stock type. After `inventorySemanticsLockedAt`, stock
+type, tracking method, and base unit are read-only in ordinary editing while
+category and shared details remain correctable. Restoration always refreshes
+similarity review and manager-only guidance explains archived category or base
+unit blockers.
+
+Category merge uses a request-local preview and exact fingerprint. Full paths
+identify source, target, children, and child destinations. The preview lists
+all directly affected active and archived catalogue items. Managers may move
+one, several, or all active children to one destination per submission; the
+BFF calls the existing reparent operation sequentially, preserves successful
+calls if a later call fails, and redirects to authoritative refreshed state.
+Apply requires a reason and explicit terminal acknowledgement. Successful
+merge redirects to the source's immutable historical detail.
+
+**Why.** The API's similarity and merge fingerprints represent reviewed
+current state rather than durable form input, so keeping them request-local
+prevents stale browser restoration from implying validity. Separating shared
+identity from inventory semantics makes the post-holding lock understandable
+without freezing correctable descriptions or classification. Sequential child
+moves reflect the actual non-batch API contract and report partial progress
+honestly, while the terminal parent merge remains atomic and stale-safe.

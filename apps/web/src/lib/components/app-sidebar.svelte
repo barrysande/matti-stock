@@ -7,6 +7,7 @@
 		IconHome,
 		IconKey,
 		IconMapPin,
+		IconPackage,
 		IconRepeat,
 		IconRulerMeasure,
 		IconShield,
@@ -39,6 +40,7 @@
 		{ href: '/delegations', label: 'Delegations', icon: IconRepeat }
 	] as const;
 	const catalogue = [
+		{ href: '/catalogue-items', label: 'Catalogue items', icon: IconPackage },
 		{ href: '/catalogue-categories', label: 'Categories', icon: IconTags },
 		{ href: '/base-units', label: 'Base units', icon: IconRulerMeasure }
 	] as const;
@@ -81,6 +83,8 @@
 				return resolve('/account');
 			case '/delegations':
 				return resolve('/delegations');
+			case '/catalogue-items':
+				return resolve('/catalogue-items');
 			case '/catalogue-categories':
 				return resolve('/catalogue-categories');
 			case '/base-units':

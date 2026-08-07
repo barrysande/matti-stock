@@ -18,27 +18,19 @@ import {
 	eatInputToIso,
 	optionalEatInputToIso
 } from '$lib/server/helpers/date-time';
+import { redirectToRoleAssignment } from '$lib/server/helpers/role-assignment-route';
 import type { RoleAssignmentScopeMode } from '$lib/types/role-assignment';
 import { error, fail } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad, RequestEvent } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const formIds = {
 	replace: 'role-assignment-replace',
 	end: 'role-assignment-end',
 	cancel: 'role-assignment-cancel'
 } as const;
-
-function redirectToAssignment(event: RequestEvent, message: string) {
-	redirect(
-		303,
-		`/role-assignments/${event.params.id}`,
-		{ type: 'success', message },
-		event.cookies
-	);
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);
@@ -123,7 +115,7 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToAssignment(event, response.message);
+		redirectToRoleAssignment(event, response.message);
 	},
 
 	end: async (event) => {
@@ -141,7 +133,7 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToAssignment(event, response.message);
+		redirectToRoleAssignment(event, response.message);
 	},
 
 	cancel: async (event) => {
@@ -163,6 +155,6 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToAssignment(event, response.message);
+		redirectToRoleAssignment(event, response.message);
 	}
 };

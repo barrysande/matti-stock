@@ -1,5 +1,4 @@
 import { delegationReasonSchema, optionalReasonSchema } from '$lib/schemas/delegation';
-import { delegationErrorMessage } from '$lib/helpers/delegation-presentation';
 import {
 	acceptDelegation,
 	getDelegation,
@@ -9,12 +8,14 @@ import {
 	terminateDelegation
 } from '$lib/server/api/delegations';
 import { requireAuth } from '$lib/server/auth/guards';
-import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import {
+	delegationMutationFailure,
+	redirectToDelegation
+} from '$lib/server/helpers/delegation-route';
 import { error, fail } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad, RequestEvent } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const formIds = {
 	accept: 'delegation-accept',
@@ -23,24 +24,6 @@ const formIds = {
 	relinquish: 'delegation-relinquish',
 	terminate: 'delegation-terminate'
 } as const;
-
-function redirectToDelegation(event: RequestEvent, message: string) {
-	redirect(303, `/delegations/${event.params.id}`, { type: 'success', message }, event.cookies);
-}
-
-function mutationFailure<T>(
-	event: RequestEvent,
-	apiError: { status?: number; response?: unknown },
-	form: T,
-	fallback: string
-) {
-	const details = apiErrorDetails(apiError, fallback);
-	setFlash(
-		{ type: 'error', message: delegationErrorMessage(details.message, fallback) },
-		event.cookies
-	);
-	return fail(apiError.status ?? 400, { form });
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireAuth(event);
@@ -84,7 +67,12 @@ export const actions: Actions = {
 			form.data.reason || undefined
 		);
 		if (apiError)
-			return mutationFailure(event, apiError, form, 'The proposal could not be accepted.');
+			return delegationMutationFailure(
+				event,
+				apiError,
+				form,
+				'The proposal could not be accepted.'
+			);
 
 		redirectToDelegation(event, response.message);
 	},
@@ -99,7 +87,12 @@ export const actions: Actions = {
 
 		const [response, apiError] = await rejectDelegation(event, event.params.id, form.data.reason);
 		if (apiError)
-			return mutationFailure(event, apiError, form, 'The proposal could not be declined.');
+			return delegationMutationFailure(
+				event,
+				apiError,
+				form,
+				'The proposal could not be declined.'
+			);
 
 		redirectToDelegation(event, response.message);
 	},
@@ -114,7 +107,12 @@ export const actions: Actions = {
 
 		const [response, apiError] = await revokeDelegation(event, event.params.id, form.data.reason);
 		if (apiError)
-			return mutationFailure(event, apiError, form, 'The temporary coverage could not be ended.');
+			return delegationMutationFailure(
+				event,
+				apiError,
+				form,
+				'The temporary coverage could not be ended.'
+			);
 
 		redirectToDelegation(event, response.message);
 	},
@@ -133,7 +131,7 @@ export const actions: Actions = {
 			form.data.reason
 		);
 		if (apiError)
-			return mutationFailure(
+			return delegationMutationFailure(
 				event,
 				apiError,
 				form,
@@ -157,7 +155,7 @@ export const actions: Actions = {
 			form.data.reason
 		);
 		if (apiError)
-			return mutationFailure(
+			return delegationMutationFailure(
 				event,
 				apiError,
 				form,

@@ -13,11 +13,12 @@ import {
 } from '$lib/server/api/physical-locations';
 import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import { redirectToPhysicalLocation } from '$lib/server/helpers/physical-location-route';
 import { error, fail } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad, RequestEvent } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const formIds = {
 	rename: 'physical-location-rename',
@@ -25,10 +26,6 @@ const formIds = {
 	archive: 'physical-location-archive',
 	restore: 'physical-location-restore'
 } as const;
-
-function redirectToLocation(event: RequestEvent, message: string) {
-	redirect(303, `/locations/${event.params.id}`, { type: 'success', message }, event.cookies);
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);
@@ -109,7 +106,7 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToLocation(event, response.message);
+		redirectToPhysicalLocation(event, response.message);
 	},
 
 	reparent: async (event) => {
@@ -130,7 +127,7 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToLocation(event, response.message);
+		redirectToPhysicalLocation(event, response.message);
 	},
 
 	archive: async (event) => {
@@ -152,7 +149,7 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToLocation(event, response.message);
+		redirectToPhysicalLocation(event, response.message);
 	},
 
 	restore: async (event) => {
@@ -174,6 +171,6 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToLocation(event, response.message);
+		redirectToPhysicalLocation(event, response.message);
 	}
 };

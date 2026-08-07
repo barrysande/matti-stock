@@ -3,6 +3,7 @@ import type { Data } from 'api/data';
 export type CatalogueCategory = Data.CatalogueCategory;
 export type CatalogueCategoryDetail = Data.CatalogueCategory.Variants['forDetailedView'];
 export type CatalogueCategoryCreationReview = Data.CatalogueCategoryCreationReview;
+export type CatalogueCategoryMergePreview = Data.CatalogueCategoryMergePreview;
 
 export interface CatalogueCategoryDirectoryQuery {
 	search?: string;
@@ -29,5 +30,11 @@ export interface UpdateCatalogueCategoryDetailsBody {
 
 export interface ReparentCatalogueCategoryBody {
 	parentId: string | null;
+	reason: string;
+}
+
+export interface MergeCatalogueCategoryBody {
+	targetCategoryId: string;
+	previewFingerprint: string;
 	reason: string;
 }

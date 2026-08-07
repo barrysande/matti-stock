@@ -34,13 +34,17 @@
 				reviewDialogOpen = false;
 				return;
 			}
-			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) return;
+
+			if ((result.type !== 'success' && result.type !== 'failure') || !result.data) {
+				return;
+			}
 
 			const actionData = result.data as {
 				candidates?: CatalogueCategoryCreationReview[];
 				reviewedSelection?: ReviewedSelection;
 				reviewInvalidated?: boolean;
 			};
+
 			if (actionData.reviewInvalidated) {
 				candidates = null;
 				reviewedSelection = null;

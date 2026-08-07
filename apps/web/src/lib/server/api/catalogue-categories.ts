@@ -2,6 +2,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 import type {
 	CatalogueCategoryDirectoryQuery,
 	CreateCatalogueCategoryBody,
+	MergeCatalogueCategoryBody,
 	ReparentCatalogueCategoryBody,
 	ReviewCatalogueCategoryCreationBody,
 	UpdateCatalogueCategoryDetailsBody
@@ -55,4 +56,22 @@ export function restoreCatalogueCategory(event: RequestEvent, id: string, reason
 	return event.locals.client.api.catalogueCategories
 		.restore({ params: { id }, body: { reason } })
 		.safe();
+}
+
+export function previewCatalogueCategoryMerge(
+	event: RequestEvent,
+	id: string,
+	targetCategoryId: string
+) {
+	return event.locals.client.api.catalogueCategories
+		.previewMerge({ params: { id }, body: { targetCategoryId } })
+		.safe();
+}
+
+export function mergeCatalogueCategory(
+	event: RequestEvent,
+	id: string,
+	body: MergeCatalogueCategoryBody
+) {
+	return event.locals.client.api.catalogueCategories.merge({ params: { id }, body }).safe();
 }

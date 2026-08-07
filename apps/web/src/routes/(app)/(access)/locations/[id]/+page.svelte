@@ -40,7 +40,9 @@
 		validators: valibotClient(renameLocationSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') renameDialogOpen = false;
+			if (result.type === 'redirect') {
+				renameDialogOpen = false;
+			}
 		}
 	});
 
@@ -52,7 +54,9 @@
 		validators: valibotClient(reparentLocationSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') reparentDialogOpen = false;
+			if (result.type === 'redirect') {
+				reparentDialogOpen = false;
+			}
 		}
 	});
 
@@ -68,7 +72,9 @@
 		validators: valibotClient(administerLocationSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') archiveDialogOpen = false;
+			if (result.type === 'redirect') {
+				archiveDialogOpen = false;
+			}
 		}
 	});
 
@@ -80,7 +86,9 @@
 		validators: valibotClient(administerLocationSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') restoreDialogOpen = false;
+			if (result.type === 'redirect') {
+				restoreDialogOpen = false;
+			}
 		}
 	});
 

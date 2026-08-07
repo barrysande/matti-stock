@@ -53,7 +53,9 @@
 		validators: valibotClient(renameRoleSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') renameDialogOpen = false;
+			if (result.type === 'redirect') {
+				renameDialogOpen = false;
+			}
 		}
 	});
 
@@ -65,7 +67,9 @@
 		validators: valibotClient(replaceRolePermissionsSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') permissionsDialogOpen = false;
+			if (result.type === 'redirect') {
+				permissionsDialogOpen = false;
+			}
 		}
 	});
 
@@ -81,7 +85,9 @@
 		validators: valibotClient(administerRoleSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') archiveDialogOpen = false;
+			if (result.type === 'redirect') {
+				archiveDialogOpen = false;
+			}
 		}
 	});
 
@@ -93,7 +99,9 @@
 		validators: valibotClient(administerRoleSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') restoreDialogOpen = false;
+			if (result.type === 'redirect') {
+				restoreDialogOpen = false;
+			}
 		}
 	});
 

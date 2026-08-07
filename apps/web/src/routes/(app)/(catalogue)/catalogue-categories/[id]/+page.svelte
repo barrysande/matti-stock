@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import CatalogueCategoryMerge from '$lib/components/catalogue-category-merge.svelte';
 	import CatalogueCategoryHistory from '$lib/components/catalogue-category-history.svelte';
 	import DateTime from '$lib/components/date-time.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
@@ -41,7 +42,9 @@
 		validators: valibotClient(updateCatalogueCategoryDetailsSchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') detailsDialogOpen = false;
+			if (result.type === 'redirect') {
+				detailsDialogOpen = false;
+			}
 		}
 	});
 	const { form: detailsData, enhance: detailsEnhance, submitting: detailsSubmitting } = detailsForm;
@@ -52,7 +55,9 @@
 		validators: valibotClient(reparentCatalogueCategorySchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') reparentDialogOpen = false;
+			if (result.type === 'redirect') {
+				reparentDialogOpen = false;
+			}
 		}
 	});
 	const {
@@ -67,7 +72,9 @@
 		validators: valibotClient(administerCatalogueCategorySchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') archiveDialogOpen = false;
+			if (result.type === 'redirect') {
+				archiveDialogOpen = false;
+			}
 		}
 	});
 	const { form: archiveData, enhance: archiveEnhance, submitting: archiveSubmitting } = archiveForm;
@@ -78,7 +85,9 @@
 		validators: valibotClient(administerCatalogueCategorySchema),
 		resetForm: false,
 		onResult({ result }) {
-			if (result.type === 'redirect') restoreDialogOpen = false;
+			if (result.type === 'redirect') {
+				restoreDialogOpen = false;
+			}
 		}
 	});
 	const { form: restoreData, enhance: restoreEnhance, submitting: restoreSubmitting } = restoreForm;
@@ -127,6 +136,16 @@
 							: undefined}
 						onclick={() => (archiveDialogOpen = true)}>Archive</Button
 					>
+					{#if data.mergeTargetOptions.length}
+						<CatalogueCategoryMerge
+							category={data.category}
+							categories={data.categories}
+							mergeTargetOptions={data.mergeTargetOptions}
+							mergePreviewForm={data.mergePreviewForm}
+							moveChildrenForm={data.moveChildrenForm}
+							mergeApplyForm={data.mergeApplyForm}
+						/>
+					{/if}
 				{:else}
 					<Button
 						type="button"

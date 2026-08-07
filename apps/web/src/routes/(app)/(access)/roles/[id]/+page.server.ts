@@ -13,11 +13,12 @@ import {
 } from '$lib/server/api/roles';
 import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import { redirectToRole } from '$lib/server/helpers/role-route';
 import { error, fail } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad, RequestEvent } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const formIds = {
 	rename: 'role-rename',
@@ -25,10 +26,6 @@ const formIds = {
 	archive: 'role-archive',
 	restore: 'role-restore'
 } as const;
-
-function redirectToRole(event: RequestEvent, message: string) {
-	redirect(303, `/roles/${event.params.id}`, { type: 'success', message }, event.cookies);
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);

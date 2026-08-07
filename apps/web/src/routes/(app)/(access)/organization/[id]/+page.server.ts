@@ -16,11 +16,15 @@ import {
 } from '$lib/server/api/organizational-units';
 import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import {
+	organizationalUnitChangeInvalidatesPreview,
+	redirectToOrganizationalUnit
+} from '$lib/server/helpers/organization-unit-route';
 import { error, fail } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad, RequestEvent } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const formIds = {
 	rename: 'organizational-unit-rename',
@@ -28,17 +32,6 @@ const formIds = {
 	archive: 'organizational-unit-archive',
 	restore: 'organizational-unit-restore'
 } as const;
-
-function invalidatesPreview(code: string | undefined) {
-	return (
-		code === 'E_STALE_ORGANIZATIONAL_ACCESS_IMPACT' ||
-		code === 'E_INVALID_ORGANIZATIONAL_UNIT_CHANGE'
-	);
-}
-
-function redirectToUnit(event: RequestEvent, message: string) {
-	redirect(303, `/organization/${event.params.id}`, { type: 'success', message }, event.cookies);
-}
 
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);
@@ -105,7 +98,7 @@ export const actions: Actions = {
 			return fail(apiError.status ?? 400, { form });
 		}
 
-		redirectToUnit(event, response.message);
+		redirectToOrganizationalUnit(event, response.message);
 	},
 
 	previewReparent: async (event) => {
@@ -146,13 +139,13 @@ export const actions: Actions = {
 		);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be moved.');
-			const previewInvalidated = invalidatesPreview(details.code);
+			const previewInvalidated = organizationalUnitChangeInvalidatesPreview(details.code);
 			if (previewInvalidated) form.data.impactFingerprint = '';
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form, previewInvalidated });
 		}
 
-		redirectToUnit(event, response.message);
+		redirectToOrganizationalUnit(event, response.message);
 	},
 
 	previewArchive: async (event) => {
@@ -188,13 +181,13 @@ export const actions: Actions = {
 		const [response, apiError] = await archiveOrganizationalUnit(event, event.params.id, form.data);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be archived.');
-			const previewInvalidated = invalidatesPreview(details.code);
+			const previewInvalidated = organizationalUnitChangeInvalidatesPreview(details.code);
 			if (previewInvalidated) form.data.impactFingerprint = '';
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form, previewInvalidated });
 		}
 
-		redirectToUnit(event, response.message);
+		redirectToOrganizationalUnit(event, response.message);
 	},
 
 	previewRestore: async (event) => {
@@ -230,12 +223,12 @@ export const actions: Actions = {
 		const [response, apiError] = await restoreOrganizationalUnit(event, event.params.id, form.data);
 		if (apiError) {
 			const details = apiErrorDetails(apiError, 'The organizational unit could not be restored.');
-			const previewInvalidated = invalidatesPreview(details.code);
+			const previewInvalidated = organizationalUnitChangeInvalidatesPreview(details.code);
 			if (previewInvalidated) form.data.impactFingerprint = '';
 			setFlash({ type: 'error', message: details.message }, event.cookies);
 			return fail(apiError.status ?? 400, { form, previewInvalidated });
 		}
 
-		redirectToUnit(event, response.message);
+		redirectToOrganizationalUnit(event, response.message);
 	}
 };
