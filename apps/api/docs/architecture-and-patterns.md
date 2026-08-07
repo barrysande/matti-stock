@@ -1226,3 +1226,27 @@ furniture. Explicit child handling makes hierarchy changes visible and
 reversible before the terminal operation. Fingerprinting, stable locks,
 database constraints, and append-only history make the merge effect reviewable
 and atomic under concurrent use.
+
+## D41 — Catalogue management capability and advisory category review are API-owned
+
+**Decision.** The authenticated current-account response exposes
+`canManageCatalogue`, calculated through the same institute-root
+`catalogue.manage` authority service used by catalogue policies. The web uses
+this capability to present mutation controls; a permission key alone remains
+insufficient because the same key may be granted at a department scope.
+
+Category creation has a policy-protected advisory review endpoint. It compares
+the normalized proposed name with active, archived, and merged categories using
+exact, prefix, and substring matches, ranks the selected parent first within a
+match kind, and returns at most ten candidates with their full paths and
+lifecycle state. Creation remains independently authorized and transactionally
+validated. The review therefore warns about likely duplicates without becoming
+a stale-sensitive confirmation protocol or replacing sibling uniqueness and
+three-level hierarchy enforcement.
+
+**Why.** Server-owned capability resolution prevents the browser from
+reconstructing organizational authorization from incomplete assignment data.
+Full-path category candidates make same-named classifications understandable,
+while an advisory review satisfies the lightweight duplicate-warning need
+without introducing a fingerprint where no destructive or bulk effect is being
+approved.

@@ -9,6 +9,7 @@ import type AccessEventTransformer from '#transformers/access_event_transformer'
 import type AccountTransformer from '#transformers/account_transformer'
 import type BaseUnitTransformer from '#transformers/base_unit_transformer'
 import type BaseUnitVersionTransformer from '#transformers/base_unit_version_transformer'
+import type CatalogueCategoryCreationReviewTransformer from '#transformers/catalogue_category_creation_review_transformer'
 import type CatalogueCategoryMergePreviewTransformer from '#transformers/catalogue_category_merge_preview_transformer'
 import type CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
 import type CatalogueCategoryVersionTransformer from '#transformers/catalogue_category_version_transformer'
@@ -43,6 +44,10 @@ export namespace Data {
   export type BaseUnitVersion = InferData<BaseUnitVersionTransformer>
   export namespace BaseUnitVersion {
     export type Variants = InferVariants<BaseUnitVersionTransformer>
+  }
+  export type CatalogueCategoryCreationReview = InferData<CatalogueCategoryCreationReviewTransformer>
+  export namespace CatalogueCategoryCreationReview {
+    export type Variants = InferVariants<CatalogueCategoryCreationReviewTransformer>
   }
   export type CatalogueCategoryMergePreview = InferData<CatalogueCategoryMergePreviewTransformer>
   export namespace CatalogueCategoryMergePreview {

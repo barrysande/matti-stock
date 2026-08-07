@@ -84,6 +84,7 @@ export interface ApiDefinition {
   }
   catalogueCategories: {
     index: typeof routes['catalogue_categories.index']
+    creationReview: typeof routes['catalogue_categories.creation_review']
     show: typeof routes['catalogue_categories.show']
     store: typeof routes['catalogue_categories.store']
     updateDetails: typeof routes['catalogue_categories.update_details']

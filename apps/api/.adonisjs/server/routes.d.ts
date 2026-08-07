@@ -61,6 +61,7 @@ export type ScannedRoutes = {
     'delegations.relinquish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.index': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.creation_review': { paramsTuple?: []; params?: {} }
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.store': { paramsTuple?: []; params?: {} }
     'catalogue_categories.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -178,6 +179,7 @@ export type ScannedRoutes = {
     'delegations.revoke': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.relinquish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'delegations.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'catalogue_categories.creation_review': { paramsTuple?: []; params?: {} }
     'catalogue_categories.store': { paramsTuple?: []; params?: {} }
     'catalogue_categories.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.reparent': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

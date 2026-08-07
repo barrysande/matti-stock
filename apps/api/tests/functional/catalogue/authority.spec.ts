@@ -38,6 +38,44 @@ test.group('Catalogue authority', (group) => {
     )
 
     response.assertStatus(403)
+
+    const review = await authenticatedCatalogueRequest(
+      client.post('/catalogue-categories/creation-review').json({ name: '' }),
+      account
+    )
+    review.assertStatus(403)
+  })
+
+  test('reports institution-root catalogue management as a current-account capability', async ({
+    client,
+  }) => {
+    const { account } = await createDirectCatalogueActor()
+
+    const response = await authenticatedCatalogueRequest(client.get('/auth/me'), account)
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      data: {
+        canManageCatalogue: true,
+        effectivePermissionKeys: ['catalogue.manage'],
+      },
+    })
+  })
+
+  test('does not report department-scoped catalogue authority as management capability', async ({
+    client,
+  }) => {
+    const { account } = await createDirectCatalogueActor('DEPARTMENT')
+
+    const response = await authenticatedCatalogueRequest(client.get('/auth/me'), account)
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      data: {
+        canManageCatalogue: false,
+        effectivePermissionKeys: ['catalogue.manage'],
+      },
+    })
   })
 
   test('rejects access-root-only catalogue authority', async ({ client }) => {

@@ -106,6 +106,58 @@ test.group('Catalogue categories directory', (group) => {
     assert.isNotNull(archived.body().data[0].archivedAt)
   })
 
+  test('reviews similar names with selected-parent and full-path context', async ({
+    client,
+    assert,
+  }) => {
+    const { account: manager } = await createDirectCatalogueActor()
+    const furniture = await createCategory(
+      client.post('/catalogue-categories'),
+      manager,
+      'Furniture'
+    )
+    const workshop = await createCategory(
+      client.post('/catalogue-categories'),
+      manager,
+      'Workshop Equipment'
+    )
+    await createCategory(client.post('/catalogue-categories'), manager, 'Chairs', furniture.id)
+    await createCategory(client.post('/catalogue-categories'), manager, 'Chairs', workshop.id)
+    const archived = await createCategory(
+      client.post('/catalogue-categories'),
+      manager,
+      'Chairs Upholstered'
+    )
+    await authenticatedCatalogueRequest(
+      client
+        .post(`/catalogue-categories/${archived.id}/archive`)
+        .json({ reason: 'Retire the former category' }),
+      manager
+    )
+
+    const response = await authenticatedCatalogueRequest(
+      client.post('/catalogue-categories/creation-review').json({
+        name: 'Chairs',
+        parentId: workshop.id,
+      }),
+      manager
+    )
+
+    response.assertStatus(200)
+    const candidates = response.body().data as Array<{
+      path: string
+      matchKind: string
+      archivedAt: string | null
+    }>
+    assert.equal(candidates[0].path, 'Workshop Equipment / Chairs')
+    assert.equal(candidates[0].matchKind, 'EXACT_NAME')
+    assert.deepEqual(
+      candidates.map(({ path }) => path),
+      ['Workshop Equipment / Chairs', 'Furniture / Chairs', 'Chairs Upholstered']
+    )
+    assert.isNotNull(candidates[2].archivedAt)
+  })
+
   test('returns complete effective history with safe authorization context', async ({
     client,
     assert,

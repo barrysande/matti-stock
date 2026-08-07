@@ -348,6 +348,12 @@ const routes = {
     tokens: [{"old":"/catalogue-categories","type":0,"val":"catalogue-categories","end":""}],
     types: placeholder as Registry['catalogue_categories.index']['types'],
   },
+  'catalogue_categories.creation_review': {
+    methods: ["POST"],
+    pattern: '/catalogue-categories/creation-review',
+    tokens: [{"old":"/catalogue-categories/creation-review","type":0,"val":"catalogue-categories","end":""},{"old":"/catalogue-categories/creation-review","type":0,"val":"creation-review","end":""}],
+    types: placeholder as Registry['catalogue_categories.creation_review']['types'],
+  },
   'catalogue_categories.show': {
     methods: ["GET","HEAD"],
     pattern: '/catalogue-categories/:id',

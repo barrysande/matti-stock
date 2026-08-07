@@ -21,6 +21,10 @@ export default class CatalogueCategoryPolicy extends BasePolicy {
     return this.catalogueAuthority.isEffective(account.id)
   }
 
+  review(account: UserAccount) {
+    return this.catalogueAuthority.isEffective(account.id)
+  }
+
   updateDetails(account: UserAccount) {
     return this.catalogueAuthority.isEffective(account.id)
   }

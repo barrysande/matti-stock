@@ -6,6 +6,8 @@ import CatalogueCategoryDirectoryService from '#services/catalogue_category_dire
 import CatalogueCategoryMergePreviewService from '#services/catalogue_category_merge_preview_service'
 import CatalogueCategoryMergeService from '#services/catalogue_category_merge_service'
 import CatalogueCategoryProvisioningService from '#services/catalogue_category_provisioning_service'
+import CatalogueCategorySimilarityService from '#services/catalogue_category_similarity_service'
+import CatalogueCategoryCreationReviewTransformer from '#transformers/catalogue_category_creation_review_transformer'
 import CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
 import CatalogueCategoryMergePreviewTransformer from '#transformers/catalogue_category_merge_preview_transformer'
 import {
@@ -15,6 +17,7 @@ import {
   mergeCatalogueCategoryValidator,
   previewCatalogueCategoryMergeValidator,
   reparentCatalogueCategoryValidator,
+  reviewCatalogueCategoryCreationValidator,
   updateCatalogueCategoryDetailsValidator,
 } from '#validators/catalogue_category'
 
@@ -25,7 +28,8 @@ export default class CatalogueCategoriesController {
     private directory: CatalogueCategoryDirectoryService,
     private mergePreview: CatalogueCategoryMergePreviewService,
     private mergeService: CatalogueCategoryMergeService,
-    private provisioning: CatalogueCategoryProvisioningService
+    private provisioning: CatalogueCategoryProvisioningService,
+    private similarity: CatalogueCategorySimilarityService
   ) {}
 
   async store({ auth, bouncer, request, response }: HttpContext) {
@@ -38,6 +42,16 @@ export default class CatalogueCategoriesController {
     await this.provisioning.create(payload, actor.id)
 
     return response.created({ message: 'Catalogue category created.' })
+  }
+
+  async creationReview({ bouncer, request, serialize }: HttpContext) {
+    await bouncer.with(CatalogueCategoryPolicy).authorize('review')
+
+    const payload = await request.validateUsing(reviewCatalogueCategoryCreationValidator)
+
+    return serialize(
+      CatalogueCategoryCreationReviewTransformer.transform(await this.similarity.review(payload))
+    )
   }
 
   async updateDetails({ auth, bouncer, params, request, response }: HttpContext) {

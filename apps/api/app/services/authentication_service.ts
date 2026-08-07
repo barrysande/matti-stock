@@ -5,6 +5,7 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
+import CatalogueAuthorityService from '#services/catalogue_authority_service'
 import EffectiveAccessService from '#services/effective_access_service'
 import type { RequestAuditContext } from '#types/access'
 import type { LoginVerificationResult } from '#types/authentication'
@@ -18,6 +19,7 @@ type ChangePasswordData = Infer<typeof changePasswordValidator>
 export default class AuthenticationService {
   constructor(
     private accessEvents: AccessEventService,
+    private catalogueAuthority: CatalogueAuthorityService,
     private effectiveAccess: EffectiveAccessService
   ) {}
 
@@ -174,8 +176,11 @@ export default class AuthenticationService {
   /** Loads the authenticated identity and its synchronously effective assignment grants. */
   async currentAccount(account: UserAccount) {
     await account.load('person')
-    const grants = await this.effectiveAccess.grantsAcrossScopesForAccount(account.id)
+    const [grants, canManageCatalogue] = await Promise.all([
+      this.effectiveAccess.grantsAcrossScopesForAccount(account.id),
+      this.catalogueAuthority.isEffective(account.id),
+    ])
 
-    return { account, person: account.person, grants }
+    return { account, person: account.person, grants, canManageCatalogue }
   }
 }

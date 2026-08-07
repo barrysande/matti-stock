@@ -125,6 +125,7 @@ router
 router
   .group(() => {
     router.get('/', [controllers.CatalogueCategories, 'index'])
+    router.post('/creation-review', [controllers.CatalogueCategories, 'creationReview'])
     router.get('/:id', [controllers.CatalogueCategories, 'show'])
     router.post('/', [controllers.CatalogueCategories, 'store'])
     router.post('/:id/details', [controllers.CatalogueCategories, 'updateDetails'])

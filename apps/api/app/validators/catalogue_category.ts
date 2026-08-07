@@ -21,6 +21,11 @@ export const createCatalogueCategoryValidator = vine.create({
   reason: reason(),
 })
 
+export const reviewCatalogueCategoryCreationValidator = vine.create({
+  name: name(),
+  parentId: vine.string().uuid().optional(),
+})
+
 export const updateCatalogueCategoryDetailsValidator = vine.create({
   name: name(),
   description: description(),

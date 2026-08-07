@@ -691,6 +691,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'catalogue_categories.creation_review': {
+    methods: ["POST"]
+    pattern: '/catalogue-categories/creation-review'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/catalogue_category').reviewCatalogueCategoryCreationValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_category').reviewCatalogueCategoryCreationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['creationReview']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['creationReview']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'catalogue_categories.show': {
     methods: ["GET","HEAD"]
     pattern: '/catalogue-categories/:id'
