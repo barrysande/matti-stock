@@ -203,10 +203,7 @@ test.group('Organizational units directory', (group) => {
     )
   })
 
-  test('returns paginated effective-dated structural history', async ({
-    client,
-    assert,
-  }) => {
+  test('returns paginated effective-dated structural history', async ({ client, assert }) => {
     const { account, institute } = await createRootActor()
     const firstEffectiveFrom = DateTime.now().minus({ days: 2 })
     const changedAt = DateTime.now().minus({ day: 1 })

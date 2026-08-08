@@ -8,18 +8,20 @@ const ROLES_PER_PAGE = 20
 
 export default class RoleDirectoryService {
   private summaryQuery() {
-    return Role.query().withCount('assignments').preload('versions', (versionQuery) => {
-      versionQuery
-        .select('id', 'role_id', 'version')
-        .preload('permissions', (membershipQuery) => {
-          membershipQuery
-            .select('role_version_id', 'permission_key')
-            .orderBy('permission_key', 'asc')
-        })
-        .withCount('assignments')
-        .orderBy('version', 'desc')
-        .groupLimit(1)
-    })
+    return Role.query()
+      .withCount('assignments')
+      .preload('versions', (versionQuery) => {
+        versionQuery
+          .select('id', 'role_id', 'version')
+          .preload('permissions', (membershipQuery) => {
+            membershipQuery
+              .select('role_version_id', 'permission_key')
+              .orderBy('permission_key', 'asc')
+          })
+          .withCount('assignments')
+          .orderBy('version', 'desc')
+          .groupLimit(1)
+      })
   }
 
   private detailQuery() {

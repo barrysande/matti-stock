@@ -95,7 +95,9 @@ export default class PhysicalLocationsController {
 
     const versions = await this.versionDirectory.list(params.id, filters)
 
-    return serialize(PhysicalLocationVersionTransformer.paginate(versions.all(), versions.getMeta()))
+    return serialize(
+      PhysicalLocationVersionTransformer.paginate(versions.all(), versions.getMeta())
+    )
   }
 
   async archive({ auth, bouncer, params, request, response }: HttpContext) {

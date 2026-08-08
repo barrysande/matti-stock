@@ -227,7 +227,10 @@ test.group('Roles directory', (group) => {
     assert.equal(history.body().metadata.currentPage, 1)
   })
 
-  test('paginates the directory and keeps selector options complete', async ({ client, assert }) => {
+  test('paginates the directory and keeps selector options complete', async ({
+    client,
+    assert,
+  }) => {
     const { account } = await createRootActor()
 
     for (let index = 1; index <= 20; index += 1) {

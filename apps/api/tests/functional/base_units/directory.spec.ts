@@ -77,7 +77,10 @@ test.group('Base units directory', (group) => {
     assert.equal(history.body().metadata.currentPage, 1)
   })
 
-  test('paginates the directory and keeps selector options complete', async ({ client, assert }) => {
+  test('paginates the directory and keeps selector options complete', async ({
+    client,
+    assert,
+  }) => {
     const reader = await createCatalogueAccount('Paged Base Unit Reader')
 
     for (let index = 1; index <= 21; index += 1) {

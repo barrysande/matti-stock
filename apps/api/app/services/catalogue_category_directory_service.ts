@@ -15,8 +15,7 @@ export default class CatalogueCategoryDirectoryService {
   }
 
   private detailQuery() {
-    return CatalogueCategory.query()
-      .preload('mergedIntoCategory')
+    return CatalogueCategory.query().preload('mergedIntoCategory')
   }
 
   private pathFor(
