@@ -347,7 +347,9 @@ Lifecycle audit events retain the actor, target, validated reason, previous and
 resulting status, and previous and resulting credential/challenge versions.
 Self-suspension, self-deactivation, invalid transitions, changed actor
 authority, and last-root lockout attempts are stable application conflicts
-rather than generic server errors.
+rather than generic server errors. Self-suspension and self-deactivation reuse
+the stable `E_ACCOUNT_SELF_ADMINISTRATION` exception type, while each lifecycle
+workflow supplies its specific user message.
 
 **Why.** Status checks alone block new logins but do not invalidate sessions or
 supersede outstanding credential links. Version changes close those paths
@@ -1176,6 +1178,9 @@ to compress code around the 300-line functional-module limit.
 In controllers, `HttpContext` members are destructured alphabetically. Policy
 authorization, request validation, authenticated-user retrieval, domain work,
 and response serialization are separate phases, with blank lines between them.
+Awaited domain results are assigned to named local variables before a
+Transformer or serializer consumes them. Controllers do not nest awaited
+domain calls inside transformation or serialization expressions.
 This keeps the security boundary and the origin of each input immediately
 visible.
 
@@ -1251,3 +1256,33 @@ Full-path category candidates make same-named classifications understandable,
 while an advisory review satisfies the lightweight duplicate-warning need
 without introducing a fingerprint where no destructive or bulk effect is being
 approved.
+
+## D42 — Paginate unbounded flat directories and version histories
+
+**Decision.** Unbounded flat directories and append-only version histories use
+fixed server-side pagination. Roles and base units use 20-row directory pages.
+Their separate `/options` endpoints return the complete filtered collections
+needed by selectors. Role, organizational-unit, physical-location,
+catalogue-category, base-unit, and catalogue-item histories use dedicated
+20-row endpoints in reverse version order. Current detail responses do not
+embed complete version arrays.
+
+Organizational units, physical locations, and catalogue categories remain
+complete hierarchy reads. Their full collections are required to calculate and
+present paths, descendants, valid parents, and merge choices. Permission
+registries, current effective access, catalogue keywords, similarity-review
+candidates, delegation assignment snapshots, and role-assignment ineffective
+reasons also remain complete because their user tasks require the full bounded
+set.
+
+Each paginated endpoint authorizes before it validates the page query. Stable
+secondary ordering remains part of each directory query. Pagination uses the
+standard Transformer collection metadata so Tuyau exposes one consistent
+contract to the web application.
+
+**Why.** Flat directories and append-only histories can grow without a useful
+upper bound, so loading all records increases response time and page cost.
+Hierarchy pagination can hide required parent and descendant context and would
+need more complex path-aware database queries. Keeping those hierarchies
+complete is the simpler V1 design until measured data size shows a need for a
+different hierarchy browser.
