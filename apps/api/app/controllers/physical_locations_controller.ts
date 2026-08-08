@@ -3,6 +3,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import PhysicalLocationPolicy from '#policies/physical_location_policy'
 import PhysicalLocationAdministrationService from '#services/physical_location_administration_service'
 import PhysicalLocationDirectoryService from '#services/physical_location_directory_service'
+import PhysicalLocationLifecycleService from '#services/physical_location_lifecycle_service'
 import PhysicalLocationProvisioningService from '#services/physical_location_provisioning_service'
 import PhysicalLocationVersionDirectoryService from '#services/physical_location_version_directory_service'
 import PhysicalLocationTransformer from '#transformers/physical_location_transformer'
@@ -21,6 +22,7 @@ export default class PhysicalLocationsController {
   constructor(
     private administration: PhysicalLocationAdministrationService,
     private directory: PhysicalLocationDirectoryService,
+    private lifecycle: PhysicalLocationLifecycleService,
     private provisioning: PhysicalLocationProvisioningService,
     private versionDirectory: PhysicalLocationVersionDirectoryService
   ) {}
@@ -107,7 +109,7 @@ export default class PhysicalLocationsController {
 
     const actor = auth.getUserOrFail()
 
-    await this.administration.archive(params.id, payload, actor.id, {
+    await this.lifecycle.archive(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })
@@ -122,7 +124,7 @@ export default class PhysicalLocationsController {
 
     const actor = auth.getUserOrFail()
 
-    await this.administration.restore(params.id, payload, actor.id, {
+    await this.lifecycle.restore(params.id, payload, actor.id, {
       ip: request.ip(),
       requestId: request.id(),
     })

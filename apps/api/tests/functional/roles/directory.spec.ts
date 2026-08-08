@@ -112,7 +112,7 @@ test.group('Roles directory', (group) => {
       await Permission.query()
         .count('* as total')
         .then(([row]) => Number(row.$extras.total)),
-      29
+      32
     )
     const roles = await Role.query().orderBy('key', 'asc')
     assert.deepEqual(
@@ -133,6 +133,109 @@ test.group('Roles directory', (group) => {
     )
     const root = await Permission.findByOrFail('key', 'access.root')
     assert.isFalse(root.customRoleAssignable)
+    const storeRole = await Role.findByOrFail('key', 'STORE_SUPERVISOR')
+    const storeVersion = await RoleVersion.query()
+      .where('role_id', storeRole.id)
+      .preload('permissions')
+      .firstOrFail()
+    assert.includeMembers(
+      storeVersion.permissions.map(({ permissionKey }) => permissionKey),
+      ['evidence.read', 'stock.read', 'valuation.read']
+    )
+  })
+
+  test('upgrades only the unchanged starter baseline and preserves old assignments', async ({
+    assert,
+  }) => {
+    const previousPermissions = [
+      'catalogue.manage',
+      'condition.report',
+      'disposal.complete',
+      'intake.record',
+      'intake_correction.approve',
+      'intake_correction.propose',
+      'movement.allocate',
+      'movement.receive',
+      'movement.release',
+    ]
+    await Permission.createMany(
+      previousPermissions.map((key) => ({
+        key,
+        description: `${key} test permission`,
+        customRoleAssignable: true,
+      }))
+    )
+    const role = await Role.create({
+      key: 'STORE_SUPERVISOR',
+      name: 'Store Supervisor',
+      systemManaged: false,
+    })
+    const first = await RoleVersion.create({
+      roleId: role.id,
+      version: 1,
+      reason: 'Initial V1 Store Supervisor starter role',
+      createdByAccountId: null,
+    })
+    await RoleVersionPermission.createMany(
+      previousPermissions.map((permissionKey) => ({
+        roleVersionId: first.id,
+        permissionKey,
+      }))
+    )
+    const institute = await OrganizationalUnit.create({
+      name: 'MaTTI Institute',
+      unitType: 'INSTITUTE',
+      parentId: null,
+    })
+    const account = await createAccount('legacy.store@example.com', 'Legacy Store Holder')
+    const assignment = await RoleAssignment.create({
+      accountId: account.id,
+      roleVersionId: first.id,
+      scopeOrgUnitId: institute.id,
+      scopeMode: 'INCLUDE_DESCENDANTS',
+      startsAt: DateTime.now().minus({ minutes: 1 }),
+      expiresAt: null,
+      grantedByAccountId: null,
+      reason: 'Legacy starter assignment',
+    })
+    const seeder = new AccessRegistrySeeder(db.connection())
+
+    await seeder.run()
+
+    const second = await RoleVersion.query()
+      .where('role_id', role.id)
+      .where('version', 2)
+      .preload('permissions')
+      .firstOrFail()
+    assert.includeMembers(
+      second.permissions.map(({ permissionKey }) => permissionKey),
+      ['evidence.read', 'stock.read', 'valuation.read']
+    )
+    await assignment.refresh()
+    assert.equal(assignment.roleVersionId, first.id)
+
+    const customized = await RoleVersion.create({
+      roleId: role.id,
+      version: 3,
+      reason: 'Administrator selected a custom membership',
+      createdByAccountId: account.id,
+    })
+    await RoleVersionPermission.createMany(
+      previousPermissions.map((permissionKey) => ({
+        roleVersionId: customized.id,
+        permissionKey,
+      }))
+    )
+
+    await seeder.run()
+
+    assert.equal(
+      await RoleVersion.query()
+        .where('role_id', role.id)
+        .count('* as total')
+        .then(([row]) => Number(row.$extras.total)),
+      3
+    )
   })
 
   test('returns permission metadata and current role projections with filters', async ({

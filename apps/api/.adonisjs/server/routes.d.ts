@@ -94,6 +94,9 @@ export type ScannedRoutes = {
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.archive': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.restore': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
+    'central_store_contexts.history': { paramsTuple?: []; params?: {} }
+    'central_store_contexts.show': { paramsTuple?: []; params?: {} }
+    'central_store_contexts.store': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -129,6 +132,8 @@ export type ScannedRoutes = {
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
     'catalogue_items.history': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
+    'central_store_contexts.history': { paramsTuple?: []; params?: {} }
+    'central_store_contexts.show': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
     'health_checks.live': { paramsTuple?: []; params?: {} }
@@ -164,6 +169,8 @@ export type ScannedRoutes = {
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
     'catalogue_items.history': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
+    'central_store_contexts.history': { paramsTuple?: []; params?: {} }
+    'central_store_contexts.show': { paramsTuple?: []; params?: {} }
   }
   POST: {
     'sessions.login': { paramsTuple?: []; params?: {} }
@@ -222,6 +229,7 @@ export type ScannedRoutes = {
     'catalogue_items.update_classification': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.archive': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.restore': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
+    'central_store_contexts.store': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'sessions.change_password': { paramsTuple?: []; params?: {} }

@@ -9,6 +9,7 @@ export const controllers = {
   BaseUnits: () => import('#controllers/base_units_controller'),
   CatalogueCategories: () => import('#controllers/catalogue_categories_controller'),
   CatalogueItems: () => import('#controllers/catalogue_items_controller'),
+  CentralStoreContexts: () => import('#controllers/central_store_contexts_controller'),
   Delegations: () => import('#controllers/delegations_controller'),
   HealthChecks: () => import('#controllers/health_checks_controller'),
   OrganizationalUnits: () => import('#controllers/organizational_units_controller'),

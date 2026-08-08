@@ -190,6 +190,7 @@ test.group('Authentication sessions', (group) => {
           displayName: person.displayName,
         },
         canManageCatalogue: false,
+        canRecordIntake: false,
         effectivePermissionKeys: [],
         roleAssignments: [],
       },

@@ -303,6 +303,27 @@ export class CatalogueItemSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class CentralStoreContextVersionSchema extends BaseModel {
+  static $columns = ['configuredByAccountId', 'createdAt', 'custodialOrganizationalUnitId', 'effectiveFrom', 'id', 'physicalLocationId', 'reason', 'version'] as const
+  $columns = CentralStoreContextVersionSchema.$columns
+  @column()
+  declare configuredByAccountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare custodialOrganizationalUnitId: string
+  @column.dateTime()
+  declare effectiveFrom: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare physicalLocationId: string
+  @column()
+  declare reason: string
+  @column()
+  declare version: number
+}
+
 export class DelegationAssignmentSchema extends BaseModel {
   static $columns = ['createdAt', 'delegationId', 'id', 'sourceAssignmentId'] as const
   $columns = DelegationAssignmentSchema.$columns

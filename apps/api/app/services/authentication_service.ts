@@ -6,6 +6,7 @@ import { DateTime } from 'luxon'
 import UserAccount from '#models/user_account'
 import AccessEventService from '#services/access_event_service'
 import CatalogueAuthorityService from '#services/catalogue_authority_service'
+import CentralStoreAuthorityService from '#services/central_store_authority_service'
 import EffectiveAccessService from '#services/effective_access_service'
 import type { RequestAuditContext } from '#types/access'
 import type { LoginVerificationResult } from '#types/authentication'
@@ -20,6 +21,7 @@ export default class AuthenticationService {
   constructor(
     private accessEvents: AccessEventService,
     private catalogueAuthority: CatalogueAuthorityService,
+    private centralStoreAuthority: CentralStoreAuthorityService,
     private effectiveAccess: EffectiveAccessService
   ) {}
 
@@ -176,11 +178,12 @@ export default class AuthenticationService {
   /** Loads the authenticated identity and its synchronously effective assignment grants. */
   async currentAccount(account: UserAccount) {
     await account.load('person')
-    const [grants, canManageCatalogue] = await Promise.all([
+    const [grants, canManageCatalogue, canRecordIntake] = await Promise.all([
       this.effectiveAccess.grantsAcrossScopesForAccount(account.id),
       this.catalogueAuthority.isEffective(account.id),
+      this.centralStoreAuthority.isEffective(account.id),
     ])
 
-    return { account, person: account.person, grants, canManageCatalogue }
+    return { account, person: account.person, grants, canManageCatalogue, canRecordIntake }
   }
 }

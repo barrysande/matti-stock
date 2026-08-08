@@ -1087,4 +1087,40 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['restore']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'central_store_contexts.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/central-store-context/history'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/central_store_context').centralStoreContextHistoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/central_store_contexts_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/central_store_contexts_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'central_store_contexts.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/central-store-context'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/central_store_contexts_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/central_store_contexts_controller').default['show']>>>
+    }
+  }
+  'central_store_contexts.store': {
+    methods: ["POST"]
+    pattern: '/central-store-context'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/central_store_context').configureCentralStoreContextValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/central_store_context').configureCentralStoreContextValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/central_store_contexts_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/central_store_contexts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

@@ -6,6 +6,7 @@ import InvalidOrganizationalUnitChangeException from '#exceptions/invalid_organi
 import StaleOrganizationalAccessImpactException from '#exceptions/stale_organizational_access_impact_exception'
 import OrganizationalUnit from '#models/organizational_unit'
 import AccessRootAuthorityService from '#services/access_root_authority_service'
+import CentralStoreContextDirectoryService from '#services/central_store_context_directory_service'
 import OrganizationalAccessImpactService from '#services/organizational_access_impact_service'
 import OrganizationalUnitHistoryService from '#services/organizational_unit_history_service'
 import OrganizationalUnitNameService from '#services/organizational_unit_name_service'
@@ -32,6 +33,7 @@ export default class OrganizationalUnitAdministrationService {
   constructor(
     private rootAuthority: AccessRootAuthorityService,
     private accessImpact: OrganizationalAccessImpactService,
+    private contexts: CentralStoreContextDirectoryService,
     private history: OrganizationalUnitHistoryService,
     private unitNames: OrganizationalUnitNameService
   ) {}
@@ -90,6 +92,7 @@ export default class OrganizationalUnitAdministrationService {
         }
 
         await unit.merge({ name }).save()
+
         const version = await this.history.appendVersion(
           unit,
           data.reason,
@@ -185,7 +188,14 @@ export default class OrganizationalUnitAdministrationService {
         trx,
         now
       )
+      const context = await this.contexts.latest(trx, true)
       const unit = await this.lockUnit(trx, unitId)
+
+      if (context?.custodialOrganizationalUnitId === unit.id) {
+        this.invalid(
+          'Configure a different Central Store custodial organizational unit before archiving this unit.'
+        )
+      }
 
       await unit.merge({ archivedAt: now }).save()
       const version = await this.history.appendVersion(unit, data.reason, actorAccountId, trx, now)

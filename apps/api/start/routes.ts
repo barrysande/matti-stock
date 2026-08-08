@@ -176,3 +176,12 @@ router
   })
   .prefix('/catalogue-items')
   .use(middleware.auth({ guards: ['web'] }))
+
+router
+  .group(() => {
+    router.get('/history', [controllers.CentralStoreContexts, 'history'])
+    router.get('/', [controllers.CentralStoreContexts, 'show'])
+    router.post('/', [controllers.CentralStoreContexts, 'store'])
+  })
+  .prefix('/central-store-context')
+  .use(middleware.auth({ guards: ['web'] }))

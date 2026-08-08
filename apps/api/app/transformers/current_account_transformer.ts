@@ -8,6 +8,7 @@ interface CurrentAccountResource {
   person: Person
   grants: EffectiveAccessGrant[]
   canManageCatalogue: boolean
+  canRecordIntake: boolean
 }
 
 export default class CurrentAccountTransformer extends BaseTransformer<CurrentAccountResource> {
@@ -40,6 +41,7 @@ export default class CurrentAccountTransformer extends BaseTransformer<CurrentAc
         displayName: this.resource.person.displayName,
       },
       canManageCatalogue: this.resource.canManageCatalogue,
+      canRecordIntake: this.resource.canRecordIntake,
       effectivePermissionKeys: permissionKeys,
       roleAssignments: [...assignments.values()].map((grants) => {
         const first = grants[0]!

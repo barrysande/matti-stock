@@ -16,6 +16,7 @@ import type CatalogueCategoryVersionTransformer from '#transformers/catalogue_ca
 import type CatalogueItemReviewTransformer from '#transformers/catalogue_item_review_transformer'
 import type CatalogueItemTransformer from '#transformers/catalogue_item_transformer'
 import type CatalogueItemVersionTransformer from '#transformers/catalogue_item_version_transformer'
+import type CentralStoreContextVersionTransformer from '#transformers/central_store_context_version_transformer'
 import type CurrentAccountTransformer from '#transformers/current_account_transformer'
 import type DelegationProposalOptionsTransformer from '#transformers/delegation_proposal_options_transformer'
 import type DelegationTransformer from '#transformers/delegation_transformer'
@@ -72,6 +73,10 @@ export namespace Data {
   export type CatalogueItemVersion = InferData<CatalogueItemVersionTransformer>
   export namespace CatalogueItemVersion {
     export type Variants = InferVariants<CatalogueItemVersionTransformer>
+  }
+  export type CentralStoreContextVersion = InferData<CentralStoreContextVersionTransformer>
+  export namespace CentralStoreContextVersion {
+    export type Variants = InferVariants<CentralStoreContextVersionTransformer>
   }
   export type CurrentAccount = InferData<CurrentAccountTransformer>
   export namespace CurrentAccount {

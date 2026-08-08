@@ -16,6 +16,7 @@ const PERMISSIONS = [
   ['disposal.approve', 'Record the financial authorization for a disposal proposal', true],
   ['disposal.complete', 'Record authorized physical disposal completion', true],
   ['disposal.propose', 'Propose stock disposal', true],
+  ['evidence.read', 'View authorized stock evidence', true],
   ['intake.record', 'Record opening stock and institutional stock intake', true],
   ['intake_correction.approve', 'Approve or reject an intake correction proposal', true],
   ['intake_correction.propose', 'Propose an intake correction or reversal', true],
@@ -33,6 +34,8 @@ const PERMISSIONS = [
   ['stocktake.finalize', 'Finalize a ready stock-take exercise', true],
   ['stocktake.manage', 'Create, scope, assign, activate, or abort stock-take exercises', true],
   ['stocktake.review', 'Review stock-take completion and verification exceptions', true],
+  ['stock.read', 'View authorized stock records', true],
+  ['valuation.read', 'View authorized stock valuations', true],
   ['valuation.record', 'Record a supported stock valuation or valuation correction', true],
   ['writeoff.approve', 'Approve or reject a stock write-off proposal', true],
   ['writeoff.propose', 'Propose stock write-off', true],
@@ -44,6 +47,7 @@ const ROLES = [
     name: 'Master Admin',
     systemManaged: true,
     permissions: ['access.root'],
+    previousPermissions: ['access.root'],
     reason: 'Initial deployment access root',
   },
   {
@@ -51,6 +55,20 @@ const ROLES = [
     name: 'Store Supervisor',
     systemManaged: false,
     permissions: [
+      'catalogue.manage',
+      'condition.report',
+      'disposal.complete',
+      'evidence.read',
+      'intake.record',
+      'intake_correction.approve',
+      'intake_correction.propose',
+      'movement.allocate',
+      'movement.receive',
+      'movement.release',
+      'stock.read',
+      'valuation.read',
+    ],
+    previousPermissions: [
       'catalogue.manage',
       'condition.report',
       'disposal.complete',
@@ -68,6 +86,25 @@ const ROLES = [
     name: 'Stock Supervisor',
     systemManaged: false,
     permissions: [
+      'adjustment.propose',
+      'condition.report',
+      'condition.review',
+      'disposal.propose',
+      'evidence.read',
+      'loss.confirm',
+      'loss.investigate',
+      'movement.receive',
+      'movement.request',
+      'reinstatement.propose',
+      'repair.manage',
+      'stocktake.finalize',
+      'stocktake.manage',
+      'stocktake.review',
+      'stock.read',
+      'valuation.read',
+      'writeoff.propose',
+    ],
+    previousPermissions: [
       'adjustment.propose',
       'condition.report',
       'condition.review',
@@ -92,6 +129,17 @@ const ROLES = [
     permissions: [
       'adjustment.approve',
       'disposal.approve',
+      'evidence.read',
+      'reinstatement.approve',
+      'repair.approve',
+      'stock.read',
+      'valuation.read',
+      'valuation.record',
+      'writeoff.approve',
+    ],
+    previousPermissions: [
+      'adjustment.approve',
+      'disposal.approve',
       'reinstatement.approve',
       'repair.approve',
       'valuation.record',
@@ -103,7 +151,8 @@ const ROLES = [
     key: 'STOCK_TAKER',
     name: 'Stock Taker',
     systemManaged: false,
-    permissions: ['condition.report', 'stocktake.count'],
+    permissions: ['condition.report', 'stock.read', 'stocktake.count'],
+    previousPermissions: ['condition.report', 'stocktake.count'],
     reason: 'Initial V1 Stock Taker starter role',
   },
 ] as const
@@ -126,6 +175,40 @@ export default class extends BaseSeeder {
     }
   }
 
+  private sameKeys(actual: string[], expected: readonly string[]) {
+    const sortedExpected = [...expected].sort()
+
+    return (
+      actual.length === sortedExpected.length &&
+      actual.every((key, index) => key === sortedExpected[index])
+    )
+  }
+
+  private async createRoleVersion(
+    role: Role,
+    version: number,
+    permissions: readonly string[],
+    reason: string,
+    trx: TransactionClientContract
+  ) {
+    const createdVersion = await RoleVersion.create(
+      {
+        roleId: role.id,
+        version,
+        reason,
+        createdByAccountId: null,
+      },
+      { client: trx }
+    )
+    await RoleVersionPermission.createMany(
+      permissions.map((permissionKey) => ({
+        roleVersionId: createdVersion.id,
+        permissionKey,
+      })),
+      { client: trx }
+    )
+  }
+
   private async ensureRole(definition: (typeof ROLES)[number], trx: TransactionClientContract) {
     let role = await Role.query({ client: trx }).where('key', definition.key).first()
 
@@ -144,26 +227,11 @@ export default class extends BaseSeeder {
 
     const version = await RoleVersion.query({ client: trx })
       .where('role_id', role.id)
-      .where('version', 1)
+      .orderBy('version', 'desc')
       .first()
 
     if (!version) {
-      const createdVersion = await RoleVersion.create(
-        {
-          roleId: role.id,
-          version: 1,
-          reason: definition.reason,
-          createdByAccountId: null,
-        },
-        { client: trx }
-      )
-      await RoleVersionPermission.createMany(
-        definition.permissions.map((permissionKey) => ({
-          roleVersionId: createdVersion.id,
-          permissionKey,
-        })),
-        { client: trx }
-      )
+      await this.createRoleVersion(role, 1, definition.permissions, definition.reason, trx)
       return
     }
 
@@ -171,10 +239,21 @@ export default class extends BaseSeeder {
       .where('role_version_id', version.id)
       .orderBy('permission_key', 'asc')
     const actual = memberships.map(({ permissionKey }) => permissionKey)
-    const expected = [...definition.permissions].sort()
+    if (this.sameKeys(actual, definition.permissions)) {
+      return
+    }
 
-    if (actual.length !== expected.length || actual.some((key, index) => key !== expected[index])) {
-      throw new Error(`Role ${definition.key} version 1 differs from the software registry`)
+    if (
+      version.createdByAccountId === null &&
+      this.sameKeys(actual, definition.previousPermissions)
+    ) {
+      await this.createRoleVersion(
+        role,
+        Number(version.version) + 1,
+        definition.permissions,
+        'Week 4 stock-read starter role update',
+        trx
+      )
     }
   }
 

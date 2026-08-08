@@ -8,7 +8,6 @@ import AccessRootAuthorityService from '#services/access_root_authority_service'
 import PhysicalLocationHistoryService from '#services/physical_location_history_service'
 import type { RequestAuditContext } from '#types/access'
 import type {
-  administerPhysicalLocationValidator,
   renamePhysicalLocationValidator,
   reparentPhysicalLocationValidator,
 } from '#validators/physical_location'
@@ -24,7 +23,6 @@ const DUPLICATE_NAME_CONSTRAINTS = [
 
 type RenameData = Infer<typeof renamePhysicalLocationValidator>
 type ReparentData = Infer<typeof reparentPhysicalLocationValidator>
-type AdministerData = Infer<typeof administerPhysicalLocationValidator>
 
 @inject()
 export default class PhysicalLocationAdministrationService {
@@ -120,6 +118,7 @@ export default class PhysicalLocationAdministrationService {
         }
 
         await location.merge({ name: data.name }).save()
+
         const version = await this.history.appendVersion(
           location,
           data.reason,
@@ -170,6 +169,7 @@ export default class PhysicalLocationAdministrationService {
         await this.assertValidParent(location, parentId, trx)
 
         await location.merge({ parentId }).save()
+
         const version = await this.history.appendVersion(
           location,
           data.reason,
@@ -186,114 +186,6 @@ export default class PhysicalLocationAdministrationService {
           {
             previousParentId,
             parentId: location.parentId,
-            version: Number(version.version),
-          },
-          trx,
-          request
-        )
-
-        return location
-      })
-    } catch (error) {
-      DuplicateException.throwIf(error, DUPLICATE_NAME_MESSAGE, DUPLICATE_NAME_CONSTRAINTS)
-    }
-  }
-
-  /** Archives an active location only after all of its active children have been cleared. */
-  async archive(
-    locationId: string,
-    data: AdministerData,
-    actorAccountId: string,
-    request?: RequestAuditContext
-  ) {
-    return db.transaction(async (trx) => {
-      const now = DateTime.now()
-
-      await this.lockActor(trx, actorAccountId, now)
-      const location = await this.lockLocation(trx, locationId)
-
-      this.assertActive(location)
-
-      const activeChild = await PhysicalLocation.query({ client: trx })
-        .where('parent_id', location.id)
-        .whereNull('archived_at')
-        .forUpdate()
-        .first()
-
-      if (activeChild) {
-        this.invalid('Archive or move active child locations before archiving this location.')
-      }
-
-      await location.merge({ archivedAt: now }).save()
-      const version = await this.history.appendVersion(
-        location,
-        data.reason,
-        actorAccountId,
-        trx,
-        now
-      )
-
-      await this.history.recordChange(
-        'PHYSICAL_LOCATION_ARCHIVED',
-        location,
-        data.reason,
-        actorAccountId,
-        { archivedAt: now.toISO(), version: Number(version.version) },
-        trx,
-        request
-      )
-
-      return location
-    })
-  }
-
-  /** Restores a location after confirming that its parent is currently active. */
-  async restore(
-    locationId: string,
-    data: AdministerData,
-    actorAccountId: string,
-    request?: RequestAuditContext
-  ) {
-    try {
-      return await db.transaction(async (trx) => {
-        const now = DateTime.now()
-
-        await this.lockActor(trx, actorAccountId, now)
-        const location = await this.lockLocation(trx, locationId)
-
-        if (!location.archivedAt) {
-          this.invalid('The physical location is not archived.')
-        }
-
-        if (location.parentId) {
-          const parent = await PhysicalLocation.query({ client: trx })
-            .where('id', location.parentId)
-            .forUpdate()
-            .first()
-
-          if (!parent || parent.archivedAt) {
-            this.invalid('Restore the parent location before restoring this location.')
-          }
-        }
-
-        const previousArchivedAt = location.archivedAt
-
-        await location.merge({ archivedAt: null }).save()
-        const version = await this.history.appendVersion(
-          location,
-          data.reason,
-          actorAccountId,
-          trx,
-          now
-        )
-
-        await this.history.recordChange(
-          'PHYSICAL_LOCATION_RESTORED',
-          location,
-          data.reason,
-          actorAccountId,
-          {
-            previousArchivedAt: previousArchivedAt.toISO(),
             version: Number(version.version),
           },
           trx,

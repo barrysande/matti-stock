@@ -1286,3 +1286,51 @@ Hierarchy pagination can hide required parent and descendant context and would
 need more complex path-aware database queries. Keeping those hierarchies
 complete is the simpler V1 design until measured data size shows a need for a
 different hierarchy browser.
+
+## D43 — Central Store context is an append-only root configuration
+
+**Decision.** Central Store intake uses one append-only configuration-version
+table. Each version stores the selected custodial organizational unit, physical
+location, root actor, reason, immediate effective time, and consecutive version
+number. The configuration uses record identifiers. A location or organizational
+unit named `Central Store` has no special behavior until Root selects it.
+
+`GET /central-store-context` returns the active version to Root or an account
+with effective `intake.record` authority at the configured custodial unit.
+`GET /central-store-context/history` and `POST /central-store-context` require
+`access.root`. The initial read returns `data: null` until Root creates the first
+version. Configuration, archive, and intake-authority transactions use the same
+lock order: actor, current context, organizational unit, physical location, and
+then the applicable business grant. The configured unit and location cannot be
+archived until Root selects replacements. Rename and reparent operations remain
+valid because the selected identifiers do not change.
+
+The current-account contract exposes `canRecordIntake`. The API calculates this
+capability through the same scope-aware service used by Central Store policy
+checks. A raw `intake.record` permission key is not sufficient because a sibling
+or unrelated scope must not create institutional stock.
+
+`stock.read`, `valuation.read`, and `evidence.read` are separate assignable
+permissions. Fresh installations include the complete current starter-role
+memberships in version 1. An existing unchanged software starter version gets
+one new immutable version. Existing assignments remain on their earlier role
+versions, and an administrator-created latest version is never replaced by the
+seed.
+
+Physical-location lifecycle work is separate from rename and reparent
+administration. This split keeps both services focused and below the repository
+line limit while the lifecycle service owns the Central Store archive guard.
+
+Role current-version projections use Lucid's PostgreSQL `distinctOn` query with
+role and descending version order. They do not use a per-group limit, because
+full-suite evidence showed that the limit could return an older version. The
+query returns one version for each selected role. The separate paginated history
+remains the only complete version-history read. The directory service places
+the separately loaded version in Lucid `$extras`; it does not assign a plain
+array to the model's relationship contract.
+
+**Why.** Explicit identifiers prevent display names from controlling domain
+behavior. Append-only versions preserve the context used by each later intake,
+and archive guards prevent an invalid configuration. Scope-aware capabilities
+and immutable starter-role upgrades preserve the accepted separation between
+technical Root authority and stock business authority.

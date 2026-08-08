@@ -546,6 +546,24 @@ const routes = {
     tokens: [{"old":"/catalogue-items/:catalogueCode/restore","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/restore","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/restore","type":0,"val":"restore","end":""}],
     types: placeholder as Registry['catalogue_items.restore']['types'],
   },
+  'central_store_contexts.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/central-store-context/history',
+    tokens: [{"old":"/central-store-context/history","type":0,"val":"central-store-context","end":""},{"old":"/central-store-context/history","type":0,"val":"history","end":""}],
+    types: placeholder as Registry['central_store_contexts.history']['types'],
+  },
+  'central_store_contexts.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/central-store-context',
+    tokens: [{"old":"/central-store-context","type":0,"val":"central-store-context","end":""}],
+    types: placeholder as Registry['central_store_contexts.show']['types'],
+  },
+  'central_store_contexts.store': {
+    methods: ["POST"],
+    pattern: '/central-store-context',
+    tokens: [{"old":"/central-store-context","type":0,"val":"central-store-context","end":""}],
+    types: placeholder as Registry['central_store_contexts.store']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

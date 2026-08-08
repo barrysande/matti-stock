@@ -122,4 +122,9 @@ export interface ApiDefinition {
     archive: typeof routes['catalogue_items.archive']
     restore: typeof routes['catalogue_items.restore']
   }
+  centralStoreContexts: {
+    history: typeof routes['central_store_contexts.history']
+    show: typeof routes['central_store_contexts.show']
+    store: typeof routes['central_store_contexts.store']
+  }
 }

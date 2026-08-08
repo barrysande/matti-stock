@@ -1,9 +1,10 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type Role from '#models/role'
+import type RoleVersion from '#models/role_version'
 
 export default class RoleTransformer extends BaseTransformer<Role> {
   private currentVersion() {
-    const current = this.resource.versions[0]
+    const current = this.resource.$extras.currentVersion as RoleVersion | null | undefined
     if (!current) {
       throw new Error(`Role ${this.resource.id} has no permission version`)
     }

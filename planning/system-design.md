@@ -1804,6 +1804,53 @@ the system previously reported. Linked corrective actions restore accurate
 state while retaining a complete audit trail of both the mistake and its course
 correction.
 
+#### DEC-007: Configure the Central Store through append-only database versions
+
+- **Status:** Accepted
+- **Area:** Inventory intake and receiving
+- **Builds on:** System-wide / SYS-001, Area 3 / DEC-001,
+  Area 3 / DEC-006, Area 3 / DEC-008, Area 5 / DEC-001,
+  Area 10 / DEC-002, Area 10 / DEC-003, Area 10 / DEC-010
+
+V1 shall use one protected Central Store configuration. Each immutable version
+shall reference:
+
+- one active custodial organizational unit;
+- one active physical location;
+- the configuring account;
+- a mandatory reason; and
+- the immediate system-controlled effective time.
+
+The configuration shall use database record identifiers. A display name such
+as `Central Store` shall not become a special system identity. The physical
+location and custodial organizational unit shall remain separate records even
+when they use the same display name.
+
+`access.root` shall control configuration. Root authority shall not grant
+`intake.record` or another stock permission. The configured custodial
+organizational unit and physical location shall not be archived. Root shall
+configure an active replacement before archiving an earlier selected record.
+Renaming or reparenting a selected record shall not invalidate the
+configuration because its identifier remains unchanged.
+
+Every intake shall resolve `intake.record` at the configured custodial
+organizational unit and shall retain the exact context-version identifier used
+by the committed transaction. A later context version shall affect only later
+intakes. Existing stock shall not move or change custody because configuration
+changed.
+
+For individually tracked stock first received into the Store, the configured
+organizational unit shall be both the initial custodial organizational unit and
+the initial organizational current holder. The configured physical location
+shall remain a separate fact.
+
+##### Reason
+
+An explicit version prevents a location name from silently controlling stock
+behavior. Record identifiers, archive guards, and intake attribution keep the
+configuration valid while preserving the exact Store context used by earlier
+transactions.
+
 ### Area 6 — Issues, Returns, Movements, and Transfers
 
 #### DEC-001: Distinguish stock transfers from consumable issues
@@ -5372,6 +5419,43 @@ understand the shared definitions, while the separate business permission
 preserves the accepted boundary between technical access administration and
 stock authority.
 
+#### DEC-019: Use separate scoped permissions for stock, valuation, and evidence reads
+
+- **Status:** Accepted
+- **Area:** People, roles, permissions, and approvals
+- **Builds on:** Area 10 / DEC-002, Area 10 / DEC-003,
+  Area 10 / DEC-005, Area 10 / DEC-010
+
+V1 shall use these separate stable read permissions:
+
+- `stock.read` for authorized stock records;
+- `valuation.read` for monetary valuations on stock that the account may read;
+  and
+- `evidence.read` for supporting evidence after the applicable record-scope
+  check.
+
+Each permission shall remain assignable to a configurable custom role.
+Valuation or evidence authority shall not provide a route around `stock.read`.
+All three permissions shall use the applicable custodial organizational scope.
+
+The standard Store Supervisor, Stock Supervisor, and Finance Supervisor starter
+roles shall include all three read permissions. The Stock Taker starter role
+shall include only `stock.read` from this set.
+
+The access-registry seed shall not rewrite an immutable role version. A new
+installation shall create the complete current starter membership as version
+1. When an existing latest starter version still matches the earlier software
+baseline and has no administrator actor, the seed shall append the current
+software version. Existing assignments shall remain attached to their earlier
+versions. An administrator-created version shall remain unchanged.
+
+##### Reason
+
+Separate permissions let the institute control ordinary stock, financial
+value, and supporting documents independently. Safe starter-version upgrades
+make new production installation and development upgrades predictable without
+overwriting administrator choices or historical assignments.
+
 ### Area 11 — Reporting, Search, Audit Output, and Exporting
 
 #### DEC-001: Provide scoped global search using known stock terms
@@ -5540,20 +5624,18 @@ practical tabular analysis. Shared report data and immutable closed snapshots
 make exports reproducible without multiplying business logic. Explicit
 deferrals protect the V1 timeline from becoming a business-intelligence project.
 
-#### DEC-006: Show monetary values within existing stock-access scope
+#### DEC-006: Require separate scoped authority to view monetary values
 
 - **Status:** Accepted
 - **Area:** Reporting, search, audit output, and exporting
 - **Builds on:** Area 8 / DEC-001, Area 9 / DEC-002,
-  Area 10 / DEC-003, Area 10 / DEC-013, Area 11 / DEC-002,
-  Area 11 / DEC-003, Area 11 / DEC-005
+  Area 10 / DEC-003, Area 10 / DEC-013, Area 10 / DEC-019,
+  Area 11 / DEC-002, Area 11 / DEC-003, Area 11 / DEC-005
 
-V1 shall not require a separate permission merely to view monetary values. Any
-authenticated user authorized to view a stock record may view its applicable
-unit or pooled value, total value, and other monetary fields. Value visibility
-shall follow the user's existing stock-record scope and shall not expose other
-departments, records, or financial actions that the user is not otherwise
-authorized to access.
+V1 shall require both `stock.read` and `valuation.read` at the applicable
+custodial organizational scope before it returns a stock record's unit or
+pooled value, total value, or other monetary fields. `valuation.read` alone
+shall not expose a stock record or another organizational scope.
 
 Viewing a monetary value shall not grant authority to enter a valuation,
 revalue stock, approve repair expenditure, write off, reinstate, sell, donate,
@@ -5575,11 +5657,11 @@ document behind it.
 
 ##### Reason
 
-Visible values make the financial significance of stock responsibility,
-discrepancies, and losses clear to authorized officers and keep reports simple
-and consistent. Existing record scope prevents the rule from becoming
-institution-wide access, while blind-count hiding protects independent physical
-observation and separate action permissions preserve Finance authority.
+Separate stock and valuation read authority keeps financial information
+controlled without granting financial action authority. Custodial scope
+prevents either permission from becoming institution-wide access. Blind-count
+hiding protects independent physical observation, and separate action
+permissions preserve Finance authority.
 
 ### Area 12 — Notifications and Automation
 
