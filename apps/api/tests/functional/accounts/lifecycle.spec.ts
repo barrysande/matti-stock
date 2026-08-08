@@ -374,7 +374,12 @@ test.group('Account lifecycle administration', (group) => {
   test('prevents self-suspension and self-deactivation', async ({ client, assert }) => {
     const { account: actor } = await createRootActor()
 
-    for (const action of ['suspend', 'deactivate']) {
+    const cases = [
+      ['suspend', 'You cannot suspend your own account.'],
+      ['deactivate', 'You cannot deactivate your own account.'],
+    ] as const
+
+    for (const [action, message] of cases) {
       const response = await client
         .post(`/accounts/${actor.id}/${action}`)
         .loginAs(actor)
@@ -384,7 +389,7 @@ test.group('Account lifecycle administration', (group) => {
       response.assertStatus(409)
       response.assertBodyContains({
         code: 'E_ACCOUNT_SELF_ADMINISTRATION',
-        message: 'You cannot suspend or deactivate your own account.',
+        message,
       })
     }
 

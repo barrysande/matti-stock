@@ -24,9 +24,13 @@ export default class AccountLifecycleService {
     private passwordChallenges: PasswordChallengeService
   ) {}
 
-  private rejectSelfAdministration(accountId: string, actorAccountId: string) {
+  private rejectSelfAdministration(
+    accountId: string,
+    actorAccountId: string,
+    message: string
+  ) {
     if (accountId === actorAccountId) {
-      throw new AccountSelfAdministrationException()
+      throw new AccountSelfAdministrationException(message)
     }
   }
 
@@ -153,7 +157,11 @@ export default class AccountLifecycleService {
     actorAccountId: string,
     request?: RequestAuditContext
   ) {
-    this.rejectSelfAdministration(accountId, actorAccountId)
+    this.rejectSelfAdministration(
+      accountId,
+      actorAccountId,
+      'You cannot suspend your own account.'
+    )
 
     return this.transition(
       accountId,
@@ -191,7 +199,11 @@ export default class AccountLifecycleService {
     actorAccountId: string,
     request?: RequestAuditContext
   ) {
-    this.rejectSelfAdministration(accountId, actorAccountId)
+    this.rejectSelfAdministration(
+      accountId,
+      actorAccountId,
+      'You cannot deactivate your own account.'
+    )
 
     return this.transition(
       accountId,
