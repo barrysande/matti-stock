@@ -10,6 +10,7 @@ import {
 	archiveCatalogueCategory,
 	getCatalogueCategories,
 	getCatalogueCategory,
+	getCatalogueCategoryHistory,
 	mergeCatalogueCategory,
 	previewCatalogueCategoryMerge,
 	reparentCatalogueCategory,
@@ -23,6 +24,7 @@ import {
 	catalogueCategorySubtreeHeight,
 	redirectToCatalogueCategory
 } from '$lib/server/helpers/catalogue-category-route';
+import { positivePage } from '$lib/server/helpers/list-filters';
 import { error, fail } from '@sveltejs/kit';
 import { setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms';
@@ -42,16 +44,29 @@ const formIds = {
 export const load: PageServerLoad = async (event) => {
 	requireAuth(event);
 
-	const [categoryResult, directoryResult] = await Promise.all([
+	const [categoryResult, historyResult, directoryResult] = await Promise.all([
 		getCatalogueCategory(event, event.params.id),
+		getCatalogueCategoryHistory(
+			event,
+			event.params.id,
+			positivePage(event.url.searchParams.get('page'))
+		),
 		getCatalogueCategories(event, { includeArchived: true })
 	]);
 	const [categoryResponse, categoryError] = categoryResult;
+	const [historyResponse, historyError] = historyResult;
 	const [directoryResponse, directoryError] = directoryResult;
-	if (categoryError)
+	if (categoryError) {
 		error(categoryError.status ?? 404, 'The catalogue category could not be found.');
-	if (directoryError)
+	}
+
+	if (historyError) {
+		error(historyError.status ?? 502, 'The catalogue-category history could not be loaded.');
+	}
+
+	if (directoryError) {
 		error(directoryError.status ?? 502, 'The catalogue-category directory could not be loaded.');
+	}
 
 	const category = categoryResponse.data;
 	const categories = directoryResponse.data;
@@ -87,6 +102,7 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		category,
+		history: historyResponse,
 		categories,
 		parentOptions,
 		mergeTargetOptions,

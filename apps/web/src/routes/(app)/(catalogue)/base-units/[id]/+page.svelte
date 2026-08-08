@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import BaseUnitHistory from '$lib/components/base-unit-history.svelte';
+	import PaginationControls from '$lib/components/pagination-controls.svelte';
 	import DateTime from '$lib/components/date-time.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
@@ -164,7 +166,12 @@
 		</Card.Content>
 	</Card.Root>
 
-	<BaseUnitHistory versions={data.unit.versions} />
+	<BaseUnitHistory versions={data.history.data} />
+	<PaginationControls
+		currentPage={data.history.metadata.currentPage}
+		lastPage={data.history.metadata.lastPage}
+		url={page.url}
+	/>
 
 	<Dialog.Root bind:open={detailsDialogOpen}>
 		<Dialog.Content

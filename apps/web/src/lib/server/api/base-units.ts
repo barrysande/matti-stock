@@ -1,12 +1,24 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import type { BaseUnitDetailsBody, BaseUnitDirectoryQuery } from '$lib/types/base-units';
+import type {
+	BaseUnitDetailsBody,
+	BaseUnitDirectoryQuery,
+	BaseUnitOptionsQuery
+} from '$lib/types/base-units';
 
-export function getBaseUnits(event: RequestEvent, query: BaseUnitDirectoryQuery) {
+export function getBaseUnitDirectory(event: RequestEvent, query: BaseUnitDirectoryQuery) {
 	return event.locals.client.api.baseUnits.index({ query }).safe();
+}
+
+export function getBaseUnits(event: RequestEvent, query: BaseUnitOptionsQuery) {
+	return event.locals.client.api.baseUnits.options({ query }).safe();
 }
 
 export function getBaseUnit(event: RequestEvent, id: string) {
 	return event.locals.client.api.baseUnits.show({ params: { id } }).safe();
+}
+
+export function getBaseUnitHistory(event: RequestEvent, id: string, page?: number) {
+	return event.locals.client.api.baseUnits.history({ params: { id }, query: { page } }).safe();
 }
 
 export function createBaseUnit(event: RequestEvent, body: BaseUnitDetailsBody) {

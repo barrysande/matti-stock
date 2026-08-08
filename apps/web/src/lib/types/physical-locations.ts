@@ -1,3 +1,7 @@
+import type { Data } from 'api/data';
+
+export type PhysicalLocationVersion = Data.PhysicalLocationVersion;
+
 export interface PhysicalLocationDirectoryQuery {
 	search?: string;
 	includeArchived?: boolean;

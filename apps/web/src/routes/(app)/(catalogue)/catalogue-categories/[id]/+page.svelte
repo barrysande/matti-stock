@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import CatalogueCategoryMerge from '$lib/components/catalogue-category-merge.svelte';
 	import CatalogueCategoryHistory from '$lib/components/catalogue-category-history.svelte';
 	import DateTime from '$lib/components/date-time.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
+	import PaginationControls from '$lib/components/pagination-controls.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -258,7 +260,12 @@
 		</Card.Root>
 	{/if}
 
-	<CatalogueCategoryHistory versions={data.category.versions} />
+	<CatalogueCategoryHistory versions={data.history.data} />
+	<PaginationControls
+		currentPage={data.history.metadata.currentPage}
+		lastPage={data.history.metadata.lastPage}
+		url={page.url}
+	/>
 
 	<Dialog.Root bind:open={detailsDialogOpen}>
 		<Dialog.Content

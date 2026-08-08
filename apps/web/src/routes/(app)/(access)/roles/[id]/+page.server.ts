@@ -7,12 +7,14 @@ import { getPermissions } from '$lib/server/api/permissions';
 import {
 	archiveRole,
 	getRole,
+	getRoleHistory,
 	renameRole,
 	replaceRolePermissions,
 	restoreRole
 } from '$lib/server/api/roles';
 import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import { positivePage } from '$lib/server/helpers/list-filters';
 import { redirectToRole } from '$lib/server/helpers/role-route';
 import { error, fail } from '@sveltejs/kit';
 import { setFlash } from 'sveltekit-flash-message/server';
@@ -30,13 +32,22 @@ const formIds = {
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);
 
-	const [roleResult, permissionsResult] = await Promise.all([
+	const [roleResult, historyResult, permissionsResult] = await Promise.all([
 		getRole(event, event.params.id),
+		getRoleHistory(event, event.params.id, positivePage(event.url.searchParams.get('page'))),
 		getPermissions(event)
 	]);
 	const [roleResponse, roleError] = roleResult;
+	const [historyResponse, historyError] = historyResult;
 	const [permissionsResponse, permissionsError] = permissionsResult;
-	if (roleError) error(roleError.status ?? 404, 'The role could not be found.');
+	if (roleError) {
+		error(roleError.status ?? 404, 'The role could not be found.');
+	}
+
+	if (historyError) {
+		error(historyError.status ?? 502, 'The role history could not be loaded.');
+	}
+
 	if (permissionsError) {
 		error(permissionsError.status ?? 502, 'The permission registry could not be loaded.');
 	}
@@ -45,6 +56,7 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		role,
+		history: historyResponse,
 		permissions: permissionsResponse.data,
 		assignablePermissions: permissionsResponse.data.filter(
 			(permission) => permission.customRoleAssignable

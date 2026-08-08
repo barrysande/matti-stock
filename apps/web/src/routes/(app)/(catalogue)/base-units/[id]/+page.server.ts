@@ -2,12 +2,14 @@ import { administerBaseUnitSchema, baseUnitDetailsSchema } from '$lib/schemas/ba
 import {
 	archiveBaseUnit,
 	getBaseUnit,
+	getBaseUnitHistory,
 	restoreBaseUnit,
 	updateBaseUnitDetails
 } from '$lib/server/api/base-units';
 import { requireAuth, requireCatalogueManager } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
 import { redirectToBaseUnit } from '$lib/server/helpers/base-unit-route';
+import { positivePage } from '$lib/server/helpers/list-filters';
 import type { BaseUnitKind } from '$lib/types/base-units';
 import { error, fail } from '@sveltejs/kit';
 import { setFlash } from 'sveltekit-flash-message/server';
@@ -24,12 +26,25 @@ const formIds = {
 export const load: PageServerLoad = async (event) => {
 	requireAuth(event);
 
-	const [response, apiError] = await getBaseUnit(event, event.params.id);
-	if (apiError) error(apiError.status ?? 404, 'The base unit could not be found.');
+	const [unitResult, historyResult] = await Promise.all([
+		getBaseUnit(event, event.params.id),
+		getBaseUnitHistory(event, event.params.id, positivePage(event.url.searchParams.get('page')))
+	]);
+	const [response, apiError] = unitResult;
+	const [historyResponse, historyError] = historyResult;
+	if (apiError) {
+		error(apiError.status ?? 404, 'The base unit could not be found.');
+	}
+
+	if (historyError) {
+		error(historyError.status ?? 502, 'The base-unit history could not be loaded.');
+	}
 
 	const unit = response.data;
+
 	return {
 		unit,
+		history: historyResponse,
 		detailsForm: await superValidate(
 			{
 				name: unit.name,

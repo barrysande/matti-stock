@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import DateTime from '$lib/components/date-time.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import OrganizationalAccessImpact from '$lib/components/organizational-access-impact.svelte';
+	import PaginationControls from '$lib/components/pagination-controls.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -24,7 +26,7 @@
 
 	let { data } = $props();
 
-	const versions = $derived(data.unit.versions ?? []);
+	const versions = $derived(data.history.data);
 	const isInstitute = $derived(data.unit.unitType === 'INSTITUTE');
 	const isArchived = $derived(Boolean(data.unit.archivedAt));
 	const reparentOptions = $derived(
@@ -341,6 +343,12 @@
 				description="No structural versions are recorded for this organizational unit."
 			/>
 		{/if}
+
+		<PaginationControls
+			currentPage={data.history.metadata.currentPage}
+			lastPage={data.history.metadata.lastPage}
+			url={page.url}
+		/>
 	</section>
 
 	<Dialog.Root bind:open={renameDialogOpen}>

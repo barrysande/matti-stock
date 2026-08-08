@@ -51,6 +51,12 @@ export function getOrganizationalUnit(event: RequestEvent, id: string) {
 	return event.locals.client.api.organizationalUnits.show({ params: { id } }).safe();
 }
 
+export function getOrganizationalUnitHistory(event: RequestEvent, id: string, page?: number) {
+	return event.locals.client.api.organizationalUnits
+		.history({ params: { id }, query: { page } })
+		.safe();
+}
+
 export function createOrganizationalUnit(event: RequestEvent, body: CreateOrganizationalUnitBody) {
 	return event.locals.client.api.organizationalUnits.store({ body }).safe();
 }

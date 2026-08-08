@@ -6,6 +6,7 @@ import {
 import {
 	archivePhysicalLocation,
 	getPhysicalLocation,
+	getPhysicalLocationHistory,
 	getPhysicalLocations,
 	renamePhysicalLocation,
 	reparentPhysicalLocation,
@@ -13,6 +14,7 @@ import {
 } from '$lib/server/api/physical-locations';
 import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import { positivePage } from '$lib/server/helpers/list-filters';
 import { redirectToPhysicalLocation } from '$lib/server/helpers/physical-location-route';
 import { error, fail } from '@sveltejs/kit';
 import { setFlash } from 'sveltekit-flash-message/server';
@@ -30,14 +32,26 @@ const formIds = {
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);
 
-	const [locationResult, locationsResult] = await Promise.all([
+	const [locationResult, historyResult, locationsResult] = await Promise.all([
 		getPhysicalLocation(event, event.params.id),
+		getPhysicalLocationHistory(
+			event,
+			event.params.id,
+			positivePage(event.url.searchParams.get('page'))
+		),
 		getPhysicalLocations(event, {})
 	]);
 	const [locationResponse, locationError] = locationResult;
+	const [historyResponse, historyError] = historyResult;
 	const [locationsResponse, locationsError] = locationsResult;
-	if (locationError)
+	if (locationError) {
 		error(locationError.status ?? 404, 'The physical location could not be found.');
+	}
+
+	if (historyError) {
+		error(historyError.status ?? 502, 'The physical-location history could not be loaded.');
+	}
+
 	if (locationsError) {
 		error(locationsError.status ?? 502, 'The physical-location directory could not be loaded.');
 	}
@@ -70,6 +84,7 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		location,
+		history: historyResponse,
 		parentOptions,
 		renameForm: await superValidate(
 			{ name: location.name, reason: '' },

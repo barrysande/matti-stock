@@ -29,6 +29,12 @@ export function getCatalogueItem(event: RequestEvent, catalogueCode: string) {
 	return event.locals.client.api.catalogueItems.show({ params: { catalogueCode } }).safe();
 }
 
+export function getCatalogueItemHistory(event: RequestEvent, catalogueCode: string, page?: number) {
+	return event.locals.client.api.catalogueItems
+		.history({ params: { catalogueCode }, query: { page } })
+		.safe();
+}
+
 export function reviewCatalogueItemChange(
 	event: RequestEvent,
 	catalogueCode: string,

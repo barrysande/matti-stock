@@ -19,6 +19,12 @@ export function getCatalogueCategory(event: RequestEvent, id: string) {
 	return event.locals.client.api.catalogueCategories.show({ params: { id } }).safe();
 }
 
+export function getCatalogueCategoryHistory(event: RequestEvent, id: string, page?: number) {
+	return event.locals.client.api.catalogueCategories
+		.history({ params: { id }, query: { page } })
+		.safe();
+}
+
 export function reviewCatalogueCategoryCreation(
 	event: RequestEvent,
 	body: ReviewCatalogueCategoryCreationBody

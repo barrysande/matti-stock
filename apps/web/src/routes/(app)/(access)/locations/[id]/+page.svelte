@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import DateTime from '$lib/components/date-time.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
+	import PaginationControls from '$lib/components/pagination-controls.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -24,8 +26,7 @@
 
 	let { data } = $props();
 
-	const versions = $derived(data.location.versions ?? []);
-	const currentVersion = $derived(versions[0]);
+	const versions = $derived(data.history.data);
 	const isArchived = $derived(Boolean(data.location.archivedAt));
 	const canMove = $derived(Boolean(data.location.parentId) || data.parentOptions.length > 0);
 
@@ -142,7 +143,7 @@
 	<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 		<Card.Root>
 			<Card.Header><Card.Description>Parent</Card.Description></Card.Header>
-			<Card.Content>{currentVersion?.parent?.name ?? 'Top-level location'}</Card.Content>
+			<Card.Content>{data.location.parent?.name ?? 'Top-level location'}</Card.Content>
 		</Card.Root>
 
 		<Card.Root>
@@ -222,6 +223,12 @@
 				description="No structural versions are recorded for this physical location."
 			/>
 		{/if}
+
+		<PaginationControls
+			currentPage={data.history.metadata.currentPage}
+			lastPage={data.history.metadata.lastPage}
+			url={page.url}
+		/>
 	</section>
 
 	<Dialog.Root bind:open={renameDialogOpen}>

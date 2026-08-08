@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import CatalogueItemHistory from '$lib/components/catalogue-item-history.svelte';
+	import PaginationControls from '$lib/components/pagination-controls.svelte';
 	import CatalogueItemReview from '$lib/components/catalogue-item-review.svelte';
 	import DateTime from '$lib/components/date-time.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
@@ -378,7 +380,12 @@
 		</Card.Root>
 	</div>
 
-	<CatalogueItemHistory versions={item.versions} />
+	<CatalogueItemHistory versions={data.history.data} />
+	<PaginationControls
+		currentPage={data.history.metadata.currentPage}
+		lastPage={data.history.metadata.lastPage}
+		url={page.url}
+	/>
 
 	<Dialog.Root bind:open={detailsDialogOpen}>
 		<Dialog.Content

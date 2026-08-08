@@ -2,6 +2,7 @@ import type { Data } from 'api/data';
 
 export type CatalogueCategory = Data.CatalogueCategory;
 export type CatalogueCategoryDetail = Data.CatalogueCategory.Variants['forDetailedView'];
+export type CatalogueCategoryVersion = Data.CatalogueCategoryVersion;
 export type CatalogueCategoryCreationReview = Data.CatalogueCategoryCreationReview;
 export type CatalogueCategoryMergePreview = Data.CatalogueCategoryMergePreview;
 

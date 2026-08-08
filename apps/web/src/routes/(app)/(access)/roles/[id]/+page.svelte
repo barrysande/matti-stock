@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import DateTime from '$lib/components/date-time.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
+	import PaginationControls from '$lib/components/pagination-controls.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import PermissionSelector from '$lib/components/permission-selector.svelte';
 	import RolePermissionList from '$lib/components/role-permission-list.svelte';
@@ -31,7 +33,7 @@
 
 	let { data } = $props();
 
-	const versions = $derived(data.role.versions ?? []);
+	const versions = $derived(data.history.data);
 	const isArchived = $derived(Boolean(data.role.archivedAt));
 	const isConfigurable = $derived(!data.role.systemManaged);
 	const recordedAssignmentCount = $derived(
@@ -285,6 +287,12 @@
 		{:else}
 			<EmptyState title="No permission history" description="No role versions are recorded." />
 		{/if}
+
+		<PaginationControls
+			currentPage={data.history.metadata.currentPage}
+			lastPage={data.history.metadata.lastPage}
+			url={page.url}
+		/>
 	</section>
 
 	<Dialog.Root bind:open={renameDialogOpen}>

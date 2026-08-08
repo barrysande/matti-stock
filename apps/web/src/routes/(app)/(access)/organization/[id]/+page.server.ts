@@ -8,6 +8,7 @@ import {
 import {
 	archiveOrganizationalUnit,
 	getOrganizationalUnit,
+	getOrganizationalUnitHistory,
 	getOrganizationalUnits,
 	previewOrganizationalAccessImpact,
 	renameOrganizationalUnit,
@@ -16,6 +17,7 @@ import {
 } from '$lib/server/api/organizational-units';
 import { requireRoot } from '$lib/server/auth/guards';
 import { apiErrorDetails } from '$lib/server/helpers/api-error';
+import { positivePage } from '$lib/server/helpers/list-filters';
 import {
 	organizationalUnitChangeInvalidatesPreview,
 	redirectToOrganizationalUnit
@@ -36,13 +38,26 @@ const formIds = {
 export const load: PageServerLoad = async (event) => {
 	requireRoot(event);
 
-	const [unitResult, unitsResult] = await Promise.all([
+	const [unitResult, historyResult, unitsResult] = await Promise.all([
 		getOrganizationalUnit(event, event.params.id),
+		getOrganizationalUnitHistory(
+			event,
+			event.params.id,
+			positivePage(event.url.searchParams.get('page'))
+		),
 		getOrganizationalUnits(event, {})
 	]);
 	const [unitResponse, unitError] = unitResult;
+	const [historyResponse, historyError] = historyResult;
 	const [unitsResponse, unitsError] = unitsResult;
-	if (unitError) error(unitError.status ?? 404, 'The organizational unit could not be found.');
+	if (unitError) {
+		error(unitError.status ?? 404, 'The organizational unit could not be found.');
+	}
+
+	if (historyError) {
+		error(historyError.status ?? 502, 'The organizational history could not be loaded.');
+	}
+
 	if (unitsError) {
 		error(unitsError.status ?? 502, 'The organizational directory could not be loaded.');
 	}
@@ -54,6 +69,7 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		unit: unitResponse.data,
+		history: historyResponse,
 		units: unitsResponse.data,
 		renameForm: await superValidate(
 			{ name: unitResponse.data.name, reason: '' },

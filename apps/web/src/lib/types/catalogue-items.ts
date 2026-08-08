@@ -2,6 +2,7 @@ import type { Data } from 'api/data';
 
 export type CatalogueItem = Data.CatalogueItem;
 export type CatalogueItemDetail = Data.CatalogueItem.Variants['forDetailedView'];
+export type CatalogueItemVersion = Data.CatalogueItemVersion;
 export type CatalogueItemReview = Data.CatalogueItemReview;
 export type CatalogueItemStockType = 'FIXED_NON_CONSUMABLE' | 'CONSUMABLE';
 export type CatalogueItemTrackingMethod = 'INDIVIDUAL' | 'QUANTITY';

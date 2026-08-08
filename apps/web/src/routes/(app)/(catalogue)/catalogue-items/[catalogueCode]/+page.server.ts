@@ -10,6 +10,7 @@ import { getCatalogueCategories } from '$lib/server/api/catalogue-categories';
 import {
 	archiveCatalogueItem,
 	getCatalogueItem,
+	getCatalogueItemHistory,
 	restoreCatalogueItem,
 	updateCatalogueItemClassification,
 	updateCatalogueItemDetails
@@ -25,6 +26,7 @@ import {
 	redirectToCatalogueItem,
 	reviewCurrentCatalogueItemChange
 } from '$lib/server/helpers/catalogue-item-route';
+import { positivePage } from '$lib/server/helpers/list-filters';
 import type {
 	CatalogueItemIdentificationStatus,
 	CatalogueItemStockType,
@@ -39,23 +41,41 @@ import type { Actions, PageServerLoad } from './$types';
 export const load: PageServerLoad = async (event) => {
 	requireAuth(event);
 
-	const [itemResult, categoryResult, unitResult] = await Promise.all([
+	const [itemResult, historyResult, categoryResult, unitResult] = await Promise.all([
 		getCatalogueItem(event, event.params.catalogueCode),
+		getCatalogueItemHistory(
+			event,
+			event.params.catalogueCode,
+			positivePage(event.url.searchParams.get('page'))
+		),
 		getCatalogueCategories(event, { includeArchived: true }),
 		getBaseUnits(event, { includeArchived: true })
 	]);
 	const [itemResponse, itemError] = itemResult;
+	const [historyResponse, historyError] = historyResult;
 	const [categoryResponse, categoryError] = categoryResult;
 	const [unitResponse, unitError] = unitResult;
-	if (itemError) error(itemError.status ?? 404, 'The catalogue item could not be found.');
-	if (categoryError)
+	if (itemError) {
+		error(itemError.status ?? 404, 'The catalogue item could not be found.');
+	}
+
+	if (historyError) {
+		error(historyError.status ?? 502, 'The catalogue-item history could not be loaded.');
+	}
+
+	if (categoryError) {
 		error(categoryError.status ?? 502, 'Catalogue-category choices could not be loaded.');
-	if (unitError) error(unitError.status ?? 502, 'Base-unit choices could not be loaded.');
+	}
+
+	if (unitError) {
+		error(unitError.status ?? 502, 'Base-unit choices could not be loaded.');
+	}
 
 	const item = itemResponse.data;
 
 	return {
 		item,
+		history: historyResponse,
 		categories: categoryResponse.data,
 		baseUnits: unitResponse.data,
 		detailsForm: await superValidate(

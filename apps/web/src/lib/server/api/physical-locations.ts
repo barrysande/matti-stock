@@ -14,6 +14,12 @@ export function getPhysicalLocation(event: RequestEvent, id: string) {
 	return event.locals.client.api.physicalLocations.show({ params: { id } }).safe();
 }
 
+export function getPhysicalLocationHistory(event: RequestEvent, id: string, page?: number) {
+	return event.locals.client.api.physicalLocations
+		.history({ params: { id }, query: { page } })
+		.safe();
+}
+
 export function createPhysicalLocation(event: RequestEvent, body: CreatePhysicalLocationBody) {
 	return event.locals.client.api.physicalLocations.store({ body }).safe();
 }

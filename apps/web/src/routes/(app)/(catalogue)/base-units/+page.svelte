@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import EmptyState from '$lib/components/empty-state.svelte';
+	import PaginationControls from '$lib/components/pagination-controls.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -44,7 +46,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<Card.Root class="min-w-0">
+	<Card.Root class="min-w-0 concentric-filter">
 		<Card.Content>
 			<form
 				method="GET"
@@ -147,4 +149,10 @@
 			description="No base unit matches the current directory filters."
 		/>
 	{/if}
+
+	<PaginationControls
+		currentPage={data.directory.metadata.currentPage}
+		lastPage={data.directory.metadata.lastPage}
+		url={page.url}
+	/>
 </div>

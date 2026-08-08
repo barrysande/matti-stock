@@ -3,9 +3,9 @@
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import StatusBadge from '$lib/components/status-badge.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import type { BaseUnitDetail } from '$lib/types/base-units';
+	import type { BaseUnitVersion } from '$lib/types/base-units';
 
-	let { versions }: { versions: BaseUnitDetail['versions'] } = $props();
+	let { versions }: { versions: BaseUnitVersion[] } = $props();
 
 	function kindLabel(value: string) {
 		return value === 'COUNTABLE' ? 'Countable' : 'Measured';

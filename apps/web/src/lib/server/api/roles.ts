@@ -1,17 +1,26 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import type {
 	RoleDirectoryQuery,
+	RoleOptionsQuery,
 	CreateRoleBody,
 	RenameRoleBody,
 	ReplaceRolePermissionsBody
 } from '$lib/types/roles';
 
-export function getRoles(event: RequestEvent, query: RoleDirectoryQuery) {
+export function getRoleDirectory(event: RequestEvent, query: RoleDirectoryQuery) {
 	return event.locals.client.api.roles.index({ query }).safe();
+}
+
+export function getRoles(event: RequestEvent, query: RoleOptionsQuery) {
+	return event.locals.client.api.roles.options({ query }).safe();
 }
 
 export function getRole(event: RequestEvent, id: string) {
 	return event.locals.client.api.roles.show({ params: { id } }).safe();
+}
+
+export function getRoleHistory(event: RequestEvent, id: string, page?: number) {
+	return event.locals.client.api.roles.history({ params: { id }, query: { page } }).safe();
 }
 
 export function createRole(event: RequestEvent, body: CreateRoleBody) {
