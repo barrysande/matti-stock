@@ -517,12 +517,21 @@ page or direct action request races with a lifecycle change. Anonymous recovery
 keeps its neutral response and therefore does not disclose whether an entered
 email belongs to an unknown, suspended, or deactivated account.
 
+Authenticated account lifecycle actions preserve the safe Tuyau error tuple
+and pass its response through the shared `apiErrorDetails` structural boundary.
+A valid API message remains the domain-owned user message. The route-owned text
+is only a fallback for a missing, malformed, or unavailable response. The web
+application does not map API error codes to duplicate domain messages.
+
 **Why.** Tuyau status narrowing preserves the controller-derived response type
 and safely excludes network failures, whose error has no response payload.
 Restricting rendered API messages to the explicit status contract prevents
-unexpected server details from reaching authentication pages. Matching action
-visibility to account status avoids inviting an operation that the domain
-correctly rejects without treating the interface as an authorization boundary.
+unexpected server details from reaching authentication pages. Structural
+validation of authenticated lifecycle responses preserves API-owned conflict
+copy without treating the web application as a second message registry.
+Matching action visibility to account status avoids inviting an operation that
+the domain correctly rejects without treating the interface as an
+authorization boundary.
 
 ## D26 — Shared controls and records use semantic visual cues
 
@@ -558,13 +567,14 @@ uses a Catalogue group and adds each resource only when its route exists.
 Catalogue-category pages use `/catalogue-categories`, `/catalogue-categories/new`,
 and `/catalogue-categories/[id]` inside a pathless `(catalogue)` source group.
 
-The directory is ordered by the API-provided full path and uses smartphone cards
-plus a desktop table. Full paths remain visible in directories, parent choices,
-review candidates, detail pages, and merge-target links; indentation is not the
-sole hierarchy signal. Creation uses one snapshot-enabled SuperForm and an
-API-owned advisory similar-category review. The reviewed candidates are not
-snapshotted, and changing the reviewed name or parent makes the current browser
-review unusable until refreshed.
+The directory is ordered by the API-provided full path and uses a responsive
+disclosure hierarchy when the result contains complete parent context. Full
+paths remain visible in directories, parent choices, review candidates, detail
+pages, and merge-target links; indentation is not the sole hierarchy signal.
+Creation uses one snapshot-enabled SuperForm and an API-owned advisory
+similar-category review. The reviewed candidates are not snapshotted, and
+changing the reviewed name or parent makes the current browser review unusable
+until refreshed.
 
 Detail pages remain readable to every authenticated account. Mutation controls
 use the API-resolved `canManageCatalogue` capability and named server actions,
@@ -629,12 +639,18 @@ opens when navigation changes the pathname, while users may manually collapse
 the current group. Destination links continue to close the off-canvas sidebar
 on smartphones.
 
+The Catalogue group orders Categories, Base units, and Catalogue items by
+their setup dependency. An administrator defines classification and quantity
+units before creating catalogue items that use them.
+
 The footer presents the signed-in identity as one compact avatar trigger. Its
 menu contains Change password and Log out. My access remains a Workspace
 destination and is not repeated in the footer; it uses an account icon so the
 key icon remains associated with access assignment rather than personal
-credentials. The generated initials are a text fallback, not a claimed user
-profile image.
+credentials. The trigger uses an up-and-down chevron instead of an overflow
+icon because it opens a choice list. Closed navigation groups use compact local
+vertical spacing. The generated initials are a text fallback, not a claimed
+user profile image.
 
 **Why.** Persistent group headings keep the application map discoverable while
 disclosing one route family at a time prevents a growing navigation list from
@@ -699,3 +715,88 @@ identity from inventory semantics makes the post-holding lock understandable
 without freezing correctable descriptions or classification. Sequential child
 moves reflect the actual non-batch API contract and report partial progress
 honestly, while the terminal parent merge remains atomic and stale-safe.
+
+## D31 — Paginate flat directories and resource histories, not hierarchy context
+
+**Decision.** Role and base-unit directories read fixed API pages and keep the
+active URL filters when the user moves between pages. Forms and filters that
+need every role or base unit use the API's complete option endpoints instead of
+a directory page.
+
+Role, organizational-unit, physical-location, catalogue-category, base-unit,
+and catalogue-item detail screens load current detail and one history page as
+separate requests. Shared pagination controls update the `page` query value and
+keep other URL values. The history presentation receives only the current page
+of version records.
+
+Organizational-unit, physical-location, and catalogue-category directories
+remain complete. These screens and their administration forms need full paths,
+parents, descendants, and merge choices. Other fixed or task-complete data sets
+also remain unpaginated.
+
+Candidate cards inside the category-review dialog use `border-border` without
+the default card shadow or faint foreground ring. This local separator style
+does not change the depth treatment of ordinary page cards.
+
+**Why.** Pagination limits growing flat lists and histories without removing
+data that a selector or hierarchy task must have. Separate history requests
+also prevent current-detail reads from loading every past version. The local
+candidate border gives a clear design-token separator and removes the dark
+corner marks caused by a shadow inside the dialog.
+
+## D32 — Complete hierarchy directories use disclosure rows
+
+**Decision.** Catalogue-category, organizational-unit, and physical-location
+directories use one shared responsive hierarchy display. Top-level records
+remain visible. A separate disclosure button opens or closes direct children,
+while the record name remains a normal detail link. Every row keeps its full
+path and status visible. Category descriptions and organizational-unit types
+remain available as row metadata.
+
+The display uses the hierarchy only when the API result contains complete
+parent context. Text-search results remain flat. Organizational-unit results
+also remain flat when a unit-type filter is active because the filter can
+remove a required parent. Form selectors and API response rules do not change.
+
+Repeated directory filter cards use an opt-in concentric geometry utility. The
+filter enclosure uses an eight-pixel inset, and its outer radius equals the
+control radius plus that inset. This utility does not apply to dialogs,
+floating controls, badges, or unrelated nested cards.
+
+**Why.** Disclosures keep large hierarchies compact without hiding the
+top-level structure or turning navigation links into menu commands. Flat
+filtered results avoid presenting an incomplete tree. The explicit radius
+formula makes inset filter controls follow the outer curve and avoids a broad
+visual change to components that do not share the same edge geometry.
+
+## D33 — Portaled overlays inherit the application theme
+
+**Decision.** Select menus, dropdown menus, and dropdown submenus do not set a
+local light or dark theme. Their portals inherit the active theme from the root
+document. Theme-specific utility variants remain available and activate only
+when that root theme is active.
+
+**Why.** A forced local theme makes an overlay conflict with the page that
+opened it. Root theme inheritance keeps shared overlays consistent in both
+light and dark modes without page-level overrides.
+
+## D34 — Account-event filters accept human-readable titles
+
+**Decision.** The account access-history filter accepts a human-readable event
+title and keeps that text in the URL and visible input. Before the BFF requests
+the API timeline, one shared client-safe access-event helper compares the input
+with its centralized presentation catalogue and sends the matching uppercase
+snake-case event value. Existing technical values remain valid input.
+
+The same helper converts returned event values to titles. A generic conversion
+fallback supports future API event types that are not yet in the presentation
+catalogue. The API remains the authority for event types and exact filtering;
+the web catalogue supplies only known labels and comparison aliases.
+
+The access-history filter card uses the same compact concentric enclosure as
+the other directory filters and does not add separate content padding.
+
+**Why.** People can filter with the event titles that they see on timeline
+cards without learning backend naming syntax. Server-side conversion preserves
+ordinary GET-form and no-JavaScript behavior, while one shared helper prevents
+page-level label and normalization lists from drifting apart.
