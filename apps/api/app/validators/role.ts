@@ -6,9 +6,20 @@ const permissionKeys = () =>
   vine.array(vine.string().trim().minLength(1).maxLength(100)).minLength(1)
 
 export const indexRolesValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
   search: vine.string().trim().minLength(1).maxLength(255).optional(),
   includeArchived: vine.boolean().optional(),
   systemManaged: vine.boolean().optional(),
+})
+
+export const roleOptionsValidator = vine.create({
+  search: vine.string().trim().minLength(1).maxLength(255).optional(),
+  includeArchived: vine.boolean().optional(),
+  systemManaged: vine.boolean().optional(),
+})
+
+export const roleHistoryValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
 })
 
 export const createRoleValidator = vine.create({

@@ -1,12 +1,14 @@
 import Role from '#models/role'
-import type { indexRolesValidator } from '#validators/role'
+import type { indexRolesValidator, roleOptionsValidator } from '#validators/role'
 import type { Infer } from '@vinejs/vine/types'
 
 type ListData = Infer<typeof indexRolesValidator>
+type OptionData = Infer<typeof roleOptionsValidator>
+const ROLES_PER_PAGE = 20
 
 export default class RoleDirectoryService {
   private summaryQuery() {
-    return Role.query().preload('versions', (versionQuery) => {
+    return Role.query().withCount('assignments').preload('versions', (versionQuery) => {
       versionQuery
         .select('id', 'role_id', 'version')
         .preload('permissions', (membershipQuery) => {
@@ -16,25 +18,15 @@ export default class RoleDirectoryService {
         })
         .withCount('assignments')
         .orderBy('version', 'desc')
+        .groupLimit(1)
     })
   }
 
   private detailQuery() {
-    return Role.query().preload('versions', (versionQuery) => {
-      versionQuery
-        .preload('permissions', (membershipQuery) => {
-          membershipQuery.orderBy('permission_key', 'asc')
-        })
-        .preload('createdByAccount', (accountQuery) => {
-          accountQuery.preload('person')
-        })
-        .withCount('assignments')
-        .orderBy('version', 'desc')
-    })
+    return this.summaryQuery()
   }
 
-  /** Lists reusable roles with their current immutable permission version and assignment counts. */
-  list(data: ListData) {
+  private filteredQuery(data: OptionData) {
     const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
 
     if (!data.includeArchived) {
@@ -54,7 +46,17 @@ export default class RoleDirectoryService {
     return query
   }
 
-  /** Loads one role with complete permission-version history and assignment usage counts. */
+  /** Returns one fixed directory page of reusable roles. */
+  paginate(data: ListData) {
+    return this.filteredQuery(data).paginate(data.page ?? 1, ROLES_PER_PAGE)
+  }
+
+  /** Lists all roles required for complete role selectors. */
+  listOptions(data: OptionData) {
+    return this.filteredQuery(data)
+  }
+
+  /** Loads one role with its current permission version and assignment usage counts. */
   findDetails(roleId: string) {
     return this.detailQuery().where('id', roleId).firstOrFail()
   }

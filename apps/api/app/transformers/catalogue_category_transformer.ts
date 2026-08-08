@@ -1,6 +1,5 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type CatalogueCategory from '#models/catalogue_category'
-import CatalogueCategoryVersionTransformer from '#transformers/catalogue_category_version_transformer'
 
 export default class CatalogueCategoryTransformer extends BaseTransformer<CatalogueCategory> {
   toObject() {
@@ -29,9 +28,6 @@ export default class CatalogueCategoryTransformer extends BaseTransformer<Catalo
           }
         : null,
       canonicalMergeTarget: this.resource.$extras.canonicalMergeTarget ?? null,
-      versions: CatalogueCategoryVersionTransformer.transform(
-        this.whenLoaded(this.resource.versions)
-      ),
     }
   }
 }

@@ -1,8 +1,10 @@
 import BaseUnit from '#models/base_unit'
-import type { indexBaseUnitsValidator } from '#validators/base_unit'
+import type { baseUnitOptionsValidator, indexBaseUnitsValidator } from '#validators/base_unit'
 import type { Infer } from '@vinejs/vine/types'
 
 type ListData = Infer<typeof indexBaseUnitsValidator>
+type OptionData = Infer<typeof baseUnitOptionsValidator>
+const UNITS_PER_PAGE = 20
 
 export default class BaseUnitDirectoryService {
   private summaryQuery() {
@@ -10,20 +12,19 @@ export default class BaseUnitDirectoryService {
   }
 
   private detailQuery() {
-    return BaseUnit.query().preload('versions', (versionQuery) => {
-      versionQuery
-        .preload('changedByAccount', (accountQuery) => accountQuery.preload('person'))
-        .preload('resolvedScopeOrganizationalUnit')
-        .orderBy('version', 'desc')
-    })
+    return BaseUnit.query()
   }
 
-  /** Lists the small shared unit registry with optional active-state and kind filters. */
-  list(data: ListData) {
+  private filteredQuery(data: OptionData) {
     const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
 
-    if (!data.includeArchived) query.whereNull('archived_at')
-    if (data.kind) query.where('kind', data.kind)
+    if (!data.includeArchived) {
+      query.whereNull('archived_at')
+    }
+
+    if (data.kind) {
+      query.where('kind', data.kind)
+    }
 
     if (data.search) {
       query.where((builder) => {
@@ -34,7 +35,17 @@ export default class BaseUnitDirectoryService {
     return query
   }
 
-  /** Loads one active or archived unit with complete effective-dated history. */
+  /** Returns one fixed directory page of base units. */
+  paginate(data: ListData) {
+    return this.filteredQuery(data).paginate(data.page ?? 1, UNITS_PER_PAGE)
+  }
+
+  /** Lists all base units required for complete unit selectors. */
+  listOptions(data: OptionData) {
+    return this.filteredQuery(data)
+  }
+
+  /** Loads one active or archived unit from the current projection. */
   findDetails(unitId: string) {
     return this.detailQuery().where('id', unitId).firstOrFail()
   }

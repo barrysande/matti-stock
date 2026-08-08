@@ -203,7 +203,7 @@ test.group('Organizational units directory', (group) => {
     )
   })
 
-  test('returns effective-dated structural history in the unit details', async ({
+  test('returns paginated effective-dated structural history', async ({
     client,
     assert,
   }) => {
@@ -218,15 +218,23 @@ test.group('Organizational units directory', (group) => {
     await createVersion(department, 1, firstEffectiveFrom, changedAt, 'Administration')
     await createVersion(department, 2, changedAt)
 
-    const response = await authenticatedRequest(
+    const detail = await authenticatedRequest(
       client.get(`/organizational-units/${department.id}`),
       account
     )
 
+    detail.assertStatus(200)
+    assert.equal(detail.body().data.path, 'MaTTI Institute / Corporate Services')
+    assert.notProperty(detail.body().data, 'versions')
+
+    const response = await authenticatedRequest(
+      client.get(`/organizational-units/${department.id}/history`),
+      account
+    )
+
     response.assertStatus(200)
-    assert.equal(response.body().data.path, 'MaTTI Institute / Corporate Services')
     assert.deepEqual(
-      response.body().data.versions.map((version: { version: number; name: string }) => ({
+      response.body().data.map((version: { version: number; name: string }) => ({
         version: version.version,
         name: version.name,
       })),
@@ -235,7 +243,7 @@ test.group('Organizational units directory', (group) => {
         { version: 1, name: 'Administration' },
       ]
     )
-    assert.notProperty(response.body().data, 'roleAssignments')
+    assert.equal(response.body().metadata.currentPage, 1)
   })
 
   test('validates directory filters before querying', async ({ client }) => {

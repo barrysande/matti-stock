@@ -17,14 +17,6 @@ export default class CatalogueCategoryDirectoryService {
   private detailQuery() {
     return CatalogueCategory.query()
       .preload('mergedIntoCategory')
-      .preload('versions', (versionQuery) => {
-        versionQuery
-          .preload('parent')
-          .preload('mergedIntoCategory')
-          .preload('changedByAccount', (accountQuery) => accountQuery.preload('person'))
-          .preload('resolvedScopeOrganizationalUnit')
-          .orderBy('version', 'desc')
-      })
   }
 
   private pathFor(
@@ -36,11 +28,15 @@ export default class CatalogueCategoryDirectoryService {
       throw new Error('Circular catalogue-category hierarchy detected while building a path')
     }
 
-    if (!category.parentId) return category.name
+    if (!category.parentId) {
+      return category.name
+    }
 
     const parent = categories.get(category.parentId)
 
-    if (!parent) return category.name
+    if (!parent) {
+      return category.name
+    }
 
     visited.add(category.id)
 
@@ -64,7 +60,9 @@ export default class CatalogueCategoryDirectoryService {
   async list(data: ListData) {
     const query = this.summaryQuery().orderBy('name', 'asc').orderBy('id', 'asc')
 
-    if (!data.includeArchived) query.whereNull('archived_at')
+    if (!data.includeArchived) {
+      query.whereNull('archived_at')
+    }
 
     if (data.search) {
       query.where((builder) => {
@@ -86,7 +84,7 @@ export default class CatalogueCategoryDirectoryService {
     })
   }
 
-  /** Loads one active or archived category with complete effective-dated history. */
+  /** Loads one active or archived category from the current projection. */
   async findDetails(categoryId: string) {
     const [category, hierarchy] = await Promise.all([
       this.detailQuery().where('id', categoryId).firstOrFail(),

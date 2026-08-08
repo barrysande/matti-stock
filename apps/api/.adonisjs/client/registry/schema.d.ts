@@ -235,6 +235,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'organizational_units.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/organizational-units/:id/history'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/organizational_unit').organizationalUnitHistoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organizational_units_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'organizational_units.show': {
     methods: ["GET","HEAD"]
     pattern: '/organizational-units/:id'
@@ -331,6 +343,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'physical_locations.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/physical-locations/:id/history'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/physical_location').physicalLocationHistoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/physical_locations_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'physical_locations.show': {
     methods: ["GET","HEAD"]
     pattern: '/physical-locations/:id'
@@ -425,6 +449,30 @@ export interface Registry {
       query: ExtractQueryForGet<InferInput<(typeof import('#validators/role').indexRolesValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'roles.options': {
+    methods: ["GET","HEAD"]
+    pattern: '/roles/options'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/role').roleOptionsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['options']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['options']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'roles.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/roles/:id/history'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/role').roleHistoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/roles_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'roles.show': {
@@ -703,6 +751,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['creationReview']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'catalogue_categories.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/catalogue-categories/:id/history'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/catalogue_category').catalogueCategoryHistoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_categories_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'catalogue_categories.show': {
     methods: ["GET","HEAD"]
     pattern: '/catalogue-categories/:id'
@@ -811,6 +871,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'base_units.options': {
+    methods: ["GET","HEAD"]
+    pattern: '/base-units/options'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/base_unit').baseUnitOptionsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['options']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['options']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'base_units.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/base-units/:id/history'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/base_unit').baseUnitHistoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/base_units_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'base_units.show': {
     methods: ["GET","HEAD"]
     pattern: '/base-units/:id'
@@ -917,6 +1001,18 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/catalogue_item').createCatalogueItemValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'catalogue_items.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/catalogue-items/:catalogueCode/history'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { catalogueCode: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/catalogue_item').catalogueItemHistoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/catalogue_items_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'catalogue_items.change_review': {

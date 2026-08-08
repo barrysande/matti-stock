@@ -34,6 +34,7 @@ export interface ApiDefinition {
   }
   organizationalUnits: {
     index: typeof routes['organizational_units.index']
+    history: typeof routes['organizational_units.history']
     show: typeof routes['organizational_units.show']
     store: typeof routes['organizational_units.store']
     accessImpact: typeof routes['organizational_units.access_impact']
@@ -44,6 +45,7 @@ export interface ApiDefinition {
   }
   physicalLocations: {
     index: typeof routes['physical_locations.index']
+    history: typeof routes['physical_locations.history']
     show: typeof routes['physical_locations.show']
     store: typeof routes['physical_locations.store']
     rename: typeof routes['physical_locations.rename']
@@ -56,6 +58,8 @@ export interface ApiDefinition {
   }
   roles: {
     index: typeof routes['roles.index']
+    options: typeof routes['roles.options']
+    history: typeof routes['roles.history']
     show: typeof routes['roles.show']
     store: typeof routes['roles.store']
     rename: typeof routes['roles.rename']
@@ -85,6 +89,7 @@ export interface ApiDefinition {
   catalogueCategories: {
     index: typeof routes['catalogue_categories.index']
     creationReview: typeof routes['catalogue_categories.creation_review']
+    history: typeof routes['catalogue_categories.history']
     show: typeof routes['catalogue_categories.show']
     store: typeof routes['catalogue_categories.store']
     updateDetails: typeof routes['catalogue_categories.update_details']
@@ -96,6 +101,8 @@ export interface ApiDefinition {
   }
   baseUnits: {
     index: typeof routes['base_units.index']
+    options: typeof routes['base_units.options']
+    history: typeof routes['base_units.history']
     show: typeof routes['base_units.show']
     store: typeof routes['base_units.store']
     updateDetails: typeof routes['base_units.update_details']
@@ -107,6 +114,7 @@ export interface ApiDefinition {
     lookup: typeof routes['catalogue_items.lookup']
     creationReview: typeof routes['catalogue_items.creation_review']
     store: typeof routes['catalogue_items.store']
+    history: typeof routes['catalogue_items.history']
     changeReview: typeof routes['catalogue_items.change_review']
     updateDetails: typeof routes['catalogue_items.update_details']
     updateClassification: typeof routes['catalogue_items.update_classification']

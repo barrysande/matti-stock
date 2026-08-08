@@ -185,15 +185,23 @@ test.group('Physical locations directory', (group) => {
       reason: 'Use the approved store name',
     })
 
-    const response = await authenticatedRequest(
+    const detail = await authenticatedRequest(
       client.get(`/physical-locations/${location.id}`),
       account
     )
 
+    detail.assertStatus(200)
+    assert.equal(detail.body().data.path, 'Central Store')
+    assert.notProperty(detail.body().data, 'versions')
+
+    const response = await authenticatedRequest(
+      client.get(`/physical-locations/${location.id}/history`),
+      account
+    )
+
     response.assertStatus(200)
-    assert.equal(response.body().data.path, 'Central Store')
     assert.deepEqual(
-      response.body().data.versions.map((version: { version: number; name: string }) => ({
+      response.body().data.map((version: { version: number; name: string }) => ({
         version: version.version,
         name: version.name,
       })),
@@ -202,8 +210,8 @@ test.group('Physical locations directory', (group) => {
         { version: 1, name: 'Old Store' },
       ]
     )
-    assert.equal(response.body().data.versions[0].changedBy.displayName, 'Root Directory')
-    assert.notProperty(response.body().data, 'children')
+    assert.equal(response.body().data[0].changedBy.displayName, 'Root Directory')
+    assert.equal(response.body().metadata.currentPage, 1)
   })
 
   test('authorizes before validating filters or resolving an identifier', async ({ client }) => {

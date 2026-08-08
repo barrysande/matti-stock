@@ -4,9 +4,13 @@ import BaseUnitPolicy from '#policies/base_unit_policy'
 import BaseUnitAdministrationService from '#services/base_unit_administration_service'
 import BaseUnitDirectoryService from '#services/base_unit_directory_service'
 import BaseUnitProvisioningService from '#services/base_unit_provisioning_service'
+import BaseUnitVersionDirectoryService from '#services/base_unit_version_directory_service'
 import BaseUnitTransformer from '#transformers/base_unit_transformer'
+import BaseUnitVersionTransformer from '#transformers/base_unit_version_transformer'
 import {
   administerBaseUnitValidator,
+  baseUnitHistoryValidator,
+  baseUnitOptionsValidator,
   createBaseUnitValidator,
   indexBaseUnitsValidator,
   updateBaseUnitDetailsValidator,
@@ -17,7 +21,8 @@ export default class BaseUnitsController {
   constructor(
     private administration: BaseUnitAdministrationService,
     private directory: BaseUnitDirectoryService,
-    private provisioning: BaseUnitProvisioningService
+    private provisioning: BaseUnitProvisioningService,
+    private versionDirectory: BaseUnitVersionDirectoryService
   ) {}
 
   async store({ auth, bouncer, request, response }: HttpContext) {
@@ -49,7 +54,19 @@ export default class BaseUnitsController {
 
     const filters = await request.validateUsing(indexBaseUnitsValidator)
 
-    return serialize(BaseUnitTransformer.transform(await this.directory.list(filters)))
+    const units = await this.directory.paginate(filters)
+
+    return serialize(BaseUnitTransformer.paginate(units.all(), units.getMeta()))
+  }
+
+  async options({ bouncer, request, serialize }: HttpContext) {
+    await bouncer.with(BaseUnitPolicy).authorize('list')
+
+    const filters = await request.validateUsing(baseUnitOptionsValidator)
+
+    const units = await this.directory.listOptions(filters)
+
+    return serialize(BaseUnitTransformer.transform(units))
   }
 
   async show({ bouncer, params, serialize }: HttpContext) {
@@ -58,6 +75,16 @@ export default class BaseUnitsController {
     const unit = await this.directory.findDetails(params.id)
 
     return serialize(BaseUnitTransformer.transform(unit).useVariant('forDetailedView'))
+  }
+
+  async history({ bouncer, params, request, serialize }: HttpContext) {
+    await bouncer.with(BaseUnitPolicy).authorize('view')
+
+    const filters = await request.validateUsing(baseUnitHistoryValidator)
+
+    const versions = await this.versionDirectory.list(params.id, filters)
+
+    return serialize(BaseUnitVersionTransformer.paginate(versions.all(), versions.getMeta()))
   }
 
   async archive({ auth, bouncer, params, request, response }: HttpContext) {

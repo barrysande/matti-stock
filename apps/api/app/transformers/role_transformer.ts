@@ -1,6 +1,5 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type Role from '#models/role'
-import RoleVersionTransformer from '#transformers/role_version_transformer'
 
 export default class RoleTransformer extends BaseTransformer<Role> {
   private currentVersion() {
@@ -13,9 +12,8 @@ export default class RoleTransformer extends BaseTransformer<Role> {
 
   toObject() {
     const current = this.currentVersion()
-    const olderVersionAssignmentCount = this.resource.versions
-      .slice(1)
-      .reduce((total, version) => total + Number(version.$extras.assignments_count ?? 0), 0)
+    const assignmentCount = Number(this.resource.$extras.assignments_count ?? 0)
+    const currentAssignmentCount = Number(current.$extras.assignments_count ?? 0)
 
     return {
       id: this.resource.id,
@@ -29,16 +27,13 @@ export default class RoleTransformer extends BaseTransformer<Role> {
         id: current.id,
         version: Number(current.version),
         permissionKeys: current.permissions.map(({ permissionKey }) => permissionKey),
-        assignmentCount: Number(current.$extras.assignments_count ?? 0),
+        assignmentCount: currentAssignmentCount,
       },
-      olderVersionAssignmentCount,
+      olderVersionAssignmentCount: assignmentCount - currentAssignmentCount,
     }
   }
 
   forDetailedView() {
-    return {
-      ...this.toObject(),
-      versions: RoleVersionTransformer.transform(this.resource.versions),
-    }
+    return this.toObject()
   }
 }

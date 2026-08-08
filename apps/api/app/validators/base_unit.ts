@@ -13,9 +13,20 @@ const details = () => ({
 })
 
 export const indexBaseUnitsValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
   search: vine.string().trim().minLength(1).maxLength(255).optional(),
   includeArchived: vine.boolean().optional(),
   kind: vine.enum(BASE_UNIT_KINDS).optional(),
+})
+
+export const baseUnitOptionsValidator = vine.create({
+  search: vine.string().trim().minLength(1).maxLength(255).optional(),
+  includeArchived: vine.boolean().optional(),
+  kind: vine.enum(BASE_UNIT_KINDS).optional(),
+})
+
+export const baseUnitHistoryValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
 })
 
 export const createBaseUnitValidator = vine.create(details())

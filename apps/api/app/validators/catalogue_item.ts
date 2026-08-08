@@ -72,6 +72,10 @@ export const indexCatalogueItemsValidator = vine.create({
   includeArchived: vine.boolean().optional(),
 })
 
+export const catalogueItemHistoryValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
+})
+
 export const lookupCatalogueItemsValidator = vine.create({
   query: vine.string().trim().minLength(1).maxLength(255),
   includeArchived: vine.boolean().optional(),

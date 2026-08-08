@@ -5,11 +5,14 @@ import OrganizationalAccessImpactService from '#services/organizational_access_i
 import OrganizationalUnitAdministrationService from '#services/organizational_unit_administration_service'
 import OrganizationalUnitDirectoryService from '#services/organizational_unit_directory_service'
 import OrganizationalUnitProvisioningService from '#services/organizational_unit_provisioning_service'
+import OrganizationalUnitVersionDirectoryService from '#services/organizational_unit_version_directory_service'
 import OrganizationalUnitTransformer from '#transformers/organizational_unit_transformer'
+import OrganizationalUnitVersionTransformer from '#transformers/organizational_unit_version_transformer'
 import {
   administerOrganizationalUnitValidator,
   createOrganizationalUnitValidator,
   indexOrganizationalUnitsValidator,
+  organizationalUnitHistoryValidator,
   previewOrganizationalAccessImpactValidator,
   renameOrganizationalUnitValidator,
   reparentOrganizationalUnitValidator,
@@ -21,7 +24,8 @@ export default class OrganizationalUnitsController {
     private administration: OrganizationalUnitAdministrationService,
     private accessImpactService: OrganizationalAccessImpactService,
     private directory: OrganizationalUnitDirectoryService,
-    private provisioning: OrganizationalUnitProvisioningService
+    private provisioning: OrganizationalUnitProvisioningService,
+    private versionDirectory: OrganizationalUnitVersionDirectoryService
   ) {}
 
   async store({ auth, bouncer, request, response }: HttpContext) {
@@ -85,6 +89,18 @@ export default class OrganizationalUnitsController {
     const unit = await this.directory.findDetails(params.id)
 
     return serialize(OrganizationalUnitTransformer.transform(unit).useVariant('forDetailedView'))
+  }
+
+  async history({ bouncer, params, request, serialize }: HttpContext) {
+    await bouncer.with(OrganizationalUnitPolicy).authorize('view')
+
+    const filters = await request.validateUsing(organizationalUnitHistoryValidator)
+
+    const versions = await this.versionDirectory.list(params.id, filters)
+
+    return serialize(
+      OrganizationalUnitVersionTransformer.paginate(versions.all(), versions.getMeta())
+    )
   }
 
   async accessImpact({ bouncer, params, request }: HttpContext) {

@@ -6,11 +6,14 @@ import CatalogueItemClassificationService from '#services/catalogue_item_classif
 import CatalogueItemDirectoryService from '#services/catalogue_item_directory_service'
 import CatalogueItemProvisioningService from '#services/catalogue_item_provisioning_service'
 import CatalogueItemSimilarityService from '#services/catalogue_item_similarity_service'
+import CatalogueItemVersionDirectoryService from '#services/catalogue_item_version_directory_service'
 import CatalogueItemReviewTransformer from '#transformers/catalogue_item_review_transformer'
 import CatalogueItemTransformer from '#transformers/catalogue_item_transformer'
+import CatalogueItemVersionTransformer from '#transformers/catalogue_item_version_transformer'
 import {
   administerCatalogueItemValidator,
   createCatalogueItemValidator,
+  catalogueItemHistoryValidator,
   indexCatalogueItemsValidator,
   lookupCatalogueItemsValidator,
   restoreCatalogueItemValidator,
@@ -27,7 +30,8 @@ export default class CatalogueItemsController {
     private classification: CatalogueItemClassificationService,
     private directory: CatalogueItemDirectoryService,
     private provisioning: CatalogueItemProvisioningService,
-    private similarity: CatalogueItemSimilarityService
+    private similarity: CatalogueItemSimilarityService,
+    private versionDirectory: CatalogueItemVersionDirectoryService
   ) {}
 
   async store({ auth, bouncer, request, response }: HttpContext) {
@@ -47,9 +51,9 @@ export default class CatalogueItemsController {
 
     const payload = await request.validateUsing(reviewCatalogueItemCreationValidator)
 
-    return serialize(
-      CatalogueItemReviewTransformer.transform(await this.similarity.review(payload))
-    )
+    const review = await this.similarity.review(payload)
+
+    return serialize(CatalogueItemReviewTransformer.transform(review))
   }
 
   async changeReview({ bouncer, params, request, serialize }: HttpContext) {
@@ -57,11 +61,9 @@ export default class CatalogueItemsController {
 
     const payload = await request.validateUsing(reviewCatalogueItemChangeValidator)
 
-    return serialize(
-      CatalogueItemReviewTransformer.transform(
-        await this.similarity.review(payload, params.catalogueCode)
-      )
-    )
+    const review = await this.similarity.review(payload, params.catalogueCode)
+
+    return serialize(CatalogueItemReviewTransformer.transform(review))
   }
 
   async updateDetails({ auth, bouncer, params, request, response }: HttpContext) {
@@ -120,6 +122,16 @@ export default class CatalogueItemsController {
     const item = await this.directory.findDetails(params.catalogueCode)
 
     return serialize(CatalogueItemTransformer.transform(item).useVariant('forDetailedView'))
+  }
+
+  async history({ bouncer, params, request, serialize }: HttpContext) {
+    await bouncer.with(CatalogueItemPolicy).authorize('view')
+
+    const filters = await request.validateUsing(catalogueItemHistoryValidator)
+
+    const versions = await this.versionDirectory.list(params.catalogueCode, filters)
+
+    return serialize(CatalogueItemVersionTransformer.paginate(versions.all(), versions.getMeta()))
   }
 
   async archive({ auth, bouncer, params, request, response }: HttpContext) {

@@ -178,13 +178,20 @@ test.group('Catalogue categories directory', (group) => {
       manager
     )
 
-    const response = await authenticatedCatalogueRequest(
+    const detail = await authenticatedCatalogueRequest(
       client.get(`/catalogue-categories/${category.id}`),
+      reader
+    )
+    detail.assertStatus(200)
+    assert.notProperty(detail.body().data, 'versions')
+
+    const response = await authenticatedCatalogueRequest(
+      client.get(`/catalogue-categories/${category.id}/history`),
       reader
     )
     response.assertStatus(200)
     assert.deepEqual(
-      response.body().data.versions.map((version: { version: number; changeKind: string }) => ({
+      response.body().data.map((version: { version: number; changeKind: string }) => ({
         version: version.version,
         changeKind: version.changeKind,
       })),
@@ -193,11 +200,11 @@ test.group('Catalogue categories directory', (group) => {
         { version: 1, changeKind: 'CREATED' },
       ]
     )
-    assert.equal(response.body().data.versions[0].authorization.roleAssignmentId, assignment.id)
+    assert.equal(response.body().data[0].authorization.roleAssignmentId, assignment.id)
     assert.equal(
-      response.body().data.versions[0].authorization.resolvedScope.organizationalUnitId,
+      response.body().data[0].authorization.resolvedScope.organizationalUnitId,
       institute.id
     )
-    assert.notProperty(response.body().data, 'children')
+    assert.equal(response.body().metadata.currentPage, 1)
   })
 })

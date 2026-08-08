@@ -4,11 +4,14 @@ import PhysicalLocationPolicy from '#policies/physical_location_policy'
 import PhysicalLocationAdministrationService from '#services/physical_location_administration_service'
 import PhysicalLocationDirectoryService from '#services/physical_location_directory_service'
 import PhysicalLocationProvisioningService from '#services/physical_location_provisioning_service'
+import PhysicalLocationVersionDirectoryService from '#services/physical_location_version_directory_service'
 import PhysicalLocationTransformer from '#transformers/physical_location_transformer'
+import PhysicalLocationVersionTransformer from '#transformers/physical_location_version_transformer'
 import {
   administerPhysicalLocationValidator,
   createPhysicalLocationValidator,
   indexPhysicalLocationsValidator,
+  physicalLocationHistoryValidator,
   renamePhysicalLocationValidator,
   reparentPhysicalLocationValidator,
 } from '#validators/physical_location'
@@ -18,7 +21,8 @@ export default class PhysicalLocationsController {
   constructor(
     private administration: PhysicalLocationAdministrationService,
     private directory: PhysicalLocationDirectoryService,
-    private provisioning: PhysicalLocationProvisioningService
+    private provisioning: PhysicalLocationProvisioningService,
+    private versionDirectory: PhysicalLocationVersionDirectoryService
   ) {}
 
   async store({ auth, bouncer, request, response }: HttpContext) {
@@ -82,6 +86,16 @@ export default class PhysicalLocationsController {
     const location = await this.directory.findDetails(params.id)
 
     return serialize(PhysicalLocationTransformer.transform(location).useVariant('forDetailedView'))
+  }
+
+  async history({ bouncer, params, request, serialize }: HttpContext) {
+    await bouncer.with(PhysicalLocationPolicy).authorize('view')
+
+    const filters = await request.validateUsing(physicalLocationHistoryValidator)
+
+    const versions = await this.versionDirectory.list(params.id, filters)
+
+    return serialize(PhysicalLocationVersionTransformer.paginate(versions.all(), versions.getMeta()))
   }
 
   async archive({ auth, bouncer, params, request, response }: HttpContext) {

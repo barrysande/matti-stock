@@ -10,14 +10,7 @@ export default class PhysicalLocationDirectoryService {
   }
 
   private detailQuery() {
-    return PhysicalLocation.query().preload('versions', (versionQuery) => {
-      versionQuery
-        .preload('parent')
-        .preload('changedByAccount', (accountQuery) => {
-          accountQuery.preload('person')
-        })
-        .orderBy('version', 'desc')
-    })
+    return PhysicalLocation.query().preload('parent')
   }
 
   private pathFor(
@@ -78,7 +71,7 @@ export default class PhysicalLocationDirectoryService {
     })
   }
 
-  /** Loads one physical location with its complete effective-dated structural history. */
+  /** Loads one physical location from the current projection. */
   async findDetails(locationId: string) {
     const [location, hierarchy] = await Promise.all([
       this.detailQuery().where('id', locationId).firstOrFail(),

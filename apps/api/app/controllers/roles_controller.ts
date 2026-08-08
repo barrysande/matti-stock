@@ -4,13 +4,17 @@ import RolePolicy from '#policies/role_policy'
 import RoleAdministrationService from '#services/role_administration_service'
 import RoleDirectoryService from '#services/role_directory_service'
 import RoleProvisioningService from '#services/role_provisioning_service'
+import RoleVersionDirectoryService from '#services/role_version_directory_service'
 import RoleTransformer from '#transformers/role_transformer'
+import RoleVersionTransformer from '#transformers/role_version_transformer'
 import {
   administerRoleValidator,
   createRoleValidator,
   indexRolesValidator,
   renameRoleValidator,
   replaceRolePermissionsValidator,
+  roleHistoryValidator,
+  roleOptionsValidator,
 } from '#validators/role'
 
 @inject()
@@ -18,7 +22,8 @@ export default class RolesController {
   constructor(
     private administration: RoleAdministrationService,
     private directory: RoleDirectoryService,
-    private provisioning: RoleProvisioningService
+    private provisioning: RoleProvisioningService,
+    private versionDirectory: RoleVersionDirectoryService
   ) {}
 
   async store({ auth, bouncer, request, response }: HttpContext) {
@@ -71,7 +76,17 @@ export default class RolesController {
 
     const filters = await request.validateUsing(indexRolesValidator)
 
-    const roles = await this.directory.list(filters)
+    const roles = await this.directory.paginate(filters)
+
+    return serialize(RoleTransformer.paginate(roles.all(), roles.getMeta()))
+  }
+
+  async options({ bouncer, request, serialize }: HttpContext) {
+    await bouncer.with(RolePolicy).authorize('list')
+
+    const filters = await request.validateUsing(roleOptionsValidator)
+
+    const roles = await this.directory.listOptions(filters)
 
     return serialize(RoleTransformer.transform(roles))
   }
@@ -82,6 +97,16 @@ export default class RolesController {
     const role = await this.directory.findDetails(params.id)
 
     return serialize(RoleTransformer.transform(role).useVariant('forDetailedView'))
+  }
+
+  async history({ bouncer, params, request, serialize }: HttpContext) {
+    await bouncer.with(RolePolicy).authorize('view')
+
+    const filters = await request.validateUsing(roleHistoryValidator)
+
+    const versions = await this.versionDirectory.list(params.id, filters)
+
+    return serialize(RoleVersionTransformer.paginate(versions.all(), versions.getMeta()))
   }
 
   async archive({ auth, bouncer, params, request, response }: HttpContext) {

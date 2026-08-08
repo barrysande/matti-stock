@@ -8,6 +8,10 @@ export const indexPhysicalLocationsValidator = vine.create({
   includeArchived: vine.boolean().optional(),
 })
 
+export const physicalLocationHistoryValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
+})
+
 export const createPhysicalLocationValidator = vine.create({
   name: name(),
   parentId: vine.string().uuid().optional(),

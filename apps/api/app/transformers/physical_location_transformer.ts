@@ -1,6 +1,5 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type PhysicalLocation from '#models/physical_location'
-import PhysicalLocationVersionTransformer from '#transformers/physical_location_version_transformer'
 
 export default class PhysicalLocationTransformer extends BaseTransformer<PhysicalLocation> {
   toObject() {
@@ -18,9 +17,12 @@ export default class PhysicalLocationTransformer extends BaseTransformer<Physica
   forDetailedView() {
     return {
       ...this.toObject(),
-      versions: PhysicalLocationVersionTransformer.transform(
-        this.whenLoaded(this.resource.versions)
-      ),
+      parent: this.resource.parentId
+        ? {
+            id: this.resource.parent.id,
+            name: this.resource.parent.name,
+          }
+        : null,
     }
   }
 }

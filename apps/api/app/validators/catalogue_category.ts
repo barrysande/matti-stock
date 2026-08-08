@@ -14,6 +14,10 @@ export const indexCatalogueCategoriesValidator = vine.create({
   includeArchived: vine.boolean().optional(),
 })
 
+export const catalogueCategoryHistoryValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
+})
+
 export const createCatalogueCategoryValidator = vine.create({
   name: name(),
   description: description(),

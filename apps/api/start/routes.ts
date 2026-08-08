@@ -51,6 +51,7 @@ router
 router
   .group(() => {
     router.get('/', [controllers.OrganizationalUnits, 'index'])
+    router.get('/:id/history', [controllers.OrganizationalUnits, 'history'])
     router.get('/:id', [controllers.OrganizationalUnits, 'show'])
     router.post('/', [controllers.OrganizationalUnits, 'store'])
     router.post('/:id/access-impact', [controllers.OrganizationalUnits, 'accessImpact'])
@@ -65,6 +66,7 @@ router
 router
   .group(() => {
     router.get('/', [controllers.PhysicalLocations, 'index'])
+    router.get('/:id/history', [controllers.PhysicalLocations, 'history'])
     router.get('/:id', [controllers.PhysicalLocations, 'show'])
     router.post('/', [controllers.PhysicalLocations, 'store'])
     router.post('/:id/rename', [controllers.PhysicalLocations, 'rename'])
@@ -85,6 +87,8 @@ router
 router
   .group(() => {
     router.get('/', [controllers.Roles, 'index'])
+    router.get('/options', [controllers.Roles, 'options'])
+    router.get('/:id/history', [controllers.Roles, 'history'])
     router.get('/:id', [controllers.Roles, 'show'])
     router.post('/', [controllers.Roles, 'store'])
     router.post('/:id/rename', [controllers.Roles, 'rename'])
@@ -126,6 +130,7 @@ router
   .group(() => {
     router.get('/', [controllers.CatalogueCategories, 'index'])
     router.post('/creation-review', [controllers.CatalogueCategories, 'creationReview'])
+    router.get('/:id/history', [controllers.CatalogueCategories, 'history'])
     router.get('/:id', [controllers.CatalogueCategories, 'show'])
     router.post('/', [controllers.CatalogueCategories, 'store'])
     router.post('/:id/details', [controllers.CatalogueCategories, 'updateDetails'])
@@ -141,6 +146,8 @@ router
 router
   .group(() => {
     router.get('/', [controllers.BaseUnits, 'index'])
+    router.get('/options', [controllers.BaseUnits, 'options'])
+    router.get('/:id/history', [controllers.BaseUnits, 'history'])
     router.get('/:id', [controllers.BaseUnits, 'show'])
     router.post('/', [controllers.BaseUnits, 'store'])
     router.post('/:id/details', [controllers.BaseUnits, 'updateDetails'])
@@ -156,6 +163,7 @@ router
     router.get('/lookup', [controllers.CatalogueItems, 'lookup'])
     router.post('/creation-review', [controllers.CatalogueItems, 'creationReview'])
     router.post('/', [controllers.CatalogueItems, 'store'])
+    router.get('/:catalogueCode/history', [controllers.CatalogueItems, 'history'])
     router.post('/:catalogueCode/change-review', [controllers.CatalogueItems, 'changeReview'])
     router.post('/:catalogueCode/details', [controllers.CatalogueItems, 'updateDetails'])
     router.post('/:catalogueCode/classification', [

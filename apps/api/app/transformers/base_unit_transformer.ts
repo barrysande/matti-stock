@@ -1,6 +1,5 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type BaseUnit from '#models/base_unit'
-import BaseUnitVersionTransformer from '#transformers/base_unit_version_transformer'
 
 export default class BaseUnitTransformer extends BaseTransformer<BaseUnit> {
   toObject() {
@@ -18,9 +17,6 @@ export default class BaseUnitTransformer extends BaseTransformer<BaseUnit> {
   }
 
   forDetailedView() {
-    return {
-      ...this.toObject(),
-      versions: BaseUnitVersionTransformer.transform(this.whenLoaded(this.resource.versions)),
-    }
+    return this.toObject()
   }
 }

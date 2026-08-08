@@ -44,7 +44,15 @@ test.group('Catalogue item directory', (group) => {
     details.assertStatus(200)
     assert.equal(details.body().data.catalogueCode, item.catalogueCode)
     assert.notProperty(details.body().data, 'id')
-    assert.lengthOf(details.body().data.versions, 1)
+    assert.notProperty(details.body().data, 'versions')
+
+    const history = await authenticatedCatalogueRequest(
+      client.get(`/catalogue-items/${item.catalogueCode}/history`),
+      reader
+    )
+    history.assertStatus(200)
+    assert.lengthOf(history.body().data, 1)
+    assert.equal(history.body().metadata.currentPage, 1)
   })
 
   test('hides archived items from current lists while preserving canonical detail access', async ({

@@ -10,14 +10,7 @@ export default class OrganizationalUnitDirectoryService {
   }
 
   private detailQuery() {
-    return OrganizationalUnit.query().preload('versions', (versionQuery) => {
-      versionQuery
-        .preload('parent')
-        .preload('changedByAccount', (accountQuery) => {
-          accountQuery.preload('person')
-        })
-        .orderBy('version', 'desc')
-    })
+    return OrganizationalUnit.query()
   }
 
   private pathFor(
@@ -84,7 +77,7 @@ export default class OrganizationalUnitDirectoryService {
     })
   }
 
-  /** Loads one unit together with its complete effective-dated structural history. */
+  /** Loads one unit from the current organizational projection. */
   async findDetails(unitId: string) {
     const [unit, allUnits] = await Promise.all([
       this.detailQuery().where('id', unitId).firstOrFail(),

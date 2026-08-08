@@ -14,6 +14,10 @@ export const indexOrganizationalUnitsValidator = vine.create({
   includeArchived: vine.boolean().optional(),
 })
 
+export const organizationalUnitHistoryValidator = vine.create({
+  page: vine.number().withoutDecimals().min(1).optional(),
+})
+
 export const createOrganizationalUnitValidator = vine.create({
   name: name(),
   unitType: vine.enum(['DEPARTMENT', 'SUB_DEPARTMENT'] as const),

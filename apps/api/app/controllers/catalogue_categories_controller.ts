@@ -7,11 +7,14 @@ import CatalogueCategoryMergePreviewService from '#services/catalogue_category_m
 import CatalogueCategoryMergeService from '#services/catalogue_category_merge_service'
 import CatalogueCategoryProvisioningService from '#services/catalogue_category_provisioning_service'
 import CatalogueCategorySimilarityService from '#services/catalogue_category_similarity_service'
+import CatalogueCategoryVersionDirectoryService from '#services/catalogue_category_version_directory_service'
 import CatalogueCategoryCreationReviewTransformer from '#transformers/catalogue_category_creation_review_transformer'
-import CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
 import CatalogueCategoryMergePreviewTransformer from '#transformers/catalogue_category_merge_preview_transformer'
+import CatalogueCategoryTransformer from '#transformers/catalogue_category_transformer'
+import CatalogueCategoryVersionTransformer from '#transformers/catalogue_category_version_transformer'
 import {
   administerCatalogueCategoryValidator,
+  catalogueCategoryHistoryValidator,
   createCatalogueCategoryValidator,
   indexCatalogueCategoriesValidator,
   mergeCatalogueCategoryValidator,
@@ -29,7 +32,8 @@ export default class CatalogueCategoriesController {
     private mergePreview: CatalogueCategoryMergePreviewService,
     private mergeService: CatalogueCategoryMergeService,
     private provisioning: CatalogueCategoryProvisioningService,
-    private similarity: CatalogueCategorySimilarityService
+    private similarity: CatalogueCategorySimilarityService,
+    private versionDirectory: CatalogueCategoryVersionDirectoryService
   ) {}
 
   async store({ auth, bouncer, request, response }: HttpContext) {
@@ -49,9 +53,9 @@ export default class CatalogueCategoriesController {
 
     const payload = await request.validateUsing(reviewCatalogueCategoryCreationValidator)
 
-    return serialize(
-      CatalogueCategoryCreationReviewTransformer.transform(await this.similarity.review(payload))
-    )
+    const review = await this.similarity.review(payload)
+
+    return serialize(CatalogueCategoryCreationReviewTransformer.transform(review))
   }
 
   async updateDetails({ auth, bouncer, params, request, response }: HttpContext) {
@@ -83,7 +87,9 @@ export default class CatalogueCategoriesController {
 
     const filters = await request.validateUsing(indexCatalogueCategoriesValidator)
 
-    return serialize(CatalogueCategoryTransformer.transform(await this.directory.list(filters)))
+    const categories = await this.directory.list(filters)
+
+    return serialize(CatalogueCategoryTransformer.transform(categories))
   }
 
   async show({ bouncer, params, serialize }: HttpContext) {
@@ -92,6 +98,18 @@ export default class CatalogueCategoriesController {
     const category = await this.directory.findDetails(params.id)
 
     return serialize(CatalogueCategoryTransformer.transform(category).useVariant('forDetailedView'))
+  }
+
+  async history({ bouncer, params, request, serialize }: HttpContext) {
+    await bouncer.with(CatalogueCategoryPolicy).authorize('view')
+
+    const filters = await request.validateUsing(catalogueCategoryHistoryValidator)
+
+    const versions = await this.versionDirectory.list(params.id, filters)
+
+    return serialize(
+      CatalogueCategoryVersionTransformer.paginate(versions.all(), versions.getMeta())
+    )
   }
 
   async previewMerge({ bouncer, params, request, serialize }: HttpContext) {

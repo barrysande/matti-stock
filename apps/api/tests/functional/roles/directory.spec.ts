@@ -174,7 +174,7 @@ test.group('Roles directory', (group) => {
     assert.notProperty(roles.body().data[0], 'versions')
   })
 
-  test('returns complete version history and older-version assignment usage', async ({
+  test('returns paginated version history and older-version assignment usage', async ({
     client,
     assert,
   }) => {
@@ -211,15 +211,49 @@ test.group('Roles directory', (group) => {
       reason: 'Keep an older version in use',
     })
 
-    const response = await authenticatedRequest(client.get(`/roles/${role.id}`), account)
-    response.assertStatus(200)
-    assert.equal(response.body().data.currentVersion.version, 2)
-    assert.equal(response.body().data.olderVersionAssignmentCount, 1)
+    const detail = await authenticatedRequest(client.get(`/roles/${role.id}`), account)
+    detail.assertStatus(200)
+    assert.equal(detail.body().data.currentVersion.version, 2)
+    assert.equal(detail.body().data.olderVersionAssignmentCount, 1)
+    assert.notProperty(detail.body().data, 'versions')
+
+    const history = await authenticatedRequest(client.get(`/roles/${role.id}/history`), account)
+    history.assertStatus(200)
     assert.deepEqual(
-      response.body().data.versions.map((item: { version: number }) => item.version),
+      history.body().data.map((item: { version: number }) => item.version),
       [2, 1]
     )
-    assert.equal(response.body().data.versions[0].createdBy.displayName, 'Root Directory')
+    assert.equal(history.body().data[0].createdBy.displayName, 'Root Directory')
+    assert.equal(history.body().metadata.currentPage, 1)
+  })
+
+  test('paginates the directory and keeps selector options complete', async ({ client, assert }) => {
+    const { account } = await createRootActor()
+
+    for (let index = 1; index <= 20; index += 1) {
+      const role = await Role.create({
+        key: `CUSTOM_PAGE_${String(index).padStart(2, '0')}`,
+        name: `Paged Role ${String(index).padStart(2, '0')}`,
+        systemManaged: false,
+      })
+      await RoleVersion.create({
+        roleId: role.id,
+        version: 1,
+        reason: 'Test role pagination',
+        createdByAccountId: account.id,
+      })
+    }
+
+    const directory = await authenticatedRequest(client.get('/roles').qs({ page: 2 }), account)
+    directory.assertStatus(200)
+    assert.lengthOf(directory.body().data, 1)
+    assert.equal(directory.body().metadata.currentPage, 2)
+    assert.equal(directory.body().metadata.lastPage, 2)
+
+    const options = await authenticatedRequest(client.get('/roles/options'), account)
+    options.assertStatus(200)
+    assert.lengthOf(options.body().data, 21)
+    assert.notProperty(options.body(), 'metadata')
   })
 
   test('authorizes before validating filters or resolving an identifier', async ({ client }) => {

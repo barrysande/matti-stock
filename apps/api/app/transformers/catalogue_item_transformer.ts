@@ -1,6 +1,5 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import type CatalogueItem from '#models/catalogue_item'
-import CatalogueItemVersionTransformer from '#transformers/catalogue_item_version_transformer'
 import { trackingGuidance } from '#utils/catalogue_item'
 import type { CatalogueItemStockType } from '#types/catalogue'
 
@@ -55,9 +54,6 @@ export default class CatalogueItemTransformer extends BaseTransformer<CatalogueI
   }
 
   forDetailedView() {
-    return {
-      ...this.toObject(),
-      versions: CatalogueItemVersionTransformer.transform(this.whenLoaded(this.resource.versions)),
-    }
+    return this.toObject()
   }
 }

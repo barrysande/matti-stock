@@ -23,6 +23,7 @@ export type ScannedRoutes = {
     'accounts.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'accounts.reactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.index': { paramsTuple?: []; params?: {} }
+    'organizational_units.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.store': { paramsTuple?: []; params?: {} }
     'organizational_units.access_impact': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -31,6 +32,7 @@ export type ScannedRoutes = {
     'organizational_units.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.index': { paramsTuple?: []; params?: {} }
+    'physical_locations.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.store': { paramsTuple?: []; params?: {} }
     'physical_locations.rename': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -39,6 +41,8 @@ export type ScannedRoutes = {
     'physical_locations.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'permissions.index': { paramsTuple?: []; params?: {} }
     'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.options': { paramsTuple?: []; params?: {} }
+    'roles.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.store': { paramsTuple?: []; params?: {} }
     'roles.rename': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -62,6 +66,7 @@ export type ScannedRoutes = {
     'delegations.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.index': { paramsTuple?: []; params?: {} }
     'catalogue_categories.creation_review': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.store': { paramsTuple?: []; params?: {} }
     'catalogue_categories.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -71,6 +76,8 @@ export type ScannedRoutes = {
     'catalogue_categories.archive': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.restore': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
+    'base_units.options': { paramsTuple?: []; params?: {} }
+    'base_units.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.store': { paramsTuple?: []; params?: {} }
     'base_units.update_details': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -80,6 +87,7 @@ export type ScannedRoutes = {
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
     'catalogue_items.creation_review': { paramsTuple?: []; params?: {} }
     'catalogue_items.store': { paramsTuple?: []; params?: {} }
+    'catalogue_items.history': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.change_review': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.update_details': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.update_classification': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
@@ -95,11 +103,15 @@ export type ScannedRoutes = {
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'account_access_events.index': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.index': { paramsTuple?: []; params?: {} }
+    'organizational_units.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.index': { paramsTuple?: []; params?: {} }
+    'physical_locations.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'permissions.index': { paramsTuple?: []; params?: {} }
     'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.options': { paramsTuple?: []; params?: {} }
+    'roles.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.index': { paramsTuple?: []; params?: {} }
     'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -107,11 +119,15 @@ export type ScannedRoutes = {
     'delegations.proposal_options': { paramsTuple?: []; params?: {} }
     'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.index': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
+    'base_units.options': { paramsTuple?: []; params?: {} }
+    'base_units.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_items.index': { paramsTuple?: []; params?: {} }
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
+    'catalogue_items.history': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
   }
   HEAD: {
@@ -122,11 +138,15 @@ export type ScannedRoutes = {
     'accounts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'account_access_events.index': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.index': { paramsTuple?: []; params?: {} }
+    'organizational_units.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'organizational_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.index': { paramsTuple?: []; params?: {} }
+    'physical_locations.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'physical_locations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'permissions.index': { paramsTuple?: []; params?: {} }
     'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.options': { paramsTuple?: []; params?: {} }
+    'roles.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'role_assignments.index': { paramsTuple?: []; params?: {} }
     'role_assignments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -134,11 +154,15 @@ export type ScannedRoutes = {
     'delegations.proposal_options': { paramsTuple?: []; params?: {} }
     'delegations.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.index': { paramsTuple?: []; params?: {} }
+    'catalogue_categories.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_categories.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.index': { paramsTuple?: []; params?: {} }
+    'base_units.options': { paramsTuple?: []; params?: {} }
+    'base_units.history': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'base_units.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'catalogue_items.index': { paramsTuple?: []; params?: {} }
     'catalogue_items.lookup': { paramsTuple?: []; params?: {} }
+    'catalogue_items.history': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
     'catalogue_items.show': { paramsTuple: [ParamValue]; params: {'catalogueCode': ParamValue} }
   }
   POST: {

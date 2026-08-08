@@ -120,6 +120,12 @@ const routes = {
     tokens: [{"old":"/organizational-units","type":0,"val":"organizational-units","end":""}],
     types: placeholder as Registry['organizational_units.index']['types'],
   },
+  'organizational_units.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/organizational-units/:id/history',
+    tokens: [{"old":"/organizational-units/:id/history","type":0,"val":"organizational-units","end":""},{"old":"/organizational-units/:id/history","type":1,"val":"id","end":""},{"old":"/organizational-units/:id/history","type":0,"val":"history","end":""}],
+    types: placeholder as Registry['organizational_units.history']['types'],
+  },
   'organizational_units.show': {
     methods: ["GET","HEAD"],
     pattern: '/organizational-units/:id',
@@ -168,6 +174,12 @@ const routes = {
     tokens: [{"old":"/physical-locations","type":0,"val":"physical-locations","end":""}],
     types: placeholder as Registry['physical_locations.index']['types'],
   },
+  'physical_locations.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/physical-locations/:id/history',
+    tokens: [{"old":"/physical-locations/:id/history","type":0,"val":"physical-locations","end":""},{"old":"/physical-locations/:id/history","type":1,"val":"id","end":""},{"old":"/physical-locations/:id/history","type":0,"val":"history","end":""}],
+    types: placeholder as Registry['physical_locations.history']['types'],
+  },
   'physical_locations.show': {
     methods: ["GET","HEAD"],
     pattern: '/physical-locations/:id',
@@ -215,6 +227,18 @@ const routes = {
     pattern: '/roles',
     tokens: [{"old":"/roles","type":0,"val":"roles","end":""}],
     types: placeholder as Registry['roles.index']['types'],
+  },
+  'roles.options': {
+    methods: ["GET","HEAD"],
+    pattern: '/roles/options',
+    tokens: [{"old":"/roles/options","type":0,"val":"roles","end":""},{"old":"/roles/options","type":0,"val":"options","end":""}],
+    types: placeholder as Registry['roles.options']['types'],
+  },
+  'roles.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/roles/:id/history',
+    tokens: [{"old":"/roles/:id/history","type":0,"val":"roles","end":""},{"old":"/roles/:id/history","type":1,"val":"id","end":""},{"old":"/roles/:id/history","type":0,"val":"history","end":""}],
+    types: placeholder as Registry['roles.history']['types'],
   },
   'roles.show': {
     methods: ["GET","HEAD"],
@@ -354,6 +378,12 @@ const routes = {
     tokens: [{"old":"/catalogue-categories/creation-review","type":0,"val":"catalogue-categories","end":""},{"old":"/catalogue-categories/creation-review","type":0,"val":"creation-review","end":""}],
     types: placeholder as Registry['catalogue_categories.creation_review']['types'],
   },
+  'catalogue_categories.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/catalogue-categories/:id/history',
+    tokens: [{"old":"/catalogue-categories/:id/history","type":0,"val":"catalogue-categories","end":""},{"old":"/catalogue-categories/:id/history","type":1,"val":"id","end":""},{"old":"/catalogue-categories/:id/history","type":0,"val":"history","end":""}],
+    types: placeholder as Registry['catalogue_categories.history']['types'],
+  },
   'catalogue_categories.show': {
     methods: ["GET","HEAD"],
     pattern: '/catalogue-categories/:id',
@@ -408,6 +438,18 @@ const routes = {
     tokens: [{"old":"/base-units","type":0,"val":"base-units","end":""}],
     types: placeholder as Registry['base_units.index']['types'],
   },
+  'base_units.options': {
+    methods: ["GET","HEAD"],
+    pattern: '/base-units/options',
+    tokens: [{"old":"/base-units/options","type":0,"val":"base-units","end":""},{"old":"/base-units/options","type":0,"val":"options","end":""}],
+    types: placeholder as Registry['base_units.options']['types'],
+  },
+  'base_units.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/base-units/:id/history',
+    tokens: [{"old":"/base-units/:id/history","type":0,"val":"base-units","end":""},{"old":"/base-units/:id/history","type":1,"val":"id","end":""},{"old":"/base-units/:id/history","type":0,"val":"history","end":""}],
+    types: placeholder as Registry['base_units.history']['types'],
+  },
   'base_units.show': {
     methods: ["GET","HEAD"],
     pattern: '/base-units/:id',
@@ -461,6 +503,12 @@ const routes = {
     pattern: '/catalogue-items',
     tokens: [{"old":"/catalogue-items","type":0,"val":"catalogue-items","end":""}],
     types: placeholder as Registry['catalogue_items.store']['types'],
+  },
+  'catalogue_items.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/catalogue-items/:catalogueCode/history',
+    tokens: [{"old":"/catalogue-items/:catalogueCode/history","type":0,"val":"catalogue-items","end":""},{"old":"/catalogue-items/:catalogueCode/history","type":1,"val":"catalogueCode","end":""},{"old":"/catalogue-items/:catalogueCode/history","type":0,"val":"history","end":""}],
+    types: placeholder as Registry['catalogue_items.history']['types'],
   },
   'catalogue_items.change_review': {
     methods: ["POST"],
