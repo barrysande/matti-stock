@@ -37,7 +37,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<Card.Root>
+	<Card.Root class="concentric-filter">
 		<Card.Content>
 			<form
 				method="GET"

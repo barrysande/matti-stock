@@ -48,7 +48,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<Card.Root>
+	<Card.Root class="concentric-filter">
 		<Card.Content>
 			<form method="GET" class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
 				<input

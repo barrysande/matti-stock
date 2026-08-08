@@ -120,6 +120,29 @@
 	--radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Concentric geometry for compact directory-filter enclosures.
+   The inner curve follows the outer curve because the outer radius equals the
+   control radius plus the enclosure inset. Keep this utility off floating
+   controls and unrelated nested cards. */
+@utility concentric-filter {
+	--concentric-filter-inset: calc(var(--spacing) * 2);
+	--concentric-filter-inner-radius: var(--radius-3xl);
+
+	padding-inline: var(--concentric-filter-inset);
+	padding-block: var(--concentric-filter-inset) !important;
+	border-radius: calc(var(--concentric-filter-inner-radius) + var(--concentric-filter-inset));
+
+	& > [data-slot='card-content'] {
+		padding-inline: 0;
+	}
+
+	& [data-slot='input'],
+	& [data-slot='select-trigger'],
+	& [data-slot='button'] {
+		border-radius: var(--concentric-filter-inner-radius);
+	}
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;

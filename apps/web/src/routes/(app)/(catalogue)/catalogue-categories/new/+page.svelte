@@ -123,7 +123,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>Category name</Form.Label>
-							<Input {...props} bind:value={$formData.name} aria-required="true" />
+							<Input
+								{...props}
+								bind:value={$formData.name}
+								aria-required="true"
+								placeholder="e.g Computers or Motor Vehicles"
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.Description
@@ -241,7 +246,7 @@
 			<div class="min-h-0 space-y-3 overflow-y-auto pe-1">
 				{#if candidates?.length && reviewIsCurrent}
 					{#each candidates as candidate (candidate.id)}
-						<Card.Root>
+						<Card.Root class="border border-border shadow-none ring-0">
 							<Card.Header>
 								<div class="flex items-start justify-between gap-3">
 									<div>

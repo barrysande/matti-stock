@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import EmptyState from '$lib/components/empty-state.svelte';
+	import HierarchyDirectory from '$lib/components/hierarchy-directory.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
-	import StatusBadge from '$lib/components/status-badge.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
 	import { IconPlus, IconSearch } from '@tabler/icons-svelte';
 
 	let { data } = $props();
@@ -15,6 +14,17 @@
 	// This value initializes again after the ordinary GET form navigation completes.
 	// svelte-ignore state_referenced_locally
 	let archiveVisibility = $state<string>(data.filters.includeArchived ? 'ALL' : 'ACTIVE');
+
+	const directoryItems = $derived(
+		data.directory.data.map((location) => ({
+			id: location.id,
+			parentId: location.parentId,
+			name: location.name,
+			path: location.path,
+			href: resolve(`/locations/${location.id}`),
+			status: location.archivedAt ? 'ARCHIVED' : 'ACTIVE'
+		}))
+	);
 </script>
 
 <svelte:head><title>Physical locations · MaTTI Stock</title></svelte:head>
@@ -30,7 +40,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<Card.Root class="min-w-0">
+	<Card.Root class="min-w-0 concentric-filter">
 		<Card.Content>
 			<form method="GET" class="grid min-w-0 gap-3 md:grid-cols-[minmax(12rem,1fr)_13rem_auto]">
 				<div class="relative min-w-0">
@@ -68,47 +78,7 @@
 	</Card.Root>
 
 	{#if data.directory.data.length}
-		<div class="grid gap-3 md:hidden">
-			{#each data.directory.data as location (location.id)}
-				<a
-					href={resolve(`/locations/${location.id}`)}
-					class="rounded-xl border bg-card p-4 shadow-xs hover:bg-accent/50"
-				>
-					<div class="flex items-start justify-between gap-3">
-						<div class="min-w-0">
-							<p class="font-medium">{location.name}</p>
-							<p class="mt-1 text-xs leading-5 text-muted-foreground">{location.path}</p>
-						</div>
-						<StatusBadge status={location.archivedAt ? 'ARCHIVED' : 'ACTIVE'} />
-					</div>
-				</a>
-			{/each}
-		</div>
-		<div class="hidden overflow-hidden rounded-xl border md:block">
-			<Table.Root>
-				<Table.Header>
-					<Table.Row>
-						<Table.Head>Location</Table.Head>
-						<Table.Head>Status</Table.Head>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{#each data.directory.data as location (location.id)}
-						<Table.Row>
-							<Table.Cell>
-								<a href={resolve(`/locations/${location.id}`)} class="font-medium hover:underline">
-									{location.name}
-								</a>
-								<p class="mt-1 text-xs text-muted-foreground">{location.path}</p>
-							</Table.Cell>
-							<Table.Cell>
-								<StatusBadge status={location.archivedAt ? 'ARCHIVED' : 'ACTIVE'} />
-							</Table.Cell>
-						</Table.Row>
-					{/each}
-				</Table.Body>
-			</Table.Root>
-		</div>
+		<HierarchyDirectory items={directoryItems} hierarchical={!data.filters.search} />
 	{:else}
 		<EmptyState
 			title="No physical locations found"

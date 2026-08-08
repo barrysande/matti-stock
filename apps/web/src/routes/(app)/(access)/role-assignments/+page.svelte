@@ -44,7 +44,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<Card.Root>
+	<Card.Root class="concentric-filter">
 		<Card.Content>
 			<form method="GET" class="grid gap-3 md:grid-cols-[1fr_1fr_12rem_auto]">
 				<input type="hidden" name="roleId" value={selectedRole === 'ALL' ? '' : selectedRole} />

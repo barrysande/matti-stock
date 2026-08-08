@@ -57,7 +57,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<Card.Root class="min-w-0">
+	<Card.Root class="min-w-0 concentric-filter">
 		<Card.Content>
 			<form method="GET" class="grid min-w-0 gap-3 lg:grid-cols-4 xl:grid-cols-6">
 				<div class="relative min-w-0 lg:col-span-2">

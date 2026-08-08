@@ -4,7 +4,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { cn } from '$lib/utils.js';
-	import { IconDotsVertical, IconLockPassword, IconLogout } from '@tabler/icons-svelte';
+	import { IconLockPassword, IconLogout, IconSelector } from '@tabler/icons-svelte';
 
 	let {
 		account
@@ -26,7 +26,9 @@
 	);
 
 	function closeMobileSidebar() {
-		if (sidebar.isMobile) sidebar.setOpenMobile(false);
+		if (sidebar.isMobile) {
+			sidebar.setOpenMobile(false);
+		}
 	}
 </script>
 
@@ -38,7 +40,7 @@
 					<Sidebar.MenuButton
 						{...props}
 						size="lg"
-						class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+						class="border data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
 						<Avatar.Root class="size-8 rounded-lg">
 							<Avatar.Fallback class="rounded-lg">{initials}</Avatar.Fallback>
@@ -47,7 +49,7 @@
 							<span class="truncate font-medium">{account.person.displayName}</span>
 							<span class="truncate text-xs text-muted-foreground">{account.account.email}</span>
 						</div>
-						<IconDotsVertical class="ms-auto size-4" />
+						<IconSelector class="ms-auto size-4" />
 					</Sidebar.MenuButton>
 				{/snippet}
 			</DropdownMenu.Trigger>

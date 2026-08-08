@@ -40,9 +40,9 @@
 		{ href: '/delegations', label: 'Delegations', icon: IconRepeat }
 	] as const;
 	const catalogue = [
-		{ href: '/catalogue-items', label: 'Catalogue items', icon: IconPackage },
 		{ href: '/catalogue-categories', label: 'Categories', icon: IconTags },
-		{ href: '/base-units', label: 'Base units', icon: IconRulerMeasure }
+		{ href: '/base-units', label: 'Base units', icon: IconRulerMeasure },
+		{ href: '/catalogue-items', label: 'Catalogue items', icon: IconPackage }
 	] as const;
 	const administration = [
 		{ href: '/accounts', label: 'Accounts', icon: IconUsers },
@@ -105,7 +105,9 @@
 	}
 
 	function closeMobileSidebar() {
-		if (sidebar.isMobile) sidebar.setOpenMobile(false);
+		if (sidebar.isMobile) {
+			sidebar.setOpenMobile(false);
+		}
 	}
 
 	function toggleSection(section: NavigationSection) {
@@ -128,8 +130,8 @@
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Header>
-	<Sidebar.Content>
-		<Sidebar.Group>
+	<Sidebar.Content class="gap-0">
+		<Sidebar.Group class="py-1">
 			<Sidebar.GroupLabel class="h-auto px-0">
 				<button
 					type="button"
@@ -165,7 +167,7 @@
 				</Sidebar.GroupContent>
 			{/if}
 		</Sidebar.Group>
-		<Sidebar.Group>
+		<Sidebar.Group class="py-1">
 			<Sidebar.GroupLabel class="h-auto px-0">
 				<button
 					type="button"
@@ -202,7 +204,7 @@
 			{/if}
 		</Sidebar.Group>
 		{#if isRoot}
-			<Sidebar.Group>
+			<Sidebar.Group class="py-1">
 				<Sidebar.GroupLabel class="h-auto px-0">
 					<button
 						type="button"

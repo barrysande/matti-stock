@@ -1,25 +1,24 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import EmptyState from '$lib/components/empty-state.svelte';
+	import HierarchyDirectory from '$lib/components/hierarchy-directory.svelte';
 	import PageHeader from '$lib/components/page-header.svelte';
-	import StatusBadge from '$lib/components/status-badge.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
 	import { IconPlus, IconSearch } from '@tabler/icons-svelte';
 
 	let { data } = $props();
 
-	// These values initialize again after the ordinary GET form navigation completes.
-	// svelte-ignore state_referenced_locally
-	let selectedUnitType = $state<string>(data.filters.unitType ?? 'ALL');
-	// svelte-ignore state_referenced_locally
-	let archiveVisibility = $state<string>(data.filters.includeArchived ? 'ALL' : 'ACTIVE');
+	let selectedUnitType = $derived<string>(data.filters.unitType ?? 'ALL');
+
+	let archiveVisibility = $derived<string>(data.filters.includeArchived ? 'ALL' : 'ACTIVE');
 
 	function unitTypeLabel(value: string) {
-		if (value === 'SUB_DEPARTMENT') return 'Sub-department';
+		if (value === 'SUB_DEPARTMENT') {
+			return 'Sub-department';
+		}
 
 		return value.toLowerCase().replace(/^./, (character) => character.toUpperCase());
 	}
@@ -27,6 +26,18 @@
 	function selectedUnitTypeLabel() {
 		return selectedUnitType === 'ALL' ? 'All unit types' : unitTypeLabel(selectedUnitType);
 	}
+
+	const directoryItems = $derived(
+		data.directory.data.map((unit) => ({
+			id: unit.id,
+			parentId: unit.parentId,
+			name: unit.name,
+			path: unit.path,
+			metadata: unitTypeLabel(unit.unitType),
+			href: resolve(`/organization/${unit.id}`),
+			status: unit.archivedAt ? 'ARCHIVED' : 'ACTIVE'
+		}))
+	);
 </script>
 
 <svelte:head><title>Organization · MaTTI Stock</title></svelte:head>
@@ -42,7 +53,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<Card.Root class="min-w-0">
+	<Card.Root class="min-w-0 concentric-filter">
 		<Card.Content>
 			<form
 				method="GET"
@@ -102,50 +113,10 @@
 	</Card.Root>
 
 	{#if data.directory.data.length}
-		<div class="grid gap-3 md:hidden">
-			{#each data.directory.data as unit (unit.id)}
-				<a
-					href={resolve(`/organization/${unit.id}`)}
-					class="rounded-xl border bg-card p-4 shadow-xs hover:bg-accent/50"
-				>
-					<div class="flex items-start justify-between gap-3">
-						<div class="min-w-0">
-							<p class="font-medium">{unit.name}</p>
-							<p class="mt-1 text-xs leading-5 text-muted-foreground">{unit.path}</p>
-						</div>
-						<StatusBadge status={unit.archivedAt ? 'ARCHIVED' : 'ACTIVE'} />
-					</div>
-					<p class="mt-3 text-sm text-muted-foreground">{unitTypeLabel(unit.unitType)}</p>
-				</a>
-			{/each}
-		</div>
-		<div class="hidden overflow-hidden rounded-xl border md:block">
-			<Table.Root>
-				<Table.Header>
-					<Table.Row>
-						<Table.Head>Unit</Table.Head>
-						<Table.Head>Type</Table.Head>
-						<Table.Head>Status</Table.Head>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{#each data.directory.data as unit (unit.id)}
-						<Table.Row>
-							<Table.Cell>
-								<a href={resolve(`/organization/${unit.id}`)} class="font-medium hover:underline">
-									{unit.name}
-								</a>
-								<p class="mt-1 text-xs text-muted-foreground">{unit.path}</p>
-							</Table.Cell>
-							<Table.Cell>{unitTypeLabel(unit.unitType)}</Table.Cell>
-							<Table.Cell>
-								<StatusBadge status={unit.archivedAt ? 'ARCHIVED' : 'ACTIVE'} />
-							</Table.Cell>
-						</Table.Row>
-					{/each}
-				</Table.Body>
-			</Table.Root>
-		</div>
+		<HierarchyDirectory
+			items={directoryItems}
+			hierarchical={!data.filters.search && !data.filters.unitType}
+		/>
 	{:else}
 		<EmptyState
 			title="No organizational units found"
